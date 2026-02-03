@@ -61,6 +61,12 @@
     variant = "";
   };
   
+  fonts = {
+      packages = with pkgs; [
+        maple-mono.truetype
+      ];
+    };
+
   programs.dms-shell = {
     enable = true;
 
@@ -107,10 +113,6 @@
     isNormalUser = true;
     home = "/home/john";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-      kdePackages.kate
-    #  thunderbird
-    ];
   };
 
   # Git
@@ -122,6 +124,11 @@
   # Neovim
   programs.neovim.enable = true;
 
+  programs = {
+      fish.enable = true;
+      pay-respects.enable = true;
+    };
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -131,6 +138,8 @@
     xwayland-satellite # Needed for X11 apps
     super-productivity
     fuzzel
+    kdePackages.kate
+    starship
     fastfetch
     wezterm
     wget
