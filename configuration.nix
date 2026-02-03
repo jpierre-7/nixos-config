@@ -138,6 +138,8 @@
     xwayland-satellite # Needed for X11 apps
     super-productivity
     fuzzel
+    gcc
+    gnumake
     kdePackages.kate
     starship
     fastfetch
