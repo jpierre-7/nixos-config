@@ -115,18 +115,13 @@
     extraGroups = [ "networkmanager" "wheel" ];
   };
 
-  # Git
-  programs.git.enable = true;
-
-  # Niri
-  programs.niri.enable = true;
-
-  # Neovim
-  programs.neovim.enable = true;
-
+  # Programs
   programs = {
       fish.enable = true;
       pay-respects.enable = true;
+      git.enable = true;
+      niri.enable = true;
+      neovim.enable = true;
     };
 
   # Allow unfree packages
@@ -137,7 +132,7 @@
   environment.systemPackages = with pkgs; [
     xwayland-satellite # Needed for X11 apps
     super-productivity
-    fuzzel
+    vicinae
     gcc
     gnumake
     kdePackages.kate
