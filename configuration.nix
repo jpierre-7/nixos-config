@@ -132,8 +132,8 @@
   environment.systemPackages = with pkgs; [
     xwayland-satellite # Needed for X11 apps
     super-productivity
-    vicinae
     gcc
+    vicinae
     gnumake
     kdePackages.kate
     starship
