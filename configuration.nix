@@ -132,6 +132,7 @@
   environment.systemPackages = with pkgs; [
     xwayland-satellite # Needed for X11 apps
     super-productivity
+    ani-cli
     gcc
     vicinae
     gnumake
