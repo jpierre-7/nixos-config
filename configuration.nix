@@ -115,6 +115,17 @@
     extraGroups = [ "networkmanager" "wheel" ];
   };
 
+  # onlyoffice
+  services.onlyoffice = {
+    enable = true;
+    securityNonceFile = "/run/secrets/onlyoffice-nonce";
+  };
+
+  systemd.tmpfiles.rules = [
+    "f /run/secrets/onlyoffice-nonce 0600 onlyoffice onlyoffice -"
+  ];
+
+
   # Programs
   programs = {
       fish.enable = true;
@@ -122,10 +133,25 @@
       git.enable = true;
       niri.enable = true;
       neovim.enable = true;
-    };
+  };
+
+  programs.nix-ld.enable = true;
+
+  programs.vscode = {
+    enable = true;
+
+    extensions = with pkgs.vscode-extensions; [
+      ms-python.python
+      ms-toolsai.jupyter
+      mechatroner.rainbow-csv
+      dracula-theme.theme-dracula
+    ];
+  }; 
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+
+  programs.lazygit.enable = true;
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -134,17 +160,26 @@
     super-productivity
     ani-cli
     gcc
+    imagemagick
+    lua55Packages.luarocks
+    fd
+    ripgrep
     vicinae
+    burpsuite
+    unzip
     gnumake
     kdePackages.kate
     starship
     fastfetch
     wezterm
+    python315
     wget
     discord
     brave
     vivaldi
   ];
+
+  services.tailscale.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
