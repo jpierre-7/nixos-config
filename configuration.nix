@@ -149,6 +149,7 @@
     xwayland-satellite # Needed for X11 apps
     inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     ani-cli
+    calibre
     lsd
     gcc
     imagemagick
