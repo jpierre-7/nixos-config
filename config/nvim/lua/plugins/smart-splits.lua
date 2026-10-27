@@ -1,5 +1,8 @@
 return {
   "mrjones2014/smart-splits.nvim",
+  -- v3 moved WezTerm support (and the IS_NVIM user var config/wezterm/keys.lua
+  -- checks) into a separate backend plugin. Stay on v2 until migrating.
+  tag = "v2.1.1-final",
   lazy = false, -- must load at startup so it can set IS_NVIM for WezTerm
   keys = {
     { "<C-h>",   function() require("smart-splits").move_cursor_left() end,  desc = "Move left" },
