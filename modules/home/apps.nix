@@ -14,11 +14,10 @@ let
 in
 {
   home.packages = with pkgs; [
-    # Codecs and Widevine are what Vivaldi downloads by itself on Arch.
-    (vivaldi.override {
-      proprietaryCodecs = true;
-      enableWidevine = true;
-    })
+    # Widevine as on Arch. No proprietaryCodecs: nixpkgs' chromium-codecs-ffmpeg-extra
+    # lags Vivaldi and it fails to start (undefined av_* symbol). Without it, Vivaldi
+    # downloads matching codecs into ~/.local/lib/vivaldi on first run, as on Arch.
+    (vivaldi.override { enableWidevine = true; })
     signal-desktop
     slack
     vesktop
