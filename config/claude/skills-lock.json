@@ -1,0 +1,46 @@
+{
+  "version": 2,
+  "comment": "Skill content is vendored into this repo so Home Manager links it onto every device without a network fetch. To refresh a skill, re-copy skillPath from source at a newer commit and update the pinned commit here.",
+  "skills": {
+    "claude-handoff": {
+      "source": "https://github.com/mattpocock/skills.git",
+      "skillPath": "skills/in-progress/claude-handoff",
+      "commit": "24fe0ef7737efae15c87225755e9f6f5965e4888",
+      "note": "rest of the family comes from the mattpocock-skills plugin; this one isn't in the plugin yet"
+    },
+    "asd-ste100": {
+      "source": "https://github.com/danyuchn/asd-ste100-skill.git",
+      "skillPath": ".",
+      "commit": "32511c6992ecb5f1971e46a2943f2e6adceedafe"
+    },
+    "design-taste-frontend": {
+      "source": "https://github.com/Leonxlnx/taste-skill.git",
+      "skillPath": "skills/taste-skill",
+      "commit": "ccbc15639c97057cbfcf32ecebc38ef716e4bb37"
+    },
+    "find-skills": {
+      "source": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills",
+      "commit": "80feb48868972d518436f26711509bc78595b5cb"
+    },
+    "minimalist-ui": {
+      "source": "https://github.com/Leonxlnx/taste-skill.git",
+      "skillPath": "skills/minimalist-skill",
+      "commit": "ccbc15639c97057cbfcf32ecebc38ef716e4bb37"
+    },
+    "redesign-existing-projects": {
+      "source": "https://github.com/Leonxlnx/taste-skill.git",
+      "skillPath": "skills/redesign-skill",
+      "commit": "ccbc15639c97057cbfcf32ecebc38ef716e4bb37"
+    },
+    "herdr": { "source": "herdr --skill", "note": "printed by the installed herdr binary; refresh with: herdr --skill > herdr/SKILL.md" },
+    "anti-ai-slop-writing": { "source": "unknown", "note": "upstream not recorded when it was added (e92af6e)" },
+    "caveman": { "source": "local", "note": "caveman family + cavecrew; no upstream repo, refresh by re-copying from ~/.agents/skills" },
+    "caveman-commit": { "source": "local", "note": "see caveman" },
+    "caveman-compress": { "source": "local", "note": "see caveman" },
+    "caveman-help": { "source": "local", "note": "see caveman" },
+    "caveman-review": { "source": "local", "note": "see caveman" },
+    "caveman-stats": { "source": "local", "note": "see caveman" },
+    "cavecrew": { "source": "local", "note": "see caveman" }
+  }
+}

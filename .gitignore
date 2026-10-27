@@ -1,0 +1,8 @@
+# nix build output links
+result
+result-*
+
+# Syncthing, if this repo is shared between the machines that way
+.stfolder/
+.stversions/
+*.sync-conflict-*
