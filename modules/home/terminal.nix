@@ -1,0 +1,39 @@
+{
+  programs.wezterm = {
+    enable = true;
+    extraConfig = builtins.readFile ../../config/wezterm/wezterm.lua;
+    # Alternative to the default "Gruvbox Dark (Gogh)" scheme.
+    colorSchemes.dank-theme = {
+      background = "#17130b";
+      foreground = "#ebe1d4";
+      cursor_bg = "#ffc107";
+      cursor_fg = "#17130b";
+      cursor_border = "#ffc107";
+      selection_bg = "#4a3c00";
+      selection_fg = "#ebe1d4";
+      ansi = [
+        "#17130b"
+        "#ff1b02"
+        "#2aff07"
+        "#ffd500"
+        "#f2b500"
+        "#765800"
+        "#ffc107"
+        "#fff7e1"
+      ];
+      brights = [
+        "#a59f8d"
+        "#ff5545"
+        "#6aff51"
+        "#ffe251"
+        "#ffca2c"
+        "#ffd351"
+        "#ffe38f"
+        "#fffbf2"
+      ];
+    };
+  };
+
+  # wezterm.lua does `require("keys")`.
+  xdg.configFile."wezterm/keys.lua".source = ../../config/wezterm/keys.lua;
+}
