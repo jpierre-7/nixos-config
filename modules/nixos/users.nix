@@ -6,7 +6,7 @@
 
   # No password in this public repo: set it with `passwd` after installing
   # (see the README), or switch to hashedPasswordFile with sops-nix/agenix.
-  users.users.jpierre = {
+  users.users.john = {
     isNormalUser = true;
     description = "John Pierre";
     extraGroups = [

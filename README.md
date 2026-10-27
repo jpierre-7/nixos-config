@@ -6,7 +6,7 @@ NixOS module. It replaces my Arch + GNU Stow
 full system with one `nixos-install` (or `nixos-rebuild switch`).
 
 - nixpkgs **nixos-26.05**, Home Manager **release-26.05** (keep them on the same release)
-- Hosts: `desktop` and `laptop`; user `jpierre` on both
+- Hosts: `desktop` and `laptop`; user `john` on both
 
 | Piece | Choice |
 |---|---|
@@ -31,7 +31,7 @@ hosts/<host>/           default.nix (hostname-specific bits, stateVersion)
                         niri-outputs.kdl (desktop only: monitor layout)
 modules/nixos/          system modules (boot, networking, audio, desktop, ...)
 modules/home/           Home Manager modules (shell, terminal, editor, apps, ...)
-home/jpierre.nix        my user's entry point
+home/john.nix           my user's entry point
 config/                 plain config files that the modules read or link
 ```
 
@@ -103,8 +103,8 @@ needed.
 
    ```sh
    nix-shell -p git
-   git clone https://github.com/jpierre-7/nixos-config.git /mnt/home/jpierre/nixos-config
-   cd /mnt/home/jpierre/nixos-config
+   git clone https://github.com/jpierre-7/nixos-config.git /mnt/home/john/nixos-config
+   cd /mnt/home/john/nixos-config
    cp /mnt/etc/nixos/hardware-configuration.nix hosts/desktop/hardware-configuration.nix
    git add hosts/desktop/hardware-configuration.nix   # flakes only see files git tracks
    ```
@@ -117,7 +117,7 @@ needed.
 5. **Install:**
 
    ```sh
-   nixos-install --flake /mnt/home/jpierre/nixos-config#desktop
+   nixos-install --flake /mnt/home/john/nixos-config#desktop
    ```
 
    It asks for a root password at the end.
@@ -126,8 +126,8 @@ needed.
    yourself the checkout:
 
    ```sh
-   nixos-enter --root /mnt -c 'passwd jpierre'
-   nixos-enter --root /mnt -c 'chown -R jpierre:users /home/jpierre/nixos-config'
+   nixos-enter --root /mnt -c 'passwd john'
+   nixos-enter --root /mnt -c 'chown -R john:users /home/john/nixos-config'
    reboot
    ```
 
@@ -193,7 +193,7 @@ NixOS releases come out in May and November (26.05 → 26.11 → 27.05).
 3. `nix flake update`, then `sudo nixos-rebuild switch --flake .` and fix any
    evaluation errors or warnings.
 4. **Leave `system.stateVersion` (in `hosts/*/default.nix`) and
-   `home.stateVersion` (in `home/jpierre.nix`) at `"26.05"`.** They record the
+   `home.stateVersion` (in `home/john.nix`) at `"26.05"`.** They record the
    release each machine was first installed with, so stateful services
    (databases, data formats) keep working. They are not the version you run.
    Change them only after reading what the release notes say would migrate.
@@ -330,6 +330,6 @@ need one are done by hand after install (user password, `tailscale up`,
 To declare any of them later, use [sops-nix](https://github.com/Mic92/sops-nix)
 or [agenix](https://github.com/ryantm/agenix). Both keep secrets encrypted in
 the repo and decrypt them on the machine at activation time. Examples:
-`users.users.jpierre.hashedPasswordFile`,
+`users.users.john.hashedPasswordFile`,
 `services.tailscale.authKeyFile`. Never put a secret in a plain Nix string: it
 ends up world-readable in `/nix/store`.

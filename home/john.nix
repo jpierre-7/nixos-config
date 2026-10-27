@@ -1,5 +1,5 @@
-# Home Manager entry point for jpierre (same on every host). Host-specific
-# user settings go in hosts/<host>/default.nix under home-manager.users.jpierre.
+# Home Manager entry point for john (same on every host). Host-specific
+# user settings go in hosts/<host>/default.nix under home-manager.users.john.
 {
   imports = [ ../modules/home ];
 

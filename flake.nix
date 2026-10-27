@@ -1,5 +1,5 @@
 {
-  description = "NixOS configuration for jpierre's desktop and laptop";
+  description = "NixOS configuration for john's desktop and laptop";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
@@ -31,7 +31,7 @@
       # Where this repo is cloned on each machine. Configs that apps rewrite
       # themselves (and the Neovim config) are symlinked here instead of into
       # the read-only Nix store, so they stay editable without a rebuild.
-      repoDir = "/home/jpierre/nixos-config";
+      repoDir = "/home/john/nixos-config";
 
       mkHost =
         hostname:
@@ -49,7 +49,7 @@
                 # Move pre-existing files aside instead of failing the first switch.
                 backupFileExtension = "hm-backup";
                 extraSpecialArgs = { inherit inputs repoDir; };
-                users.jpierre = ./home/jpierre.nix;
+                users.john = ./home/john.nix;
               };
             }
           ];
@@ -57,7 +57,7 @@
 
       # Package set of a real host, so checks use the same versions (and overlay) as the machines.
       pkgs = self.nixosConfigurations.desktop.pkgs;
-      hm = self.nixosConfigurations.desktop.config.home-manager.users.jpierre;
+      hm = self.nixosConfigurations.desktop.config.home-manager.users.john;
     in
     {
       nixosConfigurations = {
