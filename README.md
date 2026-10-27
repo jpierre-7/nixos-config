@@ -160,9 +160,11 @@ This is how the desktop was set up. It works, with a few extra steps:
 
 - Name the installer's user **`john`**. This config declares only `john`, and
   the first rebuild deletes any other account the installer created.
-- Clone and generate the hardware configuration as above, without `--root`:
+- Clone and generate the hardware configuration as above, without `--root`.
+  The installed system has no git yet, so get a shell with it first:
 
   ```sh
+  nix-shell -p git
   git clone https://github.com/jpierre-7/nixos-config.git ~/nixos-config
   cd ~/nixos-config
   nixos-generate-config --show-hardware-config > hosts/laptop/hardware-configuration.nix
