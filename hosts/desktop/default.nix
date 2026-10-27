@@ -7,7 +7,7 @@
 
   # Niri's config.kdl ends with `include optional=true "host.kdl"`; this fills it
   # with the desktop's monitor layout.
-  home-manager.users.jpierre.xdg.configFile."niri/host.kdl".source = ./niri-outputs.kdl;
+  home-manager.users.john.xdg.configFile."niri/host.kdl".source = ./niri-outputs.kdl;
 
   # Release this machine was first installed with. Leave it alone on upgrades
   # (see the README); it is not the NixOS version you are running.
