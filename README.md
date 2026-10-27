@@ -63,8 +63,8 @@ settings belong in that state file, not in the repo.
 
 ## Fresh install (from the NixOS ISO)
 
-The steps are the same for both machines; replace `desktop` with `laptop` as
-needed.
+The steps are the same for both machines. Every command reads the machine from
+`$host`, so the blocks can be pasted as they are.
 
 1. **Boot the ISO in UEFI mode** with Secure Boot off (neither the ISO nor
    this Limine setup is signed; `ls /sys/firmware/efi` must succeed). Use the
@@ -72,6 +72,13 @@ needed.
    `sudo -i`. Get online: wired works automatically. For Wi-Fi on the graphical
    ISO, use the network applet. On the minimal ISO, use `nmtui` if it's there,
    otherwise `wpa_cli` (see the NixOS manual, "Networking in the installer").
+   Then name the machine you are installing:
+
+   ```sh
+   host=laptop    # or: host=desktop
+   ```
+
+   If it has an NVIDIA GPU, read "Graphics" below first.
 
 2. **Partition** (UEFI, GPT). This wipes the disk. Find the disk name with
    `lsblk` and use it in place of `/dev/nvme0n1`. Make the ESP **1 GiB**:
@@ -89,35 +96,35 @@ needed.
    mount --mkdir -o umask=077 /dev/disk/by-label/boot /mnt/boot
    ```
 
-3. **Generate the hardware configuration** for this machine:
+3. **Clone this repo and generate the hardware configuration** (filesystems,
+   kernel modules, CPU microcode) straight into it. The ISO has git.
 
    ```sh
-   nixos-generate-config --root /mnt
-   ```
-
-   It writes `/mnt/etc/nixos/hardware-configuration.nix` (filesystems, kernel
-   modules, CPU microcode). Ignore the `configuration.nix` it writes beside it.
-
-4. **Clone this repo** into the new home directory and put the generated file
-   in place of the placeholder:
-
-   ```sh
-   nix-shell -p git
    git clone https://github.com/jpierre-7/nixos-config.git /mnt/home/john/nixos-config
    cd /mnt/home/john/nixos-config
-   cp /mnt/etc/nixos/hardware-configuration.nix hosts/desktop/hardware-configuration.nix
-   git add hosts/desktop/hardware-configuration.nix   # flakes only see files git tracks
+   nixos-generate-config --root /mnt --show-hardware-config > hosts/$host/hardware-configuration.nix
+   git add hosts/$host/hardware-configuration.nix   # flakes only see files git tracks
    ```
 
-   The committed `hardware-configuration.nix` files are placeholders. They
-   evaluate, so `nix flake check` works before any machine exists, but a
-   pre-switch check makes `nixos-install` and `nixos-rebuild` refuse to install
-   them. If you see "still the placeholder", this step was skipped.
+   The committed `hardware-configuration.nix` files are placeholders until a
+   machine's real one replaces them. They evaluate, so `nix flake check` works,
+   but a pre-switch check makes `nixos-install` and `nixos-rebuild` refuse to
+   install them. If you see "still the placeholder", this step was skipped.
+
+4. **Delete old Limine boot entries.** The firmware keeps its boot entries
+   when the disk is wiped. If one named `Limine` is left from an earlier
+   install, NixOS reuses it at its old place in the boot order instead of
+   putting Limine first, and the machine keeps booting something else. With no
+   old entry, the new one goes first.
+
+   ```sh
+   for n in $(efibootmgr | sed -n 's/^Boot\([0-9A-Fa-f]\{4\}\)\*\{0,1\} Limine.*/\1/p'); do efibootmgr -q -b $n -B; done
+   ```
 
 5. **Install:**
 
    ```sh
-   nixos-install --flake /mnt/home/john/nixos-config#desktop
+   nixos-install --flake /mnt/home/john/nixos-config#$host
    ```
 
    It asks for a root password at the end.
@@ -131,18 +138,50 @@ needed.
    reboot
    ```
 
+   You should get the Limine menu, then the cosmic-greeter login, then niri.
+   If the machine starts something else instead, open the firmware setup
+   (usually F2 or Del at power-on) and make Limine the first boot option. The
+   desktop's firmware ignored boot-order changes made from Linux.
+
 7. **Commit the hardware configuration** after logging in, so the next install
-   of this machine has it. If `flake.lock` didn't exist yet, `nixos-install`
-   created it; commit it too, and install the other machine after pushing, so
-   both get the same versions:
+   of this machine has it. `gh auth login` also sets up git to push over HTTPS.
 
    ```sh
    cd ~/nixos-config
    gh auth login
-   git add flake.lock hosts/desktop/hardware-configuration.nix
-   git commit -m "Add desktop hardware configuration"
+   git add hosts/*/hardware-configuration.nix
+   git commit -m "Add hardware configuration"
    git push
    ```
+
+### Already installed with the graphical installer
+
+This is how the desktop was set up. It works, with a few extra steps:
+
+- Name the installer's user **`john`**. This config declares only `john`, and
+  the first rebuild deletes any other account the installer created.
+- Clone and generate the hardware configuration as above, without `--root`:
+
+  ```sh
+  git clone https://github.com/jpierre-7/nixos-config.git ~/nixos-config
+  cd ~/nixos-config
+  nixos-generate-config --show-hardware-config > hosts/laptop/hardware-configuration.nix
+  git add hosts/laptop/hardware-configuration.nix
+  ```
+
+- In a terminal window (sudo can't ask for a password elsewhere), apply it for
+  the next boot. A live `switch` would end the GNOME session, and the boot
+  loader changes from systemd-boot to Limine:
+
+  ```sh
+  sudo nixos-rebuild boot --flake ~/nixos-config#laptop
+  reboot
+  ```
+
+- If you still get systemd-boot's menu (GNOME entries), make Limine the first
+  boot option in the firmware setup.
+- `sudo rm /etc/nixos/configuration.nix`, so a rebuild without `--flake` fails
+  instead of bringing GNOME back. Then commit as in step 7.
 
 ### One-time steps after the first login
 
@@ -155,7 +194,11 @@ These need an account or a login, so they can't be declared:
   rewrites `settings.json`, review the diff.
 - Syncthing: open http://127.0.0.1:8384 and pair the two machines (device IDs
   are per machine).
-- Open `nvim` once and let lazy.nvim install plugins.
+- Open `nvim` once and let lazy.nvim install plugins. It installs the commits
+  in `config/nvim/lazy-lock.json`. `:Lazy update` and `:Lazy sync` (`U`/`S` in
+  its window) move past them; commit the lock file after updating on purpose,
+  or `:Lazy restore` to go back.
+- Vivaldi downloads its media codecs on first start; restart it when it asks.
 
 ## Everyday use
 
