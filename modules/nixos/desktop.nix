@@ -17,6 +17,9 @@
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.greetd.enableGnomeKeyring = true;
 
+  # Trash, removable drives and network locations in Nautilus.
+  services.gvfs.enable = true;
+
   # Mesa OpenGL/Vulkan. Enough for AMD and Intel GPUs on a non-gaming setup.
   hardware.graphics.enable = true;
 

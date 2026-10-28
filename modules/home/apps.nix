@@ -22,6 +22,9 @@ in
     slack
     vesktop
 
+    # File manager; niri floats it (config.kdl). Trash and mounts need gvfs (desktop.nix).
+    nautilus
+
     vscode
     zed-editor
 
