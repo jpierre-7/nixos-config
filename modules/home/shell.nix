@@ -22,6 +22,7 @@
       lta = "lsd --tree -a";
       nv = "nvim";
       lg = "lazygit";
+      nrs = "sudo nixos-rebuild switch --flake ~/nixos-config";
       vg = "ssh veggie.ooapi.com";
       # `qqq` + space -> `cd ../../../`
       qcd = {
