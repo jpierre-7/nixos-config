@@ -195,7 +195,8 @@ These need an account or a login, so they can't be declared:
   which the SessionStart hook in `config/claude/settings.json` runs. If it
   rewrites `settings.json`, review the diff.
 - Syncthing: open http://127.0.0.1:8384 and pair the two machines (device IDs
-  are per machine).
+  are per machine). Don't share `~/nixos-config` there; git keeps it in sync
+  (see [Everyday use](#everyday-use)).
 - Open `nvim` once and let lazy.nvim install plugins. It installs the commits
   in `config/nvim/lazy-lock.json`. `:Lazy update` and `:Lazy sync` (`U`/`S` in
   its window) move past them; commit the lock file after updating on purpose,
@@ -213,6 +214,18 @@ sudo nixos-rebuild switch --flake ~/nixos-config#laptop # explicit
 
 Home Manager is part of the system build, so this updates your dotfiles too.
 Use `nixos-rebuild boot` instead of `switch` to apply on the next reboot.
+The fish abbreviation `nrs` expands to the first line.
+
+### Keeping both machines in sync
+
+Git is the only sync for this repo. Commit and push from the machine where you
+made the change, then on the other one:
+
+```sh
+nup   # git pull, then nixos-rebuild switch
+```
+
+Each machine has to rebuild on its own; pulling only changes the files.
 
 ### Routine updates
 
