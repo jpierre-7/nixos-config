@@ -5,12 +5,12 @@
     "flakes"
   ];
 
-  # Weekly cleanup. Generations younger than two weeks stay, so recent
+  # Weekly cleanup. Generations younger than a week stay, so recent
   # rollbacks keep working.
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 14d";
+    options = "--delete-older-than 7d";
   };
   nix.optimise.automatic = true;
 
