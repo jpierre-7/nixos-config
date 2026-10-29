@@ -14,9 +14,11 @@
   };
 
   # Log in once with `sudo tailscale up`. "client" loosens reverse-path
-  # filtering so exit nodes and subnet routes work.
+  # filtering so exit nodes and subnet routes work. --ssh turns on Tailscale
+  # SSH: `ssh john@desktop` from the tailnet, no sshd or open port needed.
   services.tailscale = {
     enable = true;
     useRoutingFeatures = "client";
+    extraSetFlags = [ "--ssh" ];
   };
 }
