@@ -16,6 +16,11 @@
       url = "github:jpierre-7/Wallpapers";
       flake = false;
     };
+    # Patched AirPods daemon for the Noctalia AirPods plugin; built by pkgs/librepods.nix.
+    librepods = {
+      url = "github:harveywuk/librepods";
+      flake = false;
+    };
   };
 
   outputs =

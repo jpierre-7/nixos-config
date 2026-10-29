@@ -36,6 +36,7 @@ in
         "wallpaper"
         "workspaces"
         "group:g2"
+        "airpods"
       ];
       widget_spacing = 10;
 
@@ -86,6 +87,9 @@ in
     plugins.enabled = [
       "noctalia/bitwarden"
       "noctalia/bongocat"
+      "noctalia/notes"
+      "noctalia/wallhaven"
+      "harveywuk/airpods" # needs the librepods daemon from airpods.nix
     ];
 
     shell.font_family = "Maple Mono";
@@ -99,6 +103,10 @@ in
 
     wallpaper.default.path = "${config.home.homeDirectory}/Pictures/Wallpapers/armored_girl.png";
 
+    widget.airpods = {
+      type = "harveywuk/airpods:airpods";
+      hide_when_disconnected = false;
+    };
     widget.clock.format = "{:%I:%M %p}";
     widget.media = {
       max_length = 100;
