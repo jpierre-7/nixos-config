@@ -23,6 +23,8 @@
       nv = "nvim";
       lg = "lazygit";
       nrs = "sudo nixos-rebuild switch --flake ~/nixos-config";
+      # Pull changes made on the other machine, then rebuild.
+      nup = "git -C ~/nixos-config pull && sudo nixos-rebuild switch --flake ~/nixos-config";
       vg = "ssh veggie.ooapi.com";
       # `qqq` + space -> `cd ../../../`
       qcd = {
