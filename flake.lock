@@ -21,6 +21,22 @@
         "type": "github"
       }
     },
+    "librepods": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787754350,
+        "narHash": "sha256-Ygoqz5lnGMwZkys+Q4c4pyAUI0llvpGZ/ij5E91CkAg=",
+        "owner": "harveywuk",
+        "repo": "librepods",
+        "rev": "4ed49df0b301ac3e6fba9c81dfbbb6726cc52201",
+        "type": "github"
+      },
+      "original": {
+        "owner": "harveywuk",
+        "repo": "librepods",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1793015021,
@@ -56,6 +72,7 @@
     "root": {
       "inputs": {
         "home-manager": "home-manager",
+        "librepods": "librepods",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "wallpapers": "wallpapers"

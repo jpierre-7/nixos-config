@@ -1,6 +1,7 @@
 # Home Manager configuration shared by every host.
 {
   imports = [
+    ./airpods.nix
     ./apps.nix
     ./claude.nix
     ./dev.nix
