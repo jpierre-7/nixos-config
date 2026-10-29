@@ -1,6 +1,11 @@
 {
   networking.networkmanager.enable = true;
 
+  # systemd-resolved owns DNS instead of openresolv. Tailscale hands MagicDNS
+  # to it per interface rather than rewriting /etc/resolv.conf, which lost the
+  # router as upstream resolver on the desktop.
+  services.resolved.enable = true;
+
   # NixOS's own firewall replaces firewalld. Syncthing runs as a Home Manager
   # user service, which can't open ports, so its sync and local-discovery
   # ports are opened here.
