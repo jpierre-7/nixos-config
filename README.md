@@ -106,10 +106,10 @@ The steps are the same for both machines. Every command reads the machine from
    git add hosts/$host/hardware-configuration.nix   # flakes only see files git tracks
    ```
 
-   The committed `hardware-configuration.nix` files are placeholders until a
-   machine's real one replaces them. They evaluate, so `nix flake check` works,
-   but a pre-switch check makes `nixos-install` and `nixos-rebuild` refuse to
-   install them. If you see "still the placeholder", this step was skipped.
+   Don't skip this on a reinstall. The committed `hardware-configuration.nix`
+   is from the machine's previous install and mounts filesystems by UUID.
+   Formatting gave the partitions new UUIDs, so the old file still installs
+   but the system can't find its disks at boot.
 
 4. **Delete old Limine boot entries.** The firmware keeps its boot entries
    when the disk is wiped. If one named `Limine` is left from an earlier
@@ -276,7 +276,7 @@ For a one-off without installing: `nix shell nixpkgs#<name>` or
 ### Rolling back
 
 Every rebuild is a new generation, and older ones stay until garbage collection
-(weekly, keeps the last 14 days; see `modules/nixos/nix.nix`).
+(weekly, keeps the last 7 days; see `modules/nixos/nix.nix`).
 
 ```sh
 sudo nixos-rebuild switch --rollback          # back to the previous generation
