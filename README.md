@@ -61,6 +61,17 @@ read-only by `modules/home/noctalia.nix`, and anything changed in its GUI goes
 to `~/.local/state/noctalia/settings.toml`, which overrides it. Per-monitor
 settings belong in that state file, not in the repo.
 
+Two things follow from that:
+
+- A key set in the state file replaces the repo's value as a whole. Enabling
+  one plugin in the GUI saves the machine's entire `plugins.enabled` list
+  there, so plugins added to the repo later never reach that machine. To
+  share a GUI change, copy it into `noctalia.nix` and delete the key from the
+  state file.
+- Noctalia downloads enabled plugins only when it starts. After a rebuild
+  that adds a plugin, log out and back in (or restart Noctalia) before its
+  widget shows up.
+
 ## Fresh install (from the NixOS ISO)
 
 The steps are the same for both machines. Every command reads the machine from
