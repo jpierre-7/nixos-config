@@ -23,6 +23,12 @@
     wget
     wl-clipboard
 
+    # Git hooks: pre-commit runs each repo's .pre-commit-config.yaml. gitleaks
+    # is installed here so repos can use the `gitleaks-system` hook instead of
+    # having pre-commit build gitleaks with Go on first run.
+    pre-commit
+    gitleaks
+
     nodejs # includes npm
     python3 # for scripts; project venvs use uv
     uv
