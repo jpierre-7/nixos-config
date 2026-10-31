@@ -152,6 +152,11 @@ overview {
 environment {
   XDG_CURRENT_DESKTOP "niri"
 }
+// Theme installed by home.pointerCursor (modules/home/niri.nix); keep in sync.
+cursor {
+    xcursor-theme "ComixCursors-Black"
+    xcursor-size 32
+}
 hotkey-overlay {
     skip-at-startup
 }
