@@ -13,6 +13,7 @@ in
   inherit (unstable)
     noctalia # Noctalia v5: stable has 5.0.1, unstable follows the 5.x releases
     herdr # not packaged on stable
+    kanata # 1.12 adds defhands and tap-hold-opposite-hand, which the home-row mods use
     claude-code # ships several times a week; stable lags months behind
     ;
 }

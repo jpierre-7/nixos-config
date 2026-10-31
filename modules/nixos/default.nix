@@ -6,7 +6,7 @@
     ./boot.nix
     ./desktop.nix
     ./fonts.nix
-    ./keyd.nix
+    ./kanata.nix
     ./locale.nix
     ./networking.nix
     ./nix-ld.nix

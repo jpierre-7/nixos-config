@@ -1,0 +1,48 @@
+;; Kanata keymap for every keyboard. modules/nixos/kanata.nix reads this file
+;; and generates the defcfg, so it must not contain one. Adapted from
+;; https://github.com/HefKer/dots/tree/main/kanata (home-row mods only, without
+;; its Fn layers). Emergency exit if kanata misbehaves: LCtrl+Space+Esc.
+
+(defsrc
+  esc  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rmet menu rctl
+)
+
+(defhands
+  (left  1 2 3 4 5 q w e r t a s d f g z x c v b)
+  (right 6 7 8 9 0 - = y u i o p [ ] \ h j k l ; ' n m , . /))
+
+(defvar
+  hrm-timeout 200
+  ;; A hold that starts this soon after another key (mid-word) stays a letter.
+  hrm-idle    150
+  ;; Tap then hold within this many ms to repeat the letter (j/k in Neovim).
+  hrm-repress 200
+  ;; A same-hand mod waits instead of tapping, so a+f still chords to Super+Shift.
+  left-mods  (neutral-keys a s d f)
+  right-mods (neutral-keys j k l ;))
+
+;; -release: an opposite-hand key must go down and up while held, so a roll
+;; (f↓ o↓ f↑) stays "fo". A same-hand key always taps, which keeps rolls like
+;; "as" or "fast" as letters.
+(deftemplate hrm (key mod mods)
+  (tap-hold-opposite-hand-release $hrm-timeout $key $mod
+    (same-hand tap) (timeout hold) (require-prior-idle $hrm-idle) (tap-repress-timeout $hrm-repress) $mods))
+
+;; GACS order, mirrored. lalt rather than ralt on the right, because ralt is
+;; AltGr under an international xkb layout.
+(defalias
+  hra (t! hrm a lmet $left-mods)   hrs (t! hrm s lalt $left-mods)
+  hrd (t! hrm d lctl $left-mods)   hrf (t! hrm f lsft $left-mods)
+  hrj (t! hrm j rsft $right-mods)  hrk (t! hrm k rctl $right-mods)
+  hrl (t! hrm l lalt $right-mods)  hr; (t! hrm ; rmet $right-mods))
+
+;; Caps Lock -> Escape, previously done by keyd. Unlisted keys fall through to
+;; defsrc.
+(deflayermap (base)
+  caps esc
+  a @hra  s @hrs  d @hrd  f @hrf
+  j @hrj  k @hrk  l @hrl  ; @hr;)
