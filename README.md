@@ -18,7 +18,7 @@ full system with one `nixos-install` (or `nixos-rebuild switch`).
 | Boot | Limine (UEFI) |
 | Network | NetworkManager, Tailscale, NixOS firewall |
 | Sync | Syncthing (user service) |
-| Keys | keyd: Caps Lock → Escape |
+| Keys | kanata: home-row mods, Caps Lock → Escape (`config/kanata/keymap.kbd`) |
 | Font | Maple Mono (+ Nerd Font builds), Noto, Noto Color Emoji |
 
 ## Layout
@@ -316,12 +316,13 @@ Everything comes from stable except these, pulled from `nixpkgs-unstable` in
 |---|---|
 | `noctalia` | Noctalia v5; stable has 5.0.1, unstable follows the 5.x releases |
 | `herdr` | Not packaged on stable |
+| `kanata` | 1.12 adds `defhands` and opposite-hand tap-hold, which the home-row mods need |
 | `claude-code` | Ships several times a week; stable is months behind |
 
 ## How the Arch setup maps
 
 Packages from the old `packages/pacman.txt` map to nixpkgs packages or NixOS /
-Home Manager modules of the same name (`programs.fish`, `services.keyd`,
+Home Manager modules of the same name (`programs.fish`,
 `services.tailscale`, ...). The cases that need a note:
 
 | Arch (AUR / other) | Here |
@@ -340,6 +341,7 @@ Home Manager modules of the same name (`programs.fish`, `services.keyd`,
 | `yay`, `stow`, `base-devel` | Dropped; Home Manager replaces Stow, `gcc`/`gnumake`/`pkg-config` remain |
 | `grub`, `efibootmgr` | Limine (`modules/nixos/boot.nix`) |
 | `firewalld` | NixOS firewall (`networking.firewall`) |
+| `keyd` | kanata (`modules/nixos/kanata.nix`), which adds home-row mods |
 | `zram-generator` | `zramSwap.enable` |
 | GPU driver packages | Mesa only (`hardware.graphics.enable`); see "Graphics" below |
 | archinstall's Niri profile (alacritty, fuzzel, mako, swaybg, swayidle, swaylock, waybar), `network-manager-applet` | Dropped: Noctalia covers bar, notifications, wallpaper, lock screen and network |
