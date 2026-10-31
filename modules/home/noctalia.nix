@@ -45,6 +45,7 @@ in
         "wallhaven"
         "group:g1"
         "screen-toolkit"
+        "bitwarden"
       ];
       color = "secondary";
       end = [
@@ -67,7 +68,6 @@ in
         "workspaces"
         "group:g2"
         "airpods"
-        "bitwarden"
       ];
       widget_spacing = 10;
 
