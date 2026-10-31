@@ -35,4 +35,6 @@ in
     freerdp
     anydesk
   ];
+
+  programs.calibre.enable = true;
 }
