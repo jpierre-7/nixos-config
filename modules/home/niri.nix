@@ -10,8 +10,8 @@
   # apps it spawns from the `cursor` block in config.kdl; keep the name and
   # size there in sync with these.
   home.pointerCursor = {
-    package = pkgs.comixcursors.Black;
-    name = "ComixCursors-Black";
+    package = pkgs.comixcursors.Opaque_Blue;
+    name = "ComixCursors-Opaque-Blue";
     # Smallest size the theme ships (32/40/48/64); 24 would just be rounded up.
     size = 32;
     gtk.enable = true;

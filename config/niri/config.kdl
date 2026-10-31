@@ -154,7 +154,7 @@ environment {
 }
 // Theme installed by home.pointerCursor (modules/home/niri.nix); keep in sync.
 cursor {
-    xcursor-theme "ComixCursors-Black"
+    xcursor-theme "ComixCursors-Opaque-Blue"
     xcursor-size 32
 }
 hotkey-overlay {
