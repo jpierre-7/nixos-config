@@ -23,6 +23,11 @@
   # Mesa OpenGL/Vulkan. Enough for AMD and Intel GPUs on a non-gaming setup.
   hardware.graphics.enable = true;
 
+  # Fullscreen recording in Noctalia's Screen Toolkit plugin
+  # (modules/home/noctalia.nix). The module adds the capability wrapper
+  # gpu-screen-recorder needs to capture a monitor without the portal prompt.
+  programs.gpu-screen-recorder.enable = true;
+
   # Noctalia's battery and power-profile widgets need these (see its NixOS docs).
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
