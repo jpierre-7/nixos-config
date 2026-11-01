@@ -32,10 +32,10 @@ in
       lua-language-server
       stylua
       shfmt
-      # lang.json, lang.markdown, lang.toml
+      # lang.json, lang.markdown, lang.toml (markdownlint-cli2 is turned off
+      # in config/nvim/lua/plugins/markdown.lua, so it isn't installed)
       vscode-langservers-extracted
       marksman
-      markdownlint-cli2
       markdown-toc
       prettier
       taplo
