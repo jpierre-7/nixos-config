@@ -1,6 +1,6 @@
 onboarding = false
 [theme]
-name = "gruvbox"
+name = "terminal"
 auto_switch = false
 
 [terminal]

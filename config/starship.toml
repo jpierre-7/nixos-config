@@ -1,51 +1,55 @@
 add_newline = true
 
 format = """\
-[󱞬 ](g_fg)[](g_red)$os$username$sudo\
-[▓▒░](fg:g_red bg:g_orange)$directory\
-[▓▒░](fg:g_orange bg:g_yellow)$nix_shell$cmd_duration$status\
-[ ](g_yellow)[  ](g_fg)$fill[   ](g_fg)\
-[ ](g_green)$git_branch$git_status\
-[▓▒░](fg:g_green bg:g_aqua)$c$deno$golang$java$lua$nim$nodejs$ruby$rust$php$python\
-[▓▒░](fg:g_aqua bg:g_blue)$package\
-[▓▒░](fg:g_blue bg:g_purple)$time\
-[](g_purple)
-[󱞪 ](g_fg)$character\
+[󱞬 ](text)[](primary)$os$username$sudo\
+[▓▒░](fg:primary bg:secondary)$directory\
+[▓▒░](fg:secondary bg:tertiary)$nix_shell$cmd_duration$status\
+[ ](tertiary)[  ](text)$fill[   ](text)\
+[ ](primary)$git_branch$git_status\
+[▓▒░](fg:primary bg:secondary)$c$deno$golang$java$lua$nim$nodejs$ruby$rust$php$python\
+[▓▒░](fg:secondary bg:tertiary)$package\
+[▓▒░](fg:tertiary bg:primary)$time\
+[](primary)
+[󱞪 ](text)$character\
 """
 
-palette = "gruvbox_gradient"
+palette = "noctalia"
 
-[palettes.gruvbox_gradient]
-g_red = "#fb4934"
-g_orange = "#fe8019"
-g_yellow = "#fabd2f"
-g_green = "#b8bb26"
-g_aqua = "#8ec07c"
-g_blue = "#83a598"
-g_purple = "#d3869b"
-g_bg = "#282828"
-g_fg = "#ebdbb2"
+# Noctalia renders this file to ~/.config/starship.toml with its current
+# palette whenever the wallpaper or theme changes (modules/home/noctalia.nix).
+# The names are Noctalia's Material color roles; each on_* is the text color
+# that reads on the matching background.
+[palettes.noctalia]
+primary = "{{colors.primary.default.hex}}"
+on_primary = "{{colors.on_primary.default.hex}}"
+secondary = "{{colors.secondary.default.hex}}"
+on_secondary = "{{colors.on_secondary.default.hex}}"
+tertiary = "{{colors.tertiary.default.hex}}"
+on_tertiary = "{{colors.on_tertiary.default.hex}}"
+error = "{{colors.error.default.hex}}"
+on_error = "{{colors.on_error.default.hex}}"
+text = "{{colors.terminal_foreground.default.hex}}"
 
 [os]
-style = "fg:g_bg bg:g_red"
+style = "fg:on_primary bg:primary"
 disabled = false
 symbols = { Arch = " ", NixOS = "󱄅 " }
 
 [username]
 disabled = false
 show_always = true
-style_user = "fg:g_bg bg:g_red"
-style_root = "fg:g_bg bg:g_red"
+style_user = "fg:on_primary bg:primary"
+style_root = "fg:on_primary bg:primary"
 format = "[$user]($style)"
 
 [sudo]
 disabled = false
 symbol = " "
-style = "fg:g_bg bg:g_red"
+style = "fg:on_primary bg:primary"
 format = "[$symbol]($style)"
 
 [directory]
-style = "fg:g_bg bg:g_orange bold"
+style = "fg:on_secondary bg:secondary bold"
 format = "[$path]($style)"
 truncation_length = 4
 truncation_symbol = "…/"
@@ -60,102 +64,102 @@ truncate_to_repo = false
 
 [nix_shell]
 format = "[ 󱄅 $name]($style)"
-style = "fg:g_bg bg:g_yellow bold"
+style = "fg:on_tertiary bg:tertiary bold"
 
 [cmd_duration]
 format = "[  $duration]($style)"
-style = "fg:g_bg bg:g_yellow bold"
+style = "fg:on_tertiary bg:tertiary bold"
 
 [status]
 disabled = false
-symbol = "[  ](fg:g_red bg:g_yellow)"
-success_symbol = "[ 󰗡 ](fg:g_green bg:g_yellow)"
-success_style = "fg:g_green bg:g_yellow"
-failure_style = "fg:g_red bg:g_yellow"
+symbol = "[  ](fg:error bg:tertiary)"
+success_symbol = "[ 󰗡 ](fg:on_tertiary bg:tertiary)"
+success_style = "fg:on_tertiary bg:tertiary"
+failure_style = "fg:error bg:tertiary"
 format = "$symbol([$status]($style))"
 
 [git_branch]
 symbol = ""
-style = "fg:g_bg bg:g_green italic"
+style = "fg:on_primary bg:primary italic"
 format = "[$symbol $branch]($style)"
 
 [git_status]
-style = "fg:g_bg bg:g_green italic"
+style = "fg:on_primary bg:primary italic"
 format = "[$all_status$ahead_behind]($style)"
 
 [c]
 symbol = ""
-style = "fg:g_bg bg:g_aqua"
+style = "fg:on_secondary bg:secondary"
 format = "[$symbol $version]($style)"
 
 [deno]
 symbol = "🦖"
-style = "fg:g_bg bg:g_aqua"
+style = "fg:on_secondary bg:secondary"
 format = "[$symbol $version]($style)"
 
 [golang]
 symbol = " "
-style = "fg:g_bg bg:g_aqua"
+style = "fg:on_secondary bg:secondary"
 format = "[$symbol $version]($style)"
 
 [java]
 symbol = ""
-style = "fg:g_bg bg:g_aqua"
+style = "fg:on_secondary bg:secondary"
 format = "[$symbol $version]($style)"
 
 [php]
 symbol = ""
-style = "fg:g_bg bg:g_aqua"
+style = "fg:on_secondary bg:secondary"
 format = "[$symbol $version]($style)"
 
 [python]
 symbol = ""
-style = "fg:g_bg bg:g_aqua"
+style = "fg:on_secondary bg:secondary"
 format = "[$symbol $version]($style)"
 
 [lua]
 symbol = ""
-style = "fg:g_bg bg:g_aqua"
+style = "fg:on_secondary bg:secondary"
 format = "[$symbol $version]($style)"
 
 [nim]
 symbol = "󰆥"
-style = "fg:g_bg bg:g_aqua"
+style = "fg:on_secondary bg:secondary"
 format = "[$symbol $version]($style)"
 
 [nodejs]
 symbol = ""
-style = "fg:g_bg bg:g_aqua"
+style = "fg:on_secondary bg:secondary"
 format = "[$symbol $version]($style)"
 
 [ruby]
 symbol = ""
-style = "fg:g_bg bg:g_aqua"
+style = "fg:on_secondary bg:secondary"
 format = "[$symbol $version]($style)"
 
 [rust]
 symbol = ""
-style = "fg:g_bg bg:g_aqua"
+style = "fg:on_secondary bg:secondary"
 format = "[$symbol $version]($style)"
 
 [package]
 symbol = "󰏗 "
 format = "[$symbol$version]($style)"
-style = "fg:g_bg bg:g_blue"
+style = "fg:on_tertiary bg:tertiary"
 
 [fill]
 symbol = "  "
-style = "g_fg"
+style = "text"
 
 [time]
 disabled = false
 time_format = "%I:%M%p"
-style = "fg:g_bg bg:g_purple bold"
+style = "fg:on_primary bg:primary bold"
 format = "[ $time]($style)"
 
 [character]
-success_symbol = "[](g_aqua) [I](bold fg:g_bg bg:g_green)"
-error_symbol = "[](g_aqua) [I](bold fg:g_bg bg:g_green)"
-vimcmd_symbol = "[](g_aqua) [N](bold fg:g_bg bg:g_blue)"
-vimcmd_visual_symbol = "[](g_aqua) [V](bold fg:g_bg bg:g_purple)"
-vimcmd_replace_one_symbol = "[](g_aqua) [R](bold fg:g_bg bg:g_red)"
+success_symbol = "[](secondary) [I](bold fg:on_primary bg:primary)"
+error_symbol = "[](secondary) [I](bold fg:on_primary bg:primary)"
+vimcmd_symbol = "[](secondary) [N](bold fg:on_secondary bg:secondary)"
+vimcmd_visual_symbol = "[](secondary) [V](bold fg:on_tertiary bg:tertiary)"
+vimcmd_replace_one_symbol = "[](secondary) [R](bold fg:on_error bg:error)"

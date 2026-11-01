@@ -49,7 +49,7 @@
       "effortLevel": "high"
     }
   },
-  "theme": "dark",
+  "theme": "custom:noctalia",
   "editorMode": "vim",
   "autoScrollEnabled": false,
   "remoteControlAtStartup": false,

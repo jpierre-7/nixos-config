@@ -133,10 +133,57 @@ in
     shell.screenshot.directory = "${config.home.homeDirectory}/Pictures/Screenshots";
 
     theme = {
-      builtin = "Gruvbox";
       mode = "dark";
-      source = "builtin";
-      wallpaper_scheme = "m3-content";
+      source = "wallpaper";
+      wallpaper_scheme = "faithful";
+
+      # Noctalia re-renders these whenever its palette changes (wallpaper,
+      # scheme, light/dark). They replace its built-in and community
+      # templates for the same apps, whose hooks edit the apps' configs in
+      # place: that fails on read-only store files and would rewrite the live
+      # ones in this repo on every wallpaper change. These write only their
+      # output; the apps reread it or get a reload hook. herdr needs no
+      # template: its "terminal" theme draws with WezTerm's colors.
+      templates.user = {
+        # The whole prompt config is the template, so ~/.config/starship.toml
+        # is Noctalia's output, not a Home Manager link (shell.nix).
+        starship = {
+          input_path = "${../../config/starship.toml}";
+          output_path = "$XDG_CONFIG_HOME/starship.toml";
+        };
+        # Reloaded through wezterm.lua's config reload watch.
+        wezterm = {
+          input_path = "${pkgs.noctalia}/share/noctalia/assets/templates/wezterm/wezterm.toml";
+          output_path = "$XDG_CONFIG_HOME/wezterm/colors/Noctalia.toml";
+        };
+        # A full colorscheme, selected in config/nvim/lua/plugins/colorscheme.lua.
+        # It lands in the live nvim config, where it is gitignored. Running
+        # Neovims reload it on SIGUSR1.
+        neovim = {
+          input_path = "${inputs.noctalia-templates}/lazyvim/noctalia.lua";
+          output_path = "$XDG_CONFIG_HOME/nvim/colors/noctalia.lua";
+          post_hook = "${pkgs.procps}/bin/pkill -USR1 -x nvim || true";
+        };
+        # Selected in config/vicinae/settings.json. Re-selecting it is how the
+        # community template's hook makes the running server pick up the new
+        # file; with the name already set, settings.json stays unchanged.
+        vicinae = {
+          input_path = "${inputs.noctalia-templates}/vicinae/vicinae.toml";
+          output_path = "$XDG_DATA_HOME/vicinae/themes/noctalia.toml";
+          post_hook = "${config.programs.vicinae.package}/bin/vicinae theme set noctalia";
+        };
+        # Claude Code's UI theme, selected as "custom:noctalia" in
+        # config/claude/settings.json. Claude Code reloads it on change.
+        claude-code = {
+          input_path = "${inputs.noctalia-templates}/claude-code/claude-code.json";
+          output_path = "${config.home.homeDirectory}/.claude/themes/noctalia.json";
+        };
+        # Sourced by the Claude Code status line (config/claude/statusline.sh).
+        claude-statusline = {
+          input_path = "${../../config/claude/statusline-colors.sh}";
+          output_path = "$XDG_CACHE_HOME/noctalia/claude-statusline-colors.sh";
+        };
+      };
     };
 
     wallpaper.default.path = "${config.home.homeDirectory}/Pictures/Wallpapers/armored_girl.png";

@@ -59,10 +59,11 @@
     '';
   };
 
-  programs.starship = {
-    enable = true;
-    settings = lib.importTOML ../../config/starship.toml;
-  };
+  # No settings here: config/starship.toml is a Noctalia template, and
+  # Noctalia writes ~/.config/starship.toml from it in its current colors
+  # (modules/home/noctalia.nix). Until it has run once, starship uses its
+  # default prompt.
+  programs.starship.enable = true;
 
   programs.lsd = {
     enable = true;

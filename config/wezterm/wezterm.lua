@@ -9,10 +9,19 @@ config.default_prog = { "fish", "-l" }
 -- Kitty graphics protocol, so terminal programs can draw images inline
 config.enable_kitty_graphics = true
 
-config.color_scheme = "Gruvbox Dark (Gogh)"
+-- Colors follow Noctalia, which renders colors/Noctalia.toml from its palette
+-- and rewrites it when the wallpaper or theme changes (modules/home/noctalia.nix).
+-- Watching the file reloads this config, so open windows recolor too. Until
+-- Noctalia has written it once, WezTerm keeps its default colors and tab bar.
+local noctalia_scheme = wezterm.config_dir .. "/colors/Noctalia.toml"
+wezterm.add_to_config_reload_watch_list(noctalia_scheme)
+local has_scheme, color_scheme = pcall(wezterm.color.load_scheme, noctalia_scheme)
+if has_scheme then
+	config.color_schemes = { Noctalia = color_scheme }
+	config.color_scheme = "Noctalia"
+end
 config.window_background_opacity = 0.95
-local color_scheme = wezterm.color.get_builtin_schemes()[config.color_scheme]
-local accent = "#fe8019" -- Gruvbox orange
+local accent = has_scheme and color_scheme.tab_bar.active_tab.bg_color -- Noctalia primary
 
 config.font = wezterm.font("Maple Mono")
 config.font_size = 14
@@ -33,9 +42,9 @@ local function tab_title(tab_info)
 	if not title:find(" ") then
 		title = " " .. title
 	elseif title:find(".+@.+:%s.+") then
-		title = "󢳀 " .. title
+		title = "󰣀 " .. title
 	elseif title:find("^sudo ") then
-		title = "󢖝 " .. title
+		title = "󰦝 " .. title
 	elseif title:find("^ Gemini") then
 		title = title:gsub("^ Gemini", " ")
 	elseif title:find("^nv ") or title:find("^nvim ") then
@@ -61,6 +70,9 @@ local function tab_title(tab_info)
 end
 
 wezterm.on("format-tab-title", function(tab, _, _, _, hover, max_width)
+	if not has_scheme then
+		return
+	end
 	local edge_background = color_scheme.tab_bar.background
 	local edge_foreground = color_scheme.tab_bar.new_tab.bg_color
 	local text_background = color_scheme.tab_bar.new_tab.bg_color
@@ -97,7 +109,16 @@ wezterm.on("format-tab-title", function(tab, _, _, _, hover, max_width)
 end)
 
 wezterm.on("update-right-status", function(window, pane)
-	local cwd = pane:get_current_working_dir().file_path
+	if not has_scheme then
+		return
+	end
+	-- nil until the pane's shell reports a directory (OSC 7)
+	local cwd_url = pane:get_current_working_dir()
+	if not cwd_url then
+		window:set_right_status("")
+		return
+	end
+	local cwd = cwd_url.file_path
 	local cells = {
 		{ Background = { Color = color_scheme.tab_bar.background } },
 		{ Foreground = { Color = accent } },

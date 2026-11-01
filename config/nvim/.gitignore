@@ -6,3 +6,6 @@ debug
 foo.*
 *.log
 data
+
+# Rendered by Noctalia (modules/home/noctalia.nix)
+colors/noctalia.lua

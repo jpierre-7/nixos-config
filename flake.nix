@@ -21,6 +21,12 @@
       url = "github:harveywuk/librepods";
       flake = false;
     };
+    # Noctalia's community theme templates, the ones its Templates store
+    # downloads. modules/home/noctalia.nix renders the Neovim and Vicinae ones.
+    noctalia-templates = {
+      url = "github:noctalia-dev/community-templates";
+      flake = false;
+    };
   };
 
   outputs =

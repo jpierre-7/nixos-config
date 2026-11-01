@@ -12,7 +12,10 @@
    "$schema": "https://vicinae.com/schemas/config.json",
    "theme": {
       "dark": {
-         "name": "gruvbox-dark"
+         "name": "noctalia"
+      },
+      "light": {
+         "name": "noctalia"
       }
    }
 }

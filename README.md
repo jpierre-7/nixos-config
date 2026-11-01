@@ -72,6 +72,33 @@ Two things follow from that:
   that adds a plugin, log out and back in (or restart Noctalia) before its
   widget shows up.
 
+The terminal, prompt, editor, launcher and Claude Code (theme and status
+line) take their colors from Noctalia. `noctalia.nix` registers a template
+for each, and Noctalia renders them again each time its palette changes (new
+wallpaper, palette source, scheme or light/dark mode):
+
+| Output | Template | Picked up by |
+|---|---|---|
+| `~/.config/wezterm/colors/Noctalia.toml` | Noctalia's WezTerm template | `wezterm.lua` loads it and reloads when it changes |
+| `~/.config/starship.toml` | `config/starship.toml` | Starship, on the next prompt |
+| `~/.config/nvim/colors/noctalia.lua` (gitignored) | community `lazyvim` | LazyVim's colorscheme; open Neovims reload on SIGUSR1 |
+| `~/.local/share/vicinae/themes/noctalia.toml` | community `vicinae` | Vicinae, through `vicinae theme set noctalia` |
+| `~/.claude/themes/noctalia.json` | community `claude-code` | Claude Code (`"theme": "custom:noctalia"` in `config/claude/settings.json`), on change |
+| `~/.cache/noctalia/claude-statusline-colors.sh` | `config/claude/statusline-colors.sh` | `statusline.sh`, on its next update |
+
+herdr uses its built-in `terminal` theme, which draws with WezTerm's colors,
+so it follows along without a template. The community templates come from the
+`noctalia-templates` flake input; `nix flake update noctalia-templates`
+refreshes them.
+
+The outputs are Noctalia's, so don't edit them. `config/starship.toml` is the
+whole prompt config, with the palette as template placeholders, so Home
+Manager doesn't link `starship.toml`: to change the prompt, edit the repo
+file and rebuild. If an output looks stale, run `noctalia msg
+templates-apply`. Don't enable the matching templates under Noctalia's
+Templates page. Their hooks edit the apps' configs in place, which fails on
+the read-only ones and rewrites the live ones in this repo.
+
 ## Fresh install (from the NixOS ISO)
 
 The steps are the same for both machines. Every command reads the machine from
