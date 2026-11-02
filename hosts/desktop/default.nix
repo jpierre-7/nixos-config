@@ -9,6 +9,13 @@
   # with the desktop's monitor layout.
   home-manager.users.john.xdg.configFile."niri/host.kdl".source = ./niri-outputs.kdl;
 
+  # Wake-on-LAN, so the laptop's `wake-desktop` can power this machine on.
+  # NetworkManager owns the wired NICs and would reset their WoL setting, so
+  # tell it to arm magic-packet wake (flag 0x40) on every ethernet connection,
+  # the global form of `nmcli c modify <conn> 802-3-ethernet.wake-on-lan magic`.
+  # The firmware must also allow waking from LAN/PCIe (see the README).
+  networking.networkmanager.settings.connection."ethernet.wake-on-lan" = 64;
+
   # Release this machine was first installed with. Leave it alone on upgrades
   # (see the README); it is not the NixOS version you are running.
   system.stateVersion = "26.05";

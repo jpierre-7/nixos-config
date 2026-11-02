@@ -240,6 +240,10 @@ These need an account or a login, so they can't be declared:
   its window) move past them; commit the lock file after updating on purpose,
   or `:Lazy restore` to go back.
 - Vivaldi downloads its media codecs on first start; restart it when it asks.
+- Wake-on-LAN (desktop): in the firmware setup, turn on wake from LAN/PCIe
+  ("Power On By PCI-E", "Wake on LAN") and turn off ErP / deep sleep, which
+  cuts power to the NIC. See [Waking the desktop](#waking-the-desktop) for the
+  router side.
 
 ## Everyday use
 
@@ -264,6 +268,33 @@ nup   # git pull, then nixos-rebuild switch
 ```
 
 Each machine has to rebuild on its own; pulling only changes the files.
+
+### Waking the desktop
+
+From the laptop, at home or away:
+
+```sh
+wake-desktop && ssh john@desktop
+```
+
+The desktop arms Wake-on-LAN on its wired ports (`hosts/desktop/default.nix`).
+A magic packet only travels inside the home LAN, so `wake-desktop`
+(`hosts/laptop/default.nix`) SSHes into the router over Tailscale and has it
+send one with `etherwake`, then waits until the desktop answers
+`tailscale ping`. It wakes from shutdown and from suspend, but not after a
+power cut until the desktop has been switched on once.
+
+One-time router setup (GL.iNet GL-BE9300, which is in the tailnet):
+
+1. Admin panel → System → Administration: add the laptop's
+   `~/.ssh/id_ed25519.pub` to the SSH keys.
+2. `ssh ROUTER-LOGIN-MOVED-TO-AGENIX 'opkg update && opkg install etherwake'` if
+   `etherwake` isn't there yet. Firmware upgrades can remove it.
+3. Test from the laptop while the desktop is off: `wake-desktop`.
+
+If the router can't be reached on its Tailscale address, check that SSH and
+Tailscale remote access are allowed in its admin panel (Applications →
+Tailscale).
 
 ### Routine updates
 
