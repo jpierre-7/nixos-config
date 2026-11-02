@@ -50,6 +50,7 @@ and apps can write to them. This requires the repo to be cloned at
 |---|---|
 | `config/nvim/` → `~/.config/nvim` | Edit Lua without a rebuild; lazy.nvim writes `lazy-lock.json` |
 | `config/claude/settings.json` → `~/.claude/settings.json` | Claude Code rewrites it (`/config`, `/model`, plugins) |
+| `config/claude/keybindings.json` → `~/.claude/keybindings.json` | `/keybindings` opens it for editing |
 | `config/vicinae/settings.json` | Vicinae's GUI rewrites it |
 | `config/herdr/config.toml` | herdr rewrites it |
 

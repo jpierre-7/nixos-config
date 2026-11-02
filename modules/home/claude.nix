@@ -20,6 +20,8 @@ in
     # Live link, because Claude Code rewrites settings.json itself (/config,
     # /model, plugin installs). Review `git diff` before committing.
     ".claude/settings.json".source = live "claude/settings.json";
+    # Live link too, so /keybindings can still open it for editing.
+    ".claude/keybindings.json".source = live "claude/keybindings.json";
     ".claude/statusline.sh".source = ../../config/claude/statusline.sh;
   };
 
