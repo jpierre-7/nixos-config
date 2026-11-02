@@ -50,7 +50,6 @@ in
       color = "secondary";
       end = [
         "sysmon"
-        "claude-cockpit"
         "notifications"
         "clipboard"
         "network"
@@ -122,7 +121,6 @@ in
       "noctalia/wallhaven"
       "alexander/screen-toolkit"
       "harveywuk/airpods" # needs the librepods daemon from airpods.nix
-      "nightwatch75/claude-cockpit" # Claude Code sessions and usage; claude from claude.nix
     ];
 
     shell.font_family = "Maple Mono";
@@ -200,7 +198,6 @@ in
       type = "harveywuk/airpods:airpods";
       hide_when_disconnected = false;
     };
-    widget.claude-cockpit.type = "nightwatch75/claude-cockpit:widget";
     widget.clock.format = "{:%I:%M %p}";
     widget.media = {
       max_length = 100;
