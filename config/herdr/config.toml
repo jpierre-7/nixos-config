@@ -19,3 +19,10 @@ split_horizontal = "prefix+minus"
 copy_mode = "prefix+c"
 navigate_workspace_up = "k"
 navigate_workspace_down = "j"
+
+# Diff of the focused pane's Claude session in a split (modules/home/claude.nix)
+[[keys.command]]
+key = "prefix+d"
+type = "shell"
+command = "claude-session-diff toggle"
+description = "Claude session diff"

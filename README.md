@@ -296,6 +296,21 @@ If the router can't be reached on its Tailscale address, check that SSH and
 Tailscale remote access are allowed in its admin panel (Applications →
 Tailscale).
 
+### Reviewing a Claude session's changes
+
+In herdr, `Ctrl+Space d` on a pane running Claude Code opens
+[hunk](https://www.hunk.dev) in a split to its right, showing what that
+session changed. The diff updates as the session works. `q` in hunk, or
+`Ctrl+Space d` again, closes it.
+
+Claude Code hooks in `config/claude/settings.json` run `claude-session-diff`
+(`config/claude/session-diff.sh`). At the session's start they save the repo's
+work tree as a baseline, and after each Edit, Write or Bash call they record
+which files changed. The view shows baseline → now for those files only, so
+other sessions in the same repo stay out of it, but your own edits to the same
+files show up. `/clear` starts a new session, and with it a new baseline.
+State is in `~/.local/state/claude-session-diff/`.
+
 ### Routine updates
 
 ```sh
@@ -374,6 +389,7 @@ Everything comes from stable except these, pulled from `nixpkgs-unstable` in
 |---|---|
 | `noctalia` | Noctalia v5; stable has 5.0.1, unstable follows the 5.x releases |
 | `herdr` | Not packaged on stable |
+| `hunk` | Not packaged on stable |
 | `kanata` | 1.12 adds `defhands` and opposite-hand tap-hold, which the home-row mods need |
 | `claude-code` | Ships several times a week; stable is months behind |
 

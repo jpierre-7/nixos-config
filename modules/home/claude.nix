@@ -26,7 +26,27 @@ in
   # herdr: terminal multiplexer for coding agents (nixpkgs-unstable). Its
   # Claude hook script is written by `herdr integration install claude`,
   # a one-time step listed in the README.
-  home.packages = [ pkgs.herdr ];
+  #
+  # claude-session-diff: herdr prefix+d opens hunk (diff viewer, unstable) in
+  # a split with the changes the focused pane's Claude session made. The
+  # Claude hooks that track them are in config/claude/settings.json.
+  home.packages = [
+    pkgs.herdr
+    pkgs.hunk
+    (pkgs.writeShellApplication {
+      name = "claude-session-diff";
+      runtimeInputs = with pkgs; [
+        coreutils
+        diffutils
+        findutils
+        git
+        herdr
+        hunk
+        jq
+      ];
+      text = builtins.readFile ../../config/claude/session-diff.sh;
+    })
+  ];
   # Live link, because herdr rewrites its config itself.
   xdg.configFile."herdr/config.toml".source = live "herdr/config.toml";
 }
