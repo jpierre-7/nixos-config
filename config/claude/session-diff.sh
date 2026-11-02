@@ -197,7 +197,14 @@ toggle() {
         return 0
       fi
     done
-    herdr notification show "No Claude session in this pane" --sound none >/dev/null
+    # herdr learns a pane's Claude session ID only from this hook, which
+    # `herdr integration install claude` writes once per machine.
+    if [[ ! -f $HOME/.claude/hooks/herdr-agent-state.sh ]]; then
+      herdr notification show "herdr's Claude integration is missing" --sound none \
+        --body "Run 'herdr integration install claude', then restart or /clear the Claude session." >/dev/null
+    else
+      herdr notification show "No Claude session in this pane" --sound none >/dev/null
+    fi
     return 0
   fi
 

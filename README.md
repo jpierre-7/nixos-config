@@ -301,7 +301,10 @@ Tailscale).
 In herdr, `Ctrl+Space d` on a pane running Claude Code opens
 [hunk](https://www.hunk.dev) in a split to its right, showing what that
 session changed. The diff updates as the session works. `q` in hunk, or
-`Ctrl+Space d` again, closes it.
+`Ctrl+Space d` again, closes it. It finds the session through herdr's Claude
+integration, so `herdr integration install claude` (a
+[one-time step](#one-time-steps-after-the-first-login)) has to have run on
+that machine. Without it, `Ctrl+Space d` shows a notification that says so.
 
 Claude Code hooks in `config/claude/settings.json` run `claude-session-diff`
 (`config/claude/session-diff.sh`). At the session's start they save the repo's
