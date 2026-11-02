@@ -311,6 +311,16 @@ other sessions in the same repo stay out of it, but your own edits to the same
 files show up. `/clear` starts a new session, and with it a new baseline.
 State is in `~/.local/state/claude-session-diff/`.
 
+To ask the session about its changes, press `c` on a line in hunk, write a
+note ("explain this", "rename this"), and save it with `Ctrl+S`. Then tell
+Claude to look at the diff notes. The `diff-notes` skill
+(`config/claude/skills/diff-notes/`) reads the notes you haven't had an
+answer to, acts on them, replies under each note in hunk, and answers in the
+chat. `R` on a note replies to it, and a reply counts as a new note. Notes
+exist only while the hunk pane is open, so keep it open until Claude has
+answered. Notes stick to line numbers, so they can move off their line when
+the file changes under them.
+
 ### Routine updates
 
 ```sh

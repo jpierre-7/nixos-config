@@ -5,6 +5,8 @@
 #                                     reads the event JSON on stdin
 #   claude-session-diff toggle        herdr prefix+d (config/herdr/config.toml)
 #   claude-session-diff view <id>     what runs in the split pane
+#   claude-session-diff notes [<id>]  the user's unanswered notes in that pane,
+#                                     for the diff-notes skill
 #
 # At the session's first event the hook saves the repo's work tree as a git
 # tree object (the baseline). After each tool call it records the files that
@@ -142,7 +144,42 @@ view() {
   ) &
   trap 'kill $! 2>/dev/null; rm -f "$next"' EXIT
   cd "$(<"$dir/repo")"
-  hunk patch --watch "$patch"
+  # --agent-notes: the agent's replies to the user's notes show up without
+  # pressing `a`.
+  hunk patch --watch --agent-notes "$patch"
+}
+
+# Print the hunk session showing a Claude session's diff, and the note threads
+# in it whose last message is the user's: new notes, and follow-ups to replies.
+# Notes live only in the running hunk window, and anchor by line number, so
+# they can drift when the file changes under them.
+notes() {
+  local sid=${1:-${CLAUDE_CODE_SESSION_ID:-}} hunk_id
+  [[ -n $sid ]] || {
+    echo "Not in a Claude Code session; pass its session ID." >&2
+    return 1
+  }
+  # The patch path names the Claude session. For patch input hunk knows no
+  # repo, so `--repo .` can't find the window.
+  hunk_id=$(hunk session list --json |
+    jq -r --arg p "$state_root/$sid/session.patch" \
+      'first(.sessions[] | select(.sourceLabel == $p) | .sessionId) // empty')
+  [[ -n $hunk_id ]] || {
+    echo "No diff window is open for this session. Ask the user to press Ctrl+Space d in herdr." >&2
+    return 1
+  }
+  hunk session comment list "$hunk_id" --type all --json |
+    jq --arg id "$hunk_id" --arg repo "$(<"$state_root/$sid/repo")" '
+      def root($by): if .parentId and $by[.parentId] then $by[.parentId] | root($by) else . end;
+      (.comments | map({key: .noteId, value: .}) | from_entries) as $by
+      | {
+          hunkSession: $id,
+          repo: $repo,
+          threads: [
+            .comments | map({root: (root($by) | .noteId), note: .}) | group_by(.root)[]
+            | map(.note) | sort_by(.createdAt) | select(last.source == "user")
+          ]
+        }'
 }
 
 # prefix+d: open the diff of the focused pane's Claude session, or close it if
@@ -188,8 +225,9 @@ case ${1:-} in
 hook) hook ;;
 view) view "${2:?session ID}" ;;
 toggle) toggle ;;
+notes) notes "${2:-}" ;;
 *)
-  echo "usage: claude-session-diff hook | toggle | view <session-id>" >&2
+  echo "usage: claude-session-diff hook | toggle | view <session-id> | notes [<session-id>]" >&2
   exit 2
   ;;
 esac
