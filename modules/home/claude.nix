@@ -32,7 +32,12 @@ in
   # claude-session-diff: herdr prefix+d opens hunk (diff viewer, unstable) in
   # a split with the changes the focused pane's Claude session made. The
   # Claude hooks that track them are in config/claude/settings.json.
+  #
+  # bun: the official Discord Channels plugin (discord@claude-plugins-official)
+  # is a Bun script. Its bot token and access list live in
+  # ~/.claude/channels/discord/, outside this repo.
   home.packages = [
+    pkgs.bun
     pkgs.herdr
     pkgs.hunk
     (pkgs.writeShellApplication {

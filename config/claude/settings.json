@@ -1,9 +1,12 @@
 {
-  "model": "opus",
   "permissions": {
     "allow": [
       "mcp__claude-in-chrome"
     ]
+  },
+  "model": "opus",
+  "skillOverrides": {
+    "auto-mode-setup": "off"
   },
   "hooks": {
     "SessionStart": [
@@ -73,7 +76,8 @@
     "pyright-lsp@claude-plugins-official": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
     "typesafe@typesafe-ai": true,
-    "mattpocock-skills@mattpocock": true
+    "mattpocock-skills@mattpocock": true,
+    "discord@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "typesafe-ai": {
@@ -99,8 +103,5 @@
   "autoScrollEnabled": false,
   "remoteControlAtStartup": false,
   "inputNeededNotifEnabled": true,
-  "agentPushNotifEnabled": true,
-  "skillOverrides": {
-    "auto-mode-setup": "off"
-  }
+  "agentPushNotifEnabled": true
 }
