@@ -32,7 +32,7 @@
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
 
-  # Run Electron/Chromium apps (Vesktop, Slack, VS Code, Signal) as native
+  # Run Electron/Chromium apps (Vesktop, Slack, Teams, VS Code, Signal) as native
   # Wayland clients instead of through XWayland.
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 }

@@ -20,6 +20,7 @@ in
     (vivaldi.override { enableWidevine = true; })
     signal-desktop
     slack
+    teams-for-linux # unofficial client; Microsoft has no native Linux app
     vesktop
 
     # File manager; niri floats it (config.kdl). Trash and mounts need gvfs (desktop.nix).
