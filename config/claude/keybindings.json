@@ -6,7 +6,12 @@
       "context": "Scroll",
       "bindings": {
         "ctrl+end": null,
-        "ctrl+q": "scroll:bottom"
+        "alt+k": "scroll:lineUp",
+        "alt+j": "scroll:lineDown",
+        "alt+u": "scroll:fullPageUp",
+        "alt+d": "scroll:fullPageDown",
+        "alt+g": "scroll:top",
+        "alt+shift+g": "scroll:bottom"
       }
     }
   ]

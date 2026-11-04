@@ -35,6 +35,22 @@ local function split_nav(resize_or_move, key)
 	}
 end
 
+-- Full-screen apps (herdr, Claude Code, nvim) get the key: WezTerm has no
+-- scrollback to move in the alternate screen. Shells keep the scroll.
+local function scroll_line(key, lines)
+	return {
+		key = key,
+		mods = "ALT",
+		action = wezterm.action_callback(function(win, pane)
+			if pane:is_alt_screen_active() then
+				win:perform_action({ SendKey = { key = key, mods = "ALT" } }, pane)
+			else
+				win:perform_action(act.ScrollByLine(lines), pane)
+			end
+		end),
+	}
+end
+
 local function activateTab(n)
 	return {
 		key = tostring(n),
@@ -89,16 +105,8 @@ local keys = {
 		mods = "ALT",
 		action = act.ActivateTabRelative(1),
 	},
-	{
-		key = "k",
-		mods = "ALT",
-		action = act.ScrollByLine(-1),
-	},
-	{
-		key = "j",
-		mods = "ALT",
-		action = act.ScrollByLine(1),
-	},
+	scroll_line("k", -1),
+	scroll_line("j", 1),
 	{
 		key = "u",
 		mods = "CTRL|ALT",
