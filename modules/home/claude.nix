@@ -22,6 +22,8 @@ in
     ".claude/settings.json".source = live "claude/settings.json";
     # Live link too, so /keybindings can still open it for editing.
     ".claude/keybindings.json".source = live "claude/keybindings.json";
+    # Live link too, so /memory can still edit the instructions every session loads.
+    ".claude/CLAUDE.md".source = live "claude/CLAUDE.md";
     ".claude/statusline.sh".source = ../../config/claude/statusline.sh;
   };
 

@@ -30,7 +30,7 @@ sudo nixos-rebuild switch --flake ~/nixos-config        # apply on this machine 
 Most configs are copied into the Nix store. You must rebuild before an edit takes effect. A few are live symlinks into the checkout via `config.lib.file.mkOutOfStoreSymlink "${repoDir}/config/..."`, so edits take effect at once and apps can write to them:
 
 - `config/nvim/` (lazy.nvim rewrites `lazy-lock.json`)
-- `config/claude/settings.json` (Claude Code rewrites it), `config/claude/keybindings.json` (`/keybindings` edits it)
+- `config/claude/settings.json` (Claude Code rewrites it), `config/claude/keybindings.json` (`/keybindings` edits it), `config/claude/CLAUDE.md` (`/memory` edits it; global instructions for every session)
 - `config/vicinae/settings.json`, `config/herdr/config.toml` (their apps rewrite them)
 
 This requires the repo at `/home/john/nixos-config` (`repoDir` in `flake.nix`). Because apps write into these files, `git status` can show changes nobody made by hand. Check the diff before you commit them.
