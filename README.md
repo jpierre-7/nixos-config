@@ -49,7 +49,7 @@ and apps can write to them. This requires the repo to be cloned at
 | Live (edit without rebuilding) | Why |
 |---|---|
 | `config/nvim/` → `~/.config/nvim` | Edit Lua without a rebuild; lazy.nvim writes `lazy-lock.json` |
-| `config/claude/settings.json` → `~/.claude/settings.json` | Claude Code rewrites it (`/config`, `/model`, plugins) |
+| `config/claude/settings.json` → `~/.claude/settings.json` | Claude Code rewrites it (`/config`, `/model`, plugins). Linked directly by an activation script, because its writes fail through a store link |
 | `config/claude/keybindings.json` → `~/.claude/keybindings.json` | `/keybindings` opens it for editing |
 | `config/claude/CLAUDE.md` → `~/.claude/CLAUDE.md` | `/memory` opens it for editing |
 | `config/vicinae/settings.json` | Vicinae's GUI rewrites it |

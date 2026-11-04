@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   pkgs,
   repoDir,
   ...
@@ -17,15 +18,20 @@ in
   };
 
   home.file = {
-    # Live link, because Claude Code rewrites settings.json itself (/config,
-    # /model, plugin installs). Review `git diff` before committing.
-    ".claude/settings.json".source = live "claude/settings.json";
-    # Live link too, so /keybindings can still open it for editing.
+    # Live link, so /keybindings can still open it for editing.
     ".claude/keybindings.json".source = live "claude/keybindings.json";
     # Live link too, so /memory can still edit the instructions every session loads.
     ".claude/CLAUDE.md".source = live "claude/CLAUDE.md";
     ".claude/statusline.sh".source = ../../config/claude/statusline.sh;
   };
+
+  # Claude Code rewrites settings.json itself (/config, /model, plugin installs).
+  # Review `git diff` before committing. Linked here instead of through
+  # home.file: Claude Code puts its temp file next to the symlink's target, and
+  # a home.file link targets the read-only store, so the write fails with EROFS.
+  home.activation.linkClaudeSettings = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    run ln -sfn $VERBOSE_ARG ${repoDir}/config/claude/settings.json ${config.home.homeDirectory}/.claude/settings.json
+  '';
 
   # herdr: terminal multiplexer for coding agents (nixpkgs-unstable). Its
   # Claude hook script is written by `herdr integration install claude`,
