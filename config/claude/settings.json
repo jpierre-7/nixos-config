@@ -77,7 +77,8 @@
     "rust-analyzer-lsp@claude-plugins-official": true,
     "typesafe@typesafe-ai": true,
     "mattpocock-skills@mattpocock": true,
-    "discord@claude-plugins-official": true
+    "discord@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "typesafe-ai": {
