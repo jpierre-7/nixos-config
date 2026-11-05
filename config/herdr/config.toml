@@ -27,6 +27,8 @@ navigate_workspace_down = "j"
 # Herdr's picker highlights rows in the hidden sidebar, so prefix+w goes to the
 # agent cards column instead.
 workspace_picker = "prefix+shift+w"
+# That key is rename_workspace's by default.
+rename_workspace = "prefix+shift+s"
 
 # Diff of the focused pane's Claude session in a split (modules/home/claude.nix)
 [[keys.command]]

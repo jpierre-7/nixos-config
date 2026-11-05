@@ -355,7 +355,8 @@ sprite and the agent's state. Click a card or section to go there, or press
 `Ctrl+Space w` to move the keyboard into the column: `j`/`k` step through the
 cards across spaces, Enter goes to the highlighted one, Esc goes back.
 `Ctrl+Space a` closes or reopens the column in the current tab. Herdr's own
-picker moved to `Ctrl+Space W`, since its highlight is in the hidden sidebar.
+picker moved to `Ctrl+Space W`, since its highlight is in the hidden sidebar,
+and renaming a space moved from there to `Ctrl+Space S`.
 
 `+ new` at the bottom of the column asks for a name and creates a space. Enter
 confirms, Esc cancels. Herdr's own `new` and `menu` buttons are in its hidden
