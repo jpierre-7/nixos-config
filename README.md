@@ -321,8 +321,19 @@ as `"<fingerprint>" = "<hostname>"`. Fingerprints aren't secret; never commit
 
 Traffic stays on the tailnet: UDP 4242 is open only on `tailscale0`, and the
 peers are addressed by their Tailscale IPs. Lan Mouse's sender doesn't verify
-the receiver's certificate, so WireGuard does that part. There is no clipboard
-sharing yet.
+the receiver's certificate, so WireGuard does that part.
+
+[lan-clip](https://github.com/johanjongsma/lan-clip) adds clipboard sharing: every
+copy of text, HTML or a PNG goes to the other machine at once, over TCP 4243 on
+the tailnet, using Lan Mouse's certificates. Files aren't shared. Copies marked
+`x-kde-passwordManagerHint` stay local, which covers the Noctalia Bitwarden
+plugin. A password copied from something that doesn't set that type, such as a
+browser extension, does get sent. `lan-clip status` shows the peer and the last
+sync; `lan-clip pause` and `lan-clip resume` turn sharing off and on until the
+daemon restarts.
+
+The `lan-clip` flake input is pinned to a reviewed commit, because the daemon
+reads the private key and every copy. Read the diff before moving it.
 
 ### Reviewing a Claude session's changes
 

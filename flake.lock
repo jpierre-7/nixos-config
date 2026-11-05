@@ -21,6 +21,23 @@
         "type": "github"
       }
     },
+    "lan-clip": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792558134,
+        "narHash": "sha256-/qXBS7wcOFnvAs6pNKortjSeN9wkiIrpOfrgMKLaN7g=",
+        "owner": "johanjongsma",
+        "repo": "lan-clip",
+        "rev": "5e5126dfdf99ce9dba92b5e9ef474a6b6831d849",
+        "type": "github"
+      },
+      "original": {
+        "owner": "johanjongsma",
+        "repo": "lan-clip",
+        "rev": "5e5126dfdf99ce9dba92b5e9ef474a6b6831d849",
+        "type": "github"
+      }
+    },
     "librepods": {
       "flake": false,
       "locked": {
@@ -88,6 +105,7 @@
     "root": {
       "inputs": {
         "home-manager": "home-manager",
+        "lan-clip": "lan-clip",
         "librepods": "librepods",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",

@@ -21,7 +21,10 @@
   # Lan Mouse (modules/home/lan-mouse.nix) is a HM user service too. Only the
   # tailnet may reach it: its sender doesn't verify the receiver's certificate,
   # so WireGuard is what authenticates the peer.
-  networking.firewall.interfaces.tailscale0.allowedUDPPorts = [ 4242 ];
+  networking.firewall.interfaces.tailscale0 = {
+    allowedUDPPorts = [ 4242 ];
+    allowedTCPPorts = [ 4243 ]; # lan-clip, the clipboard half
+  };
 
   # Log in once with `sudo tailscale up`. "client" loosens reverse-path
   # filtering so exit nodes and subnet routes work. --ssh turns on Tailscale

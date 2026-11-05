@@ -21,6 +21,13 @@
       url = "github:harveywuk/librepods";
       flake = false;
     };
+    # Clipboard sync for Lan Mouse; built by pkgs/lan-clip.nix. It reads the Lan
+    # Mouse private key and every copy, and it's a new project from one author,
+    # so it stays on this reviewed commit: read the diff before moving the rev.
+    lan-clip = {
+      url = "github:johanjongsma/lan-clip/5e5126dfdf99ce9dba92b5e9ef474a6b6831d849";
+      flake = false;
+    };
     # Noctalia's community theme templates, the ones its Templates store
     # downloads. modules/home/noctalia.nix renders the Neovim and Vicinae ones.
     noctalia-templates = {
