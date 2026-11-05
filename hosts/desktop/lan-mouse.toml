@@ -3,8 +3,8 @@
 release_bind = [ "KeyLeftCtrl", "KeyLeftShift", "KeyLeftMeta", "KeyLeftAlt" ]
 
 # Certificate of the laptop, see "Sharing the mouse and keyboard" in the README.
-# Until it's listed here, this machine rejects the laptop's input.
 [authorized_fingerprints]
+"a4:aa:e8:be:5d:cf:a3:63:86:68:f4:80:dc:b9:ab:56:82:20:c9:f2:ef:28:2c:a9:eb:53:50:64:13:48:86:a6" = "laptop"
 
 [[clients]]
 position = "right"
