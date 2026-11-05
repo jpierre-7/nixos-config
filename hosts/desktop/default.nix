@@ -16,6 +16,9 @@
   # The firmware must also allow waking from LAN/PCIe (see the README).
   networking.networkmanager.settings.connection."ethernet.wake-on-lan" = 64;
 
+  # Which side of this machine the laptop sits on, and whose certificate to trust.
+  home-manager.users.john.xdg.configFile."lan-mouse/config.toml".source = ./lan-mouse.toml;
+
   # Release this machine was first installed with. Leave it alone on upgrades
   # (see the README); it is not the NixOS version you are running.
   system.stateVersion = "26.05";

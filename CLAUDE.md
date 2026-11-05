@@ -39,7 +39,7 @@ Noctalia is different. `modules/home/noctalia.nix` generates its shared config r
 
 ### Package sources
 
-- Everything comes from stable nixpkgs (`nixos-26.05`) except the short list in `overlays/default.nix`: the `inherit (unstable)` packages, plus `noctalia`, which is patched on top of unstable. To get a missing or outdated package, add it to the `inherit` list. Do not move the system to unstable. Update the README's "Unstable exceptions" table when that list changes.
+- Everything comes from stable nixpkgs (`nixos-26.05`) except the short list in `overlays/default.nix`: the `inherit (unstable)` packages, `noctalia`, which is patched on top of unstable, and `niri`, pinned to a commit on upstream's main. To get a missing or outdated package, add it to the `inherit` list. Do not move the system to unstable. Update the README's "Unstable exceptions" table when that list changes.
 - nixpkgs and Home Manager must stay on the same release (`nixos-YY.MM` / `release-YY.MM`). Bump both together.
 - Never change `system.stateVersion` (`hosts/*/default.nix`) or `home.stateVersion` (`home/john.nix`) on upgrades.
 - Prefer a Home Manager `programs.<name>` module over a bare `home.packages` entry when one exists.
@@ -52,7 +52,7 @@ Noctalia is different. `modules/home/noctalia.nix` generates its shared config r
 - **Claude Code skills**: `config/claude/skills/` is vendored (HM links each skill file by file). `config/claude/skills-lock.json` pins each skill's source commit. To refresh a skill, re-copy it from source and update the pin. `diff-notes` is written here, so it has no pin.
 - **Claude session diff**: hooks in `config/claude/settings.json` call `claude-session-diff` (`config/claude/session-diff.sh`, packaged in `modules/home/claude.nix`). New tools the script calls go in that package's `runtimeInputs`. The `diff-notes` skill reads the notes. Details are in the README.
 - **Kanata**: `config/kanata/keymap.kbd` is shared. The laptop runs two instances from it (`hosts/laptop/default.nix`), so `nix flake check` prints a race-condition warning. It doesn't apply, because their device filters never overlap.
-- **Firewall**: Syncthing runs as a HM user service and can't open ports. Its ports are in `modules/nixos/networking.nix`.
+- **Firewall**: Syncthing runs as a HM user service and can't open ports. Its ports are in `modules/nixos/networking.nix`, as are Lan Mouse's (tailnet only).
 - **Theme colors**: WezTerm, Starship, Neovim, Vicinae, Claude Code's theme and its status line get their colors from Noctalia templates (`theme.templates.user` in `modules/home/noctalia.nix`). `config/starship.toml` and `config/claude/statusline-colors.sh` are templates with `{{colors.<role>.default.hex}}` placeholders, not plain configs. Don't hardcode a color scheme in those apps or enable the built-in/community templates for them: their hooks edit configs in place. `templates.user` entries may use those template files as `input_path` (`noctalia-templates` input), because they write only their output. Neovim's lands in the live checkout as `config/nvim/colors/noctalia.lua`, which is gitignored.
 - **Python**: project venvs use `uv` with managed Pythons (`UV_PYTHON_PREFERENCE=only-managed`), which run through nix-ld. Don't add pip-installed native packages to Nix's Python.
 

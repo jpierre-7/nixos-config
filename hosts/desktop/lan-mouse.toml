@@ -1,0 +1,12 @@
+# Linked to ~/.config/lan-mouse/config.toml by hosts/desktop/default.nix.
+# Ctrl+Shift+Super+Alt (left side) gets the cursor back if it sticks.
+release_bind = [ "KeyLeftCtrl", "KeyLeftShift", "KeyLeftMeta", "KeyLeftAlt" ]
+
+# Certificate of the laptop, see "Sharing the mouse and keyboard" in the README.
+# Until it's listed here, this machine rejects the laptop's input.
+[authorized_fingerprints]
+
+[[clients]]
+position = "right"
+hostname = "laptop"
+activate_on_startup = true

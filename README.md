@@ -25,10 +25,11 @@ full system with one `nixos-install` (or `nixos-rebuild switch`).
 
 ```
 flake.nix               inputs, the two hosts, checks, formatter
-overlays/default.nix    the only packages taken from nixpkgs-unstable
+overlays/default.nix    the only packages not taken from stable nixpkgs
 hosts/<host>/           default.nix (hostname-specific bits, stateVersion)
                         hardware-configuration.nix (generated on the machine)
                         niri-outputs.kdl (desktop only: monitor layout)
+                        lan-mouse.toml (screen side and trusted peer)
 modules/nixos/          system modules (boot, networking, audio, desktop, ...)
 modules/home/           Home Manager modules (shell, terminal, editor, apps, ...)
 home/john.nix           my user's entry point
@@ -237,6 +238,8 @@ These need an account or a login, so they can't be declared:
 - Syncthing: open http://127.0.0.1:8384 and pair the two machines (device IDs
   are per machine). Don't share `~/nixos-config` there; git keeps it in sync
   (see [Everyday use](#everyday-use)).
+- Lan Mouse: trust each machine's certificate on the other one (see
+  [Sharing the mouse and keyboard](#sharing-the-mouse-and-keyboard)).
 - Open `nvim` once and let lazy.nvim install plugins. It installs the commits
   in `config/nvim/lazy-lock.json`. `:Lazy update` and `:Lazy sync` (`U`/`S` in
   its window) move past them; commit the lock file after updating on purpose,
@@ -297,6 +300,29 @@ One-time router setup (GL.iNet GL-BE9300, which is in the tailnet):
 If the router can't be reached on its Tailscale address, check that SSH and
 Tailscale remote access are allowed in its admin panel (Applications →
 Tailscale).
+
+### Sharing the mouse and keyboard
+
+[Lan Mouse](https://github.com/feschber/lan-mouse) moves the cursor between the
+machines across a screen edge: the laptop sits to the right of the desktop. To
+swap sides, change `position` in both `hosts/*/lan-mouse.toml`. Left
+Ctrl+Shift+Super+Alt brings a stuck cursor back.
+
+Each machine generates its own certificate on first start and rejects the other
+until it trusts it. On each machine, print the fingerprint:
+
+```sh
+nix shell nixpkgs#openssl -c openssl x509 -in ~/.config/lan-mouse/lan-mouse.pem -outform DER | sha256sum | cut -d' ' -f1 | sed 's/../&:/g; s/:$//'
+```
+
+Add it under `[authorized_fingerprints]` in the *other* host's `lan-mouse.toml`
+as `"<fingerprint>" = "<hostname>"`. Fingerprints aren't secret; never commit
+`lan-mouse.pem`, which holds the private key.
+
+Traffic stays on the tailnet: UDP 4242 is open only on `tailscale0`, and the
+peers are addressed by their Tailscale IPs. Lan Mouse's sender doesn't verify
+the receiver's certificate, so WireGuard does that part. There is no clipboard
+sharing yet.
 
 ### Reviewing a Claude session's changes
 
@@ -405,8 +431,14 @@ Everything comes from stable except these, pulled from `nixpkgs-unstable` in
 | `noctalia` | Noctalia v5; stable has 5.0.1, unstable follows the 5.x releases. Patched so Bitwarden plugin copies stay out of clipboard histories |
 | `herdr` | Not packaged on stable |
 | `hunk` | Not packaged on stable |
+| `lan-mouse` | 0.11 adds DTLS encryption and wlroots modifier emulation; stable has 0.10 |
 | `kanata` | 1.12 adds `defhands` and opposite-hand tap-hold, which the home-row mods need |
 | `claude-code` | Ships several times a week; stable is months behind |
+
+`niri` is the one package from neither branch: it is pinned to a commit on
+upstream's main, because 26.04 doesn't run binds for virtual keyboards, so Lan
+Mouse can't trigger them on the receiving machine. Remove the override once a
+release includes the fix (commit `7da6ae4`).
 
 ## How the Arch setup maps
 
