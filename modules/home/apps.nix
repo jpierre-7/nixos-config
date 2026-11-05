@@ -21,6 +21,7 @@ in
     signal-desktop
     slack
     teams-for-linux # unofficial client; Microsoft has no native Linux app
+    libfido2 # Teams runs its fido2-* tools from PATH (see config.json below)
     vesktop
 
     # File manager; niri floats it (config.kdl). Trash and mounts need gvfs (desktop.nix).
@@ -38,4 +39,14 @@ in
   ];
 
   programs.calibre.enable = true;
+
+  # Account switcher (experimental, off by default). The app only reads this file;
+  # its profiles and logins stay in its own state under ~/.config/teams-for-linux.
+  # The security key beta is on for accounts that default to a passkey: Electron
+  # can't open the key prompt on Linux, so sign-in hangs. With the beta, finding
+  # no key fails the prompt and Microsoft offers "Sign in another way".
+  xdg.configFile."teams-for-linux/config.json".text = builtins.toJSON {
+    multiAccount.enabled = true;
+    auth.webauthn.enabled = true;
+  };
 }
