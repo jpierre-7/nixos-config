@@ -18,6 +18,7 @@ full system with one `nixos-install` (or `nixos-rebuild switch`).
 | Boot | Limine (UEFI) |
 | Network | NetworkManager, Tailscale, NixOS firewall |
 | Sync | Syncthing (user service) |
+| Mouse, keyboard, clipboard sharing | Lan Mouse + lan-clip, over the tailnet |
 | Keys | kanata: home-row mods, Caps Lock → Escape (`config/kanata/keymap.kbd`) |
 | Font | Maple Mono (+ Nerd Font builds), Noto, Noto Color Emoji |
 
@@ -26,6 +27,7 @@ full system with one `nixos-install` (or `nixos-rebuild switch`).
 ```
 flake.nix               inputs, the two hosts, checks, formatter
 overlays/default.nix    the only packages not taken from stable nixpkgs
+pkgs/                   local derivations (librepods, lan-clip)
 hosts/<host>/           default.nix (hostname-specific bits, stateVersion)
                         hardware-configuration.nix (generated on the machine)
                         niri-outputs.kdl (desktop only: monitor layout)
@@ -317,11 +319,19 @@ nix shell nixpkgs#openssl -c openssl x509 -in ~/.config/lan-mouse/lan-mouse.pem 
 
 Add it under `[authorized_fingerprints]` in the *other* host's `lan-mouse.toml`
 as `"<fingerprint>" = "<hostname>"`. Fingerprints aren't secret; never commit
-`lan-mouse.pem`, which holds the private key.
+`lan-mouse.pem`, which holds the private key. A reinstall generates a new
+certificate, so update its fingerprint on the other host; until then the
+machines reject each other.
 
 Traffic stays on the tailnet: UDP 4242 is open only on `tailscale0`, and the
 peers are addressed by their Tailscale IPs. Lan Mouse's sender doesn't verify
 the receiver's certificate, so WireGuard does that part.
+
+Both daemons run as user services, so the machine you're moving to needs a
+logged-in session. Its lock screen works: cross over and type the password from
+the other machine. Its login screen doesn't, because logging out stops the
+services, and neither does suspend, including Noctalia's "Lock and suspend". Use
+that machine's own keyboard there; sharing comes back after login or wake.
 
 [lan-clip](https://github.com/johanjongsma/lan-clip) adds clipboard sharing: every
 copy of text, HTML or a PNG goes to the other machine at once, over TCP 4243 on
