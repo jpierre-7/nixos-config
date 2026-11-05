@@ -23,6 +23,11 @@ in
     # Live link too, so /memory can still edit the instructions every session loads.
     ".claude/CLAUDE.md".source = live "claude/CLAUDE.md";
     ".claude/statusline.sh".source = ../../config/claude/statusline.sh;
+    # A mod (a plugin with hooks), which Claude Code auto-loads from ~/.claude/skills.
+    # One link for the whole folder, unlike the skills above: linked file by
+    # file, its module resolves outside the folder and Claude Code refuses it
+    # as a path traversal, saying so only in the debug log.
+    ".claude/skills/prompt-cache-control".source = ../../config/claude/mods/prompt-cache-control;
   };
 
   # Claude Code rewrites settings.json itself (/config, /model, plugin installs).

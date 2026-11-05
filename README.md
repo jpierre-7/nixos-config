@@ -373,6 +373,17 @@ exist only while the hunk pane is open, so keep it open until Claude has
 answered. Notes stick to line numbers, so they can move off their line when
 the file changes under them.
 
+### Prompt cache meter
+
+The `prompt-cache-control` mod draws a row above the Claude Code prompt: how
+much of the last request the cache served, and a countdown to when the cache
+lapses. `/cache` opens a pane with one row per turn; `/cache stop` closes it.
+It's vendored in `config/claude/mods/prompt-cache-control/`, and Claude Code
+loads it by itself from `~/.claude/skills`. Its options go in
+`config/claude/settings.json`, under
+`pluginConfigs."prompt-cache-control@skills-dir".options`. They're listed in
+the mod's README.
+
 ### Routine updates
 
 ```sh

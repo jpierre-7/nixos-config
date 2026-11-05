@@ -33,6 +33,12 @@
       "skillPath": "skills/redesign-skill",
       "commit": "ccbc15639c97057cbfcf32ecebc38ef716e4bb37"
     },
+    "prompt-cache-control": {
+      "source": "https://github.com/davila7/claude-code-templates.git",
+      "skillPath": "cli-tool/components/mods/observability/prompt-cache-control",
+      "commit": "004d25b59c66278ee90ddb0b5f4dab58ac7f70ef",
+      "note": "a mod, not a skill: vendored in config/claude/mods/, linked into ~/.claude/skills as one folder (modules/home/claude.nix)"
+    },
     "herdr": { "source": "herdr --skill", "note": "printed by the installed herdr binary; refresh with: herdr --skill > herdr/SKILL.md" },
     "anti-ai-slop-writing": { "source": "unknown", "note": "upstream not recorded when it was added (e92af6e)" },
     "caveman": { "source": "local", "note": "caveman family + cavecrew; no upstream repo, refresh by re-copying from ~/.agents/skills" },
