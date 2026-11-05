@@ -10,6 +10,28 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
+  # Flipping the screen back sets libinput's tablet mode, which suspends internal
+  # keyboards. Kanata's output device defaults to the PS/2 bus, which libinput
+  # takes for internal, so one shared instance took external keyboards down with
+  # it. Split them: the built-in keyboard keeps that output and still suspends;
+  # everything else goes out on the USB bus, which libinput never suspends. Both
+  # outputs must keep the name "kanata", the only name kanata won't grab.
+  services.kanata.keyboards = {
+    default.extraDefCfg = ''
+      linux-dev-names-include ("AT Translated Set 2 keyboard")
+    '';
+    # The module warns about a race when an instance has no devices. It doesn't
+    # apply: the include above and the exclude here never match the same device.
+    external = {
+      extraDefCfg = ''
+        process-unmapped-keys yes
+        linux-dev-names-exclude ("AT Translated Set 2 keyboard")
+        linux-output-device-bus-type USB
+      '';
+      config = builtins.readFile ../../config/kanata/keymap.kbd;
+    };
+  };
+
   # Turn the desktop on from anywhere (its side is in hosts/desktop). A magic
   # packet is a LAN broadcast and can't cross the internet, and the desktop's
   # Tailscale is down while it's off, so the router (GL-BE9300, always on and

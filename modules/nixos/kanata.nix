@@ -3,6 +3,7 @@
   # compositor, so they also work on the greeter and TTYs. Replaces keyd: kanata's
   # opposite-hand tap-hold keeps fast rolls as letters. The keymap is
   # config/kanata/keymap.kbd; it needs kanata from unstable (overlays/default.nix).
+  # The laptop splits this into two instances for tablet mode (hosts/laptop).
   services.kanata = {
     enable = true;
     keyboards.default = {
