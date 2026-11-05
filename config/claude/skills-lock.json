@@ -23,6 +23,11 @@
       "skillPath": "skills/find-skills",
       "commit": "80feb48868972d518436f26711509bc78595b5cb"
     },
+    "i-have-adhd": {
+      "source": "https://github.com/ayghri/i-have-adhd.git",
+      "skillPath": "skills/i-have-adhd",
+      "commit": "1ecea1993b7fce257ffbd686c070948b5e07eda6"
+    },
     "minimalist-ui": {
       "source": "https://github.com/Leonxlnx/taste-skill.git",
       "skillPath": "skills/minimalist-skill",
