@@ -7,6 +7,6 @@ release_bind = [ "KeyLeftCtrl", "KeyLeftShift", "KeyLeftMeta", "KeyLeftAlt" ]
 "5b:86:f7:62:59:5b:38:0a:77:24:00:db:80:1b:6c:b0:76:b4:ad:ce:80:1d:d1:91:21:90:fa:81:c8:9d:3d:eb" = "desktop"
 
 [[clients]]
-position = "left"
+position = "top"
 hostname = "desktop"
 activate_on_startup = true

@@ -304,9 +304,9 @@ Tailscale).
 ### Sharing the mouse and keyboard
 
 [Lan Mouse](https://github.com/feschber/lan-mouse) moves the cursor between the
-machines across a screen edge: the laptop sits to the right of the desktop. To
-swap sides, change `position` in both `hosts/*/lan-mouse.toml`. Left
-Ctrl+Shift+Super+Alt brings a stuck cursor back.
+machines across a screen edge: the laptop sits below the desktop. To move it,
+change `position` in both `hosts/*/lan-mouse.toml`. Left Ctrl+Shift+Super+Alt
+brings a stuck cursor back.
 
 Each machine generates its own certificate on first start and rejects the other
 until it trusts it. On each machine, print the fingerprint:
