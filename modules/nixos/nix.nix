@@ -14,7 +14,7 @@
   };
   nix.optimise.automatic = true;
 
-  # VS Code, Slack, Vivaldi, AnyDesk and Claude Code are unfree.
+  # VS Code, Slack, Vivaldi, Chrome, AnyDesk and Claude Code are unfree.
   nixpkgs.config.allowUnfree = true;
   nixpkgs.overlays = [ (import ../../overlays { inherit inputs; }) ];
 }

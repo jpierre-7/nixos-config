@@ -40,6 +40,9 @@ in
 
   programs.calibre.enable = true;
 
+  # Backup browser; Vivaldi stays the main one.
+  programs.google-chrome.enable = true;
+
   # Account switcher (experimental, off by default). The app only reads this file;
   # its profiles and logins stay in its own state under ~/.config/teams-for-linux.
   # The security key beta is on for accounts that default to a passkey: Electron
