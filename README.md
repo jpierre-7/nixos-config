@@ -92,8 +92,10 @@ wallpaper, palette source, scheme or light/dark mode):
 | `~/.cache/noctalia/claude-statusline-colors.sh` | `config/claude/statusline-colors.sh` | `statusline.sh`, on its next update |
 
 herdr uses its built-in `terminal` theme, which draws with WezTerm's colors,
-so it follows along without a template. The community templates come from the
-`noctalia-templates` flake input; `nix flake update noctalia-templates`
+so it follows along without a template. Its
+[agent cards](#agent-cards-in-herdr) read WezTerm's `colors/Noctalia.toml`
+directly. The community templates come from the `noctalia-templates` flake
+input; `nix flake update noctalia-templates`
 refreshes them.
 
 The outputs are Noctalia's, so don't edit them. `config/starship.toml` is the
@@ -344,6 +346,41 @@ daemon restarts.
 
 The `lan-clip` flake input is pinned to a reviewed commit, because the daemon
 reads the private key and every copy. Read the diff before moving it.
+
+### Agent cards in herdr
+
+The `agent-cards` plugin replaces herdr's sidebar with a column of cards at the
+left of every tab: one section per space, one card per agent, with a pixel-art
+sprite and the agent's state. Click a card or section to go there, or press
+`Ctrl+Space w` to move the keyboard into the column: `j`/`k` step through the
+cards across spaces, Enter goes to the highlighted one, Esc goes back.
+`Ctrl+Space a` closes or reopens the column in the current tab. Herdr's own
+picker moved to `Ctrl+Space W`, since its highlight is in the hidden sidebar.
+
+`+ new` at the bottom of the column asks for a name and creates a space. Enter
+confirms, Esc cancels. Herdr's own `new` and `menu` buttons are in its hidden
+sidebar. `Ctrl+Space b` shows it, and it's the only way to reach `menu`.
+
+Colors come from the palette Noctalia writes for WezTerm, so the cards change
+with the wallpaper. A wallpaper's palette is often one hue, so the plugin fans
+out the brightest accent's hue to tell spaces apart.
+
+Herdr plugins can only draw in panes, which has a few consequences:
+
+- Each tab holds its own panel pane, and zooming a pane covers it.
+- A new tab docks by itself. Herdr can't add a pane at a layout's root, so a
+  tab that's already split when the column opens gets it beside the top-left
+  pane only, not at full height.
+- A session restore brings the panes back as shells, and the plugin's startup
+  hook restarts the panels in them. A panel closes itself when its tab has no
+  other panes left.
+
+After the first rebuild, herdr only docks new tabs. Run `herdr-agent-cards dock`
+in a herdr pane to dock the existing ones, and press `Ctrl+Space b` to hide the
+sidebar until herdr's next launch hides it.
+
+The code is `config/herdr/agent-cards/`, packaged and linked by
+`modules/home/herdr.nix`.
 
 ### Reviewing a Claude session's changes
 

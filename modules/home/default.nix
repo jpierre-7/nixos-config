@@ -5,6 +5,7 @@
     ./apps.nix
     ./claude.nix
     ./dev.nix
+    ./herdr.nix
     ./lan-mouse.nix
     ./neovim.nix
     ./niri.nix

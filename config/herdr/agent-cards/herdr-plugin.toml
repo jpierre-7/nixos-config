@@ -1,0 +1,29 @@
+id = "local.agent-cards"
+name = "Agent cards"
+version = "0.1.0"
+min_herdr_version = "0.9.5"
+description = "Pixel-art cards for every space and agent, docked at the left of each tab"
+platforms = ["linux"]
+
+[[panes]]
+id = "cards"
+title = "Agents"
+placement = "split"
+command = ["@bin@", "panel"]
+
+[[startup]]
+command = ["@bin@", "dock"]
+
+[[events]]
+on = "tab.created"
+command = ["@bin@", "dock"]
+
+[[actions]]
+id = "toggle"
+title = "Toggle agent cards in this tab"
+command = ["@bin@", "toggle"]
+
+[[actions]]
+id = "navigate"
+title = "Move the keyboard into the agent cards"
+command = ["@bin@", "navigate"]
