@@ -61,6 +61,7 @@ in
       ];
       font_family = "Maple Mono";
       icon_color = "primary";
+      margin_ends = 0; # full width; the default leaves a 100 px gap at each end
       start = [
         "launcher"
         "wallpaper"
