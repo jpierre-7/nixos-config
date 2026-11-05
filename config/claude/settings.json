@@ -94,6 +94,11 @@
       }
     }
   },
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "high"
+    }
+  },
   "pluginConfigs": {
     "prompt-cache-control@skills-dir": {
       "options": {
@@ -101,15 +106,15 @@
       }
     }
   },
-  "modelSettings": {
-    "claude-opus-5-5": {
-      "effortLevel": "high"
-    }
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
   },
   "theme": "custom:noctalia",
   "editorMode": "vim",
   "autoScrollEnabled": false,
   "remoteControlAtStartup": false,
   "inputNeededNotifEnabled": true,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "voiceEnabled": true
 }
