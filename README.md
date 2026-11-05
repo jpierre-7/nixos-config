@@ -402,7 +402,7 @@ Everything comes from stable except these, pulled from `nixpkgs-unstable` in
 
 | Package | Why |
 |---|---|
-| `noctalia` | Noctalia v5; stable has 5.0.1, unstable follows the 5.x releases |
+| `noctalia` | Noctalia v5; stable has 5.0.1, unstable follows the 5.x releases. Patched so Bitwarden plugin copies stay out of clipboard histories |
 | `herdr` | Not packaged on stable |
 | `hunk` | Not packaged on stable |
 | `kanata` | 1.12 adds `defhands` and opposite-hand tap-hold, which the home-row mods need |
