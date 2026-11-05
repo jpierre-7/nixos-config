@@ -94,6 +94,13 @@
       }
     }
   },
+  "pluginConfigs": {
+    "prompt-cache-control@skills-dir": {
+      "options": {
+        "status": true
+      }
+    }
+  },
   "modelSettings": {
     "claude-opus-5-5": {
       "effortLevel": "high"
