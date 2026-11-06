@@ -466,6 +466,17 @@ loads it by itself from `~/.claude/skills`. Its options go in
 `pluginConfigs."prompt-cache-control@skills-dir".options`. They're listed in
 the mod's README.
 
+### Terminal browser
+
+The `terminal-browser` plugin opens a Chromium page inside Claude Code with
+`/browser`. `config/claude/settings.json` declares the plugin and sets
+`CLAUDE_CODE_ENABLE_FUNCTION_HOOKS`, which it needs. The browser itself is
+`pkgs/terminal-browser.nix`, a pinned upstream binary, so `terminal-browser
+upgrade` does not apply: bump the version and hash there instead. It needs a
+terminal with kitty graphics and unicode placeholders. Upstream names Ghostty
+and kitty, and warns that multiplexers can break it. The package sets
+`TERMINAL_BROWSER_NO_TELEMETRY`, which stops its usage events and crash reports.
+
 ### ADHD mode
 
 `config/claude/CLAUDE.md` imports the `i-have-adhd` skill, so every session

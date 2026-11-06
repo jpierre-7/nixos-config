@@ -57,10 +57,14 @@ in
   # bun: the official Discord Channels plugin (discord@claude-plugins-official)
   # is a Bun script. Its bot token and access list live in
   # ~/.claude/channels/discord/, outside this repo.
+  #
+  # terminal-browser: the terminal-browser@terminal-browser plugin runs it from
+  # PATH to open a browser inside Claude Code (/browser).
   home.packages = [
     pkgs.bun
     pkgs.herdr
     pkgs.hunk
+    (pkgs.callPackage ../../pkgs/terminal-browser.nix { })
     (pkgs.writeShellApplication {
       name = "claude-session-diff";
       runtimeInputs = with pkgs; [

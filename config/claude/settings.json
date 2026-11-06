@@ -4,6 +4,9 @@
       "mcp__claude-in-chrome"
     ]
   },
+  "env": {
+    "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1"
+  },
   "model": "opus",
   "skillOverrides": {
     "auto-mode-setup": "off"
@@ -79,7 +82,8 @@
     "mattpocock-skills@mattpocock": true,
     "discord@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
-    "pstack@cursor-plugins": true
+    "pstack@cursor-plugins": true,
+    "terminal-browser@terminal-browser": true
   },
   "extraKnownMarketplaces": {
     "typesafe-ai": {
@@ -98,6 +102,12 @@
       "source": {
         "source": "github",
         "repo": "cursor/plugins"
+      }
+    },
+    "terminal-browser": {
+      "source": {
+        "source": "github",
+        "repo": "zenbu-labs/terminal-browser"
       }
     }
   },
