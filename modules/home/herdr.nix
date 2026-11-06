@@ -1,7 +1,8 @@
-# Agent cards: a herdr plugin that draws spaces and agents as pixel-art cards in
-# a column at the left of every tab (config/herdr/agent-cards/). The rest of
+# Agent cards: a herdr plugin that draws spaces and agents (costumed pixel bots) in
+# a panel at the left of every tab (config/herdr/agent-cards/). The rest of
 # herdr's setup is in claude.nix.
 {
+  inputs,
   lib,
   pkgs,
   ...
@@ -20,16 +21,26 @@ let
       builtins.readFile ../../config/herdr/agent-cards/herdr-plugin.toml
     );
   };
+  zoetrope = pkgs.callPackage ../../pkgs/zoetrope.nix { src = inputs.zoetrope; };
 in
 {
   # On PATH for the first dock of a running session: herdr only runs a plugin's
   # startup hook when its server starts.
-  home.packages = [ agentCards ];
+  #
+  # zoe: prefix+Z opens the focused agent's session as a graph, through the
+  # plugin linked below, which finds zoe and jq (dev.nix) on PATH.
+  home.packages = [
+    agentCards
+    zoetrope
+  ];
 
   # Each rebuild has a new store path, so link it again to replace the old one,
   # which garbage collection can then remove. A failure here (say, a newer
   # manifest than the running herdr) shouldn't stop the whole activation.
   home.activation.linkHerdrAgentCards = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
     run ${lib.getExe pkgs.herdr} plugin link ${plugin} >/dev/null || true
+    # A link skips the plugin's build hook, which would install zoe with
+    # Homebrew or cargo.
+    run ${lib.getExe pkgs.herdr} plugin link ${inputs.zoetrope}/herdr-plugin >/dev/null || true
   '';
 }

@@ -110,7 +110,8 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "noctalia-templates": "noctalia-templates",
-        "wallpapers": "wallpapers"
+        "wallpapers": "wallpapers",
+        "zoetrope": "zoetrope"
       }
     },
     "wallpapers": {
@@ -126,6 +127,22 @@
       "original": {
         "owner": "jpierre-7",
         "repo": "Wallpapers",
+        "type": "github"
+      }
+    },
+    "zoetrope": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1789118373,
+        "narHash": "sha256-REoGuXlcPvHMTL+M/UsNDVpkA20ttzj+sms1AK1CWHE=",
+        "owner": "furkankly",
+        "repo": "zoetrope",
+        "rev": "b1f31dd26bd4e9e513885e39edb78d0850a5d1fe",
+        "type": "github"
+      },
+      "original": {
+        "owner": "furkankly",
+        "repo": "zoetrope",
         "type": "github"
       }
     }

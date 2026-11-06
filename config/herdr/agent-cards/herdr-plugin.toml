@@ -2,7 +2,7 @@ id = "local.agent-cards"
 name = "Agent cards"
 version = "0.1.0"
 min_herdr_version = "0.9.5"
-description = "Pixel-art cards for every space and agent, docked at the left of each tab"
+description = "Sidebar of every space and agent, each agent a costumed pixel bot, docked at the left of each tab"
 platforms = ["linux"]
 
 [[panes]]
@@ -10,6 +10,13 @@ id = "cards"
 title = "Agents"
 placement = "split"
 command = ["@bin@", "panel"]
+
+# The panel's Settings row. The config is a live link into the checkout.
+[[panes]]
+id = "settings"
+title = "Herdr settings"
+placement = "overlay"
+command = ["sh", "-c", "nvim \"$HOME/.config/herdr/config.toml\"; exec \"${HERDR_BIN_PATH:-herdr}\" server reload-config"]
 
 [[startup]]
 command = ["@bin@", "dock"]

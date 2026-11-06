@@ -1,8 +1,10 @@
-"""Agent cards: a pixel-art column of herdr's spaces and their agents.
+"""Agent cards: a sidebar of herdr's spaces and their agents, each a pixel bot.
 
 Herdr plugins can't draw on its sidebar, only in panes, so this docks one pane
 at the left of every tab and hides the real sidebar (config/herdr/config.toml).
-Packaged and linked in modules/home/herdr.nix.
+Its look follows herdr's desktop app, as github.com/MarcozVD/herdr-layout-catppuccin
+paints it, with colors from the wallpaper's palette. Packaged and linked in
+modules/home/herdr.nix.
 
   herdr-agent-cards panel    what runs in the docked pane
   herdr-agent-cards dock     dock into the tabs named by a hook, or all of them
@@ -29,12 +31,16 @@ import zlib
 
 PLUGIN_ID = "local.agent-cards"
 LABEL = "agents"
-# Includes the two columns of the frame herdr draws around a pane.
-WIDTH = 36
+# About the 268 pixels the desktop app gives its sidebar.
+WIDTH = 34
 SOCKET = os.environ.get("HERDR_SOCKET_PATH", "")
 # Noctalia writes this on every wallpaper change, and WezTerm's colors come from
-# it too (modules/home/noctalia.nix), so the cards stay in step with the panes.
+# it too (modules/home/noctalia.nix), so the panel stays in step with the panes.
 PALETTE = os.path.expanduser("~/.config/wezterm/colors/Noctalia.toml")
+COSTUME_FILE = os.path.join(
+    os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state"),
+    "herdr", "agent-cards-costumes.json",
+)
 EVENTS = [
     "workspace.created", "workspace.updated", "workspace.renamed",
     "workspace.moved", "workspace.reordered", "workspace.closed",
@@ -48,17 +54,49 @@ REFRESH_GAP = 0.25
 IDLE_TICK = 2.0
 FRAME_TICK = 0.4
 
-# 8x8, two pixels per terminal cell. a: accent, d: dark, l: light, k: eye, w: white.
-SPRITES = [
-    ("...aa...", ".aaaaaa.", ".awaawa.", ".akaaka.", ".aaaaaa.", "..dddd..", ".aa..aa.", ".d....d."),
-    ("a......a", "aa....aa", "aaaaaaaa", "akaaaaka", "aaaddaaa", ".aaaaaa.", ".a.aa.a.", ".d.dd.d."),
-    ("..aaaa..", ".aaaaaa.", "awwaawwa", "akwaakwa", "aaaaaaaa", "aaaaaaaa", "aaddaada", "a.aa.aa."),
-    ("........", "...aa...", "..alaa..", ".allaaa.", ".akaaka.", "aaaaaaaa", "aaaddaaa", ".dddddd."),
-    ("..aaaa..", ".awaaaa.", "aaaawwaa", "aaaaaaaa", ".dddddd.", "..wkwk..", "..wwww..", "..wwww.."),
-    ("a......a", ".aaaaaa.", "awwaawwa", "awkaakwa", ".aaddaa.", ".alllla.", ".alllla.", "..d..d.."),
-    ("...aa...", "..awwa..", "..akka..", "..aaaa..", ".daaaad.", "d.aaaa.d", "..dddd..", "...ll..."),
-    ("a......a", "a.a..a.a", ".aaaaaa.", ".akaaka.", "aaaaaaaa", "a.aaaa.a", "..a..a..", ".a....a."),
-]
+# Rows a bot takes in the agents list. The design's rows are one line, but a
+# costume needs more pixels than that to read.
+AGENT_ROWS = 3
+# A Claude bot, 8x6, two pixels per terminal cell. b: body, k: eye.
+BOT = (
+    "........",
+    "........",
+    ".bkbbkb.",
+    "bbbbbbbb",
+    ".bbbbbb.",
+    ".b.bb.b.",
+)
+# Drawn over the bot by row, one per agent. h: apparel color, i: light trim,
+# k: dark.
+COSTUMES = (
+    {0: "..hhhh..", 1: ".iiiiii."},  # top hat
+    {0: "...ii...", 1: "..hhhh.."},  # party hat
+    {0: ".i.ii.i.", 1: ".iiiiii."},  # crown
+    {0: "...hh...", 1: ".hhihhh."},  # wizard
+    {0: ".ii.ii..", 1: "...hh..."},  # propeller
+    {0: "..hhhh..", 1: "hhhhhhhh"},  # cowboy
+    {1: ".iiiiii.", 2: "h......h"},  # headphones
+    {2: ".kikkik."},  # sunglasses
+    {4: "..hiih.."},  # bow tie
+    {3: ".hhhhhh.", 4: ".h......"},  # scarf
+    {3: "h......h", 4: "hh....hh", 5: "hh....hh"},  # cape
+    {1: ".hhihhh.", 2: ".kk....."},  # pirate
+    {0: ".iiiiii.", 1: ".iiiiii."},  # chef
+    {0: "...hh...", 1: ".iiiiii.", 2: ".i....i."},  # knight
+    {0: ".i....i.", 1: ".i....i."},  # bunny ears
+    {0: "...i....", 1: "...h....", 4: ".hhhhhh."},  # antenna and belt
+)
+# The agents list groups by state, most in need of you first.
+GROUPS = (
+    ("blocked", "Needs you"),
+    ("working", "Working"),
+    ("done", "Done"),
+    ("idle", "Idle"),
+    ("unknown", "Unknown"),
+)
+# Rounded ends for a row, like the design's pills. WezTerm draws these itself.
+ROUND_LEFT = "\ue0b6"
+ROUND_RIGHT = "\ue0b4"
 SPINNER = "◐◓◑◒"
 
 
@@ -103,6 +141,18 @@ def mix(a, b, amount):
     return tuple(round(x + (y - x) * amount) for x, y in zip(a, b))
 
 
+def hls(rgb):
+    return colorsys.rgb_to_hls(*(c / 255 for c in rgb))
+
+
+def vividness(rgb):
+    return hls(rgb)[2] * hls(rgb)[1]
+
+
+def distance(a, b):
+    return sum((x - y) ** 2 for x, y in zip(a, b)) ** 0.5
+
+
 def load_palette():
     # Greys until Noctalia has written its first palette.
     colors = {
@@ -119,12 +169,31 @@ def load_palette():
         rgb = parse_hex(value)
         if rgb not in accents:
             accents.append(rgb)
+    bg = parse_hex(colors["background"])
+    fg = parse_hex(colors["foreground"])
+    red = parse_hex(colors["ansi"][1])
+    accents = spread(accents)
+    body = max(accents, key=vividness)
+    # Apparel has to stand out on the bot, and a wallpaper's accents can all
+    # sit close to its body color.
+    apparel = [c for c in accents + [red] if distance(c, body) > 70] or [red]
     return {
-        "bg": parse_hex(colors["background"]),
-        "fg": parse_hex(colors["foreground"]),
-        "red": parse_hex(colors["ansi"][1]),
+        "bg": bg,
+        "fg": fg,
+        "red": red,
         "green": parse_hex(colors["ansi"][2]),
-        "accents": spread(accents),
+        "accents": accents,
+        "accent": body,
+        "body": body,
+        "apparel": apparel,
+        # The design's surfaces, mixed from the wallpaper's instead of its
+        # Catppuccin values: the column a shade off the panes, the lit row
+        # stronger, text stepping down toward the background.
+        "chrome": mix(bg, body, 0.07),
+        "selected": mix(bg, body, 0.24),
+        "muted": mix(fg, bg, 0.3),
+        "dim": mix(fg, bg, 0.5),
+        "rule": mix(bg, fg, 0.18),
     }
 
 
@@ -132,13 +201,10 @@ def spread(accents):
     # A wallpaper's palette can land on one hue, which would make every space
     # the same color. Fan out the brightest accent's hue, keeping its saturation
     # and lightness, so the set still belongs to the wallpaper.
-    def hls(rgb):
-        return colorsys.rgb_to_hls(*(c / 255 for c in rgb))
-
     hues = [hls(rgb)[0] for rgb in accents]
     if max(hues) - min(hues) > 0.25 and len(accents) >= 4:
         return accents
-    hue, light, saturation = hls(max(accents, key=lambda rgb: hls(rgb)[2] * hls(rgb)[1]))
+    hue, light, saturation = hls(max(accents, key=vividness))
     offsets = (0, 0.05, -0.05, 0.1, -0.1, 0.15)
     return [
         tuple(round(c * 255) for c in colorsys.hls_to_rgb((hue + o) % 1, light, saturation))
@@ -191,22 +257,52 @@ def seg(text, fg=None, bg=None, bold=False):
     return f"\x1b[{';'.join(codes)}m{text}\x1b[0m"
 
 
-def sprite_rows(index, accent, tile, frame):
+def bot_pixels(costume, state, tick):
+    grid = [list(row) for row in BOT]
+    # Each agent keeps its own time, so a column of them doesn't blink as one.
+    tick += costume * 3
+    step = tick % 2
+    if state == "working":
+        # Walks in place and swings its arms.
+        grid[5] = list(".b..b..." if step else "...b..b.")
+        arm = 7 if step else 0
+        grid[3][arm] = "."
+        grid[2][arm] = "b"
+    elif state == "blocked":
+        # Waves for attention, eyes flashing.
+        grid[3][7] = "."
+        grid[2 - step][7] = "b"
+        if step:
+            grid[2][2] = grid[2][5] = "r"
+    elif state == "done":
+        # Arms up, with a sparkle.
+        grid[3][0] = grid[3][7] = "."
+        grid[2][0] = grid[2][7] = "b"
+        grid[step][0 if step else 7] = "i"
+    elif tick % 12 == 0:
+        grid[2][2] = grid[2][5] = "d"
+    for y, row in COSTUMES[costume % len(COSTUMES)].items():
+        for x, pixel in enumerate(row):
+            if pixel != ".":
+                grid[y][x] = pixel
+    return grid
+
+
+def bot_rows(costume, state, tick, palette, tile):
+    apparel = palette["apparel"]
     colors = {
-        "a": accent,
-        "d": mix(accent, (0, 0, 0), 0.45),
-        "l": mix(accent, (255, 255, 255), 0.55),
+        "b": palette["body"],
+        "d": mix(palette["body"], (0, 0, 0), 0.45),
         "k": (16, 18, 20),
-        "w": (240, 242, 240),
+        "h": apparel[costume % len(apparel)],
+        "i": palette["fg"],
+        "r": palette["red"],
     }
-    # A working agent bobs up and down by one pixel.
-    pixels = list(SPRITES[index % len(SPRITES)])
-    if frame:
-        pixels = pixels[1:] + ["........"]
+    grid = bot_pixels(costume, state, tick)
     rows = []
-    for y in range(0, 8, 2):
+    for y in range(0, len(grid), 2):
         cells = []
-        for top, bottom in zip(pixels[y], pixels[y + 1]):
+        for top, bottom in zip(grid[y], grid[y + 1]):
             cells.append(seg("▀", colors.get(top, tile), colors.get(bottom, tile)))
         rows.append("".join(cells))
     return rows
@@ -222,129 +318,243 @@ def wrap_title(text, width):
     return head, text[width:].lstrip()
 
 
-def badge(state, frame, accent, palette, tint):
-    if state == "working":
-        return seg(f" {SPINNER[frame % 4]} WORKING ", palette["bg"], accent, True)
-    if state == "blocked":
-        return seg(" ! NEEDS YOU ", palette["bg"], palette["red"], True)
-    if state == "done":
-        return seg(" ✓ DONE ", palette["bg"], palette["green"], True)
-    if state == "shell":
-        return seg(" SHELL ", mix(palette["fg"], tint, 0.35), mix(tint, palette["fg"], 0.12))
-    if state == "unknown":
-        return seg(" ? ", mix(palette["fg"], tint, 0.35), mix(tint, palette["fg"], 0.12))
-    return seg(" z IDLE ", mix(accent, tint, 0.2), mix(tint, accent, 0.18))
+def state_color(state, palette):
+    return {
+        "blocked": palette["red"],
+        "working": palette["accent"],
+        "done": palette["green"],
+    }.get(state, palette["dim"])
 
 
-def card_lines(card, width, accent, palette, frame, sprite):
-    tint = mix(palette["bg"], accent, 0.10)
-    tile = mix(palette["bg"], accent, 0.22)
-    lit = card["focused"] or card["selected"]
-    edge = accent if lit else mix(palette["bg"], accent, 0.45)
-    corners = "┏━┓┃┗┛" if lit else "┌─┐│└┘"
-    text_width = width - 13
-    bob = frame % 2 if card["state"] == "working" else 0
-    art = sprite_rows(sprite, accent, tile, bob)
-    head, tail = wrap_title(card["title"], text_width)
-    pad_badge = text_width - width_of(re.sub(r"\x1b\[[0-9;]*m", "", badge(card["state"], frame, accent, palette, tint)))
+def state_mark(state, tick):
+    # A space or pane with no agent in it has no state to show.
+    return {
+        "blocked": "!",
+        "working": SPINNER[tick % 4],
+        "done": "✓",
+        "idle": "○",
+    }.get(state, " ")
+
+
+def ago(seconds):
+    if seconds is None:
+        return ""
+    if seconds < 3600:
+        return f"{max(int(seconds // 60), 1)}m"
+    return f"{int(seconds // 3600)}h"
+
+
+def blank_line(width, palette):
+    return seg(" " * width, bg=palette["chrome"])
+
+
+def agent_lines(agent, width, palette, tick):
+    chrome = palette["chrome"]
+    tile = palette["selected"] if agent["lit"] else chrome
+    text_width = width - 11
+    art = bot_rows(agent["costume"], agent["state"], tick, palette, tile)
+    head, tail = wrap_title(agent["title"], text_width)
+    right = f"{agent['ago']} {state_mark(agent['state'], tick)}".strip()
     rows = [
-        badge(card["state"], frame, accent, palette, tint) + seg(" " * pad_badge, bg=tint),
-        seg(fit(head, text_width), palette["fg"], tint, True),
-        seg(fit(tail, text_width), mix(palette["fg"], tint, 0.3), tint),
-        seg(fit("└ " + card["footer"], text_width), mix(accent, tint, 0.3), tint),
+        "".join([
+            seg(fit(agent["where"], text_width - len(right)), palette["fg"], tile, True),
+            seg(right, state_color(agent["state"], palette), tile),
+        ]),
+        seg(fit(head, text_width), palette["muted"], tile),
+        seg(fit(tail or agent["folder"], text_width), palette["dim"], tile),
     ]
-    lines = [seg(corners[0] + corners[1] * (width - 2) + corners[2], edge, tint)]
-    side = seg(corners[3], edge, tint)
-    gap = seg(" ", bg=tint)
-    for picture, text in zip(art, rows):
-        lines.append(side + gap + picture + gap + text + gap + side)
-    lines.append(seg(corners[4] + corners[1] * (width - 2) + corners[5], edge, tint))
-    return lines
+    edge = seg(" ", bg=chrome)
+    gap = seg(" ", bg=tile)
+    return [edge + picture + gap + text + edge for picture, text in zip(art, rows)]
 
 
-def section_header(name, busy, total, width, accent, palette):
-    count = f" {busy}/{total}"
-    room = width - len(count) - 2
-    title = name.upper()
-    if width_of(title) > room - 1:
-        title = fit(title, room - 1).rstrip()
-    rule = "─" * (room - width_of(title))
+def child_line(child, width, palette):
+    # A pane sharing the agent's tab, on the tree guide the design hangs them from.
+    chrome = palette["chrome"]
+    tile = palette["selected"] if child["lit"] else chrome
+    guide = "└ " if child["last"] else "├ "
     return "".join([
-        seg("▌", accent),
-        seg(title + " ", accent, None, True),
-        seg(rule[1:], mix(palette["bg"], accent, 0.35)),
-        seg(count, mix(accent, palette["bg"], 0.25)),
+        seg("    ", bg=chrome),
+        seg(guide, palette["rule"], chrome),
+        seg(">_ ", palette["dim"], tile),
+        seg(fit(child["name"], width - 10), palette["fg"] if child["lit"] else palette["muted"], tile),
+        seg(" ", bg=chrome),
     ])
+
+
+def space_line(space, width, palette, tick):
+    chrome = palette["chrome"]
+    tile = palette["selected"] if space["lit"] else chrome
+    letter = space["label"][:1].upper() or "?"
+    return "".join([
+        seg(ROUND_LEFT, tile, chrome) if space["lit"] else seg(" ", bg=chrome),
+        seg(ROUND_LEFT, space["tint"], tile),
+        seg(letter, palette["bg"], space["tint"], True),
+        seg(ROUND_RIGHT, space["tint"], tile),
+        seg(" " + fit(space["label"], width - 8) + " ", palette["fg"] if space["lit"] else palette["muted"], tile),
+        seg(state_mark(space["state"], tick), state_color(space["state"], palette), tile),
+        seg(ROUND_RIGHT, tile, chrome) if space["lit"] else seg(" ", bg=chrome),
+    ])
+
+
+def section_title(name, width, palette, right=""):
+    chrome = palette["chrome"]
+    return seg(" " + fit(name, width - 2 - len(right)), palette["dim"], chrome) + seg(right + " ", palette["muted"], chrome)
+
+
+def group_title(state, name, count, width, palette):
+    chrome = palette["chrome"]
+    text = f" {name} "
+    return seg(text, state_color(state, palette), chrome, True) + seg(fit(str(count), width - len(text)), palette["dim"], chrome)
+
+
+def rule_line(width, palette):
+    return seg("─" * width, palette["rule"], palette["chrome"])
+
+
+def menu_line(label, width, palette):
+    return seg(fit("  " + label, width), palette["fg"], palette["selected"])
 
 
 # Model
 
 
-def tab_name(tab):
-    # Herdr numbers unnamed tabs, and a bare number needs the word to mean much.
-    label = tab.get("label", "?")
-    return f"tab {label}" if label.isdigit() else label
+def costume_map(pane_ids, cached):
+    # Each tab's panel draws every agent and they have to agree, and an agent
+    # keeps its costume while others come and go, so the choices live in a file.
+    if all(pane in cached for pane in pane_ids):
+        return cached
+    os.makedirs(os.path.dirname(COSTUME_FILE), exist_ok=True)
+    with open(COSTUME_FILE + ".lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        try:
+            with open(COSTUME_FILE) as file:
+                saved = json.load(file)
+        except (OSError, ValueError):
+            saved = {}
+        # Agents that have gone give theirs back.
+        taken = {pane: saved[pane] for pane in pane_ids if pane in saved}
+        size = len(COSTUMES)
+        for pane in pane_ids:
+            if pane not in taken:
+                free = [i for i in range(size) if i not in taken.values()] or list(range(size))
+                start = zlib.crc32(pane.encode()) % size
+                taken[pane] = min(free, key=lambda i: (i - start) % size)
+        with open(COSTUME_FILE + ".new", "w") as file:
+            json.dump(taken, file)
+        os.replace(COSTUME_FILE + ".new", COSTUME_FILE)
+    return taken
 
 
-def build_sections(snap, selected):
-    panes = [p for p in snap["panes"] if p.get("label") != LABEL]
+def agent_panes(snap):
+    return [p for p in snap["panes"] if p.get("agent") and p.get("label") != LABEL]
+
+
+def build_spaces(snap, width, tick, palette, selected, tints):
+    lines = []
+    focus = None
+    focused = snap.get("focused_workspace_id")
+    for index, workspace in enumerate(snap["workspaces"]):
+        target = ("workspace", workspace["workspace_id"])
+        chosen = target == selected
+        if chosen or (workspace["workspace_id"] == focused and focus is None):
+            focus = index
+        space = {
+            "label": workspace["label"],
+            "tint": tints[workspace["workspace_id"]],
+            "state": workspace.get("agent_status", "unknown"),
+            "lit": chosen or workspace["workspace_id"] == focused,
+        }
+        lines.append((space_line(space, width, palette, tick), target))
+    return lines, focus
+
+
+def build_agents(snap, width, tick, palette, selected, costumes, since):
+    names = {w["workspace_id"]: w for w in snap["workspaces"]}
     tabs = {t["tab_id"]: t for t in snap["tabs"]}
-    sections = []
-    for workspace in snap["workspaces"]:
-        members = [p for p in panes if p["workspace_id"] == workspace["workspace_id"]]
-        agents = [p for p in members if p.get("agent")]
-        if not agents:
-            active = workspace.get("active_tab_id")
-            agents = [p for p in members if p["tab_id"] == active][:1]
-        cards = []
-        for pane in agents:
-            agent = pane.get("agent")
-            tab = tabs.get(pane["tab_id"], {})
+    focused = snap.get("focused_pane_id")
+    agents = agent_panes(snap)
+    others = {}
+    for pane in snap["panes"]:
+        if not pane.get("agent") and pane.get("label") != LABEL:
+            others.setdefault(pane["tab_id"], []).append(pane)
+
+    lines = []
+    order = []
+    focus = None
+    now = time.monotonic()
+    placed = set()
+    for state, title in GROUPS:
+        members = [p for p in agents if p.get("agent_status", "unknown") == state]
+        if not members:
+            continue
+        if lines:
+            lines.append((blank_line(width, palette), None))
+        lines.append((group_title(state, title, len(members), width, palette), None))
+        for index, pane in enumerate(members):
+            if index:
+                lines.append((blank_line(width, palette), None))
+            target = ("pane", pane["pane_id"])
+            chosen = target == selected
+            lit = chosen or pane["pane_id"] == focused
+            if chosen or (lit and focus is None):
+                focus = len(lines)
             cwd = pane.get("foreground_cwd") or pane.get("cwd") or ""
-            folder = os.path.basename(cwd) or "shell"
-            title = (pane.get("title") or pane.get("terminal_title_stripped") or folder) if agent else folder
-            cards.append({
-                "pane_id": pane["pane_id"],
-                "workspace_id": workspace["workspace_id"],
-                "state": pane.get("agent_status", "unknown") if agent else "shell",
-                "title": title,
-                "footer": f"{agent or 'shell'} · {tab_name(tab)}",
-                "focused": pane["pane_id"] == snap.get("focused_pane_id"),
-                "selected": pane["pane_id"] == selected,
-            })
-        busy = sum(c["state"] in ("working", "blocked") for c in cards)
-        sections.append({"workspace": workspace, "cards": cards, "busy": busy})
-    return sections
+            folder = os.path.basename(cwd) or "~"
+            workspace = names.get(pane["workspace_id"], {})
+            where = workspace.get("label", "?")
+            if workspace.get("tab_count", 1) > 1:
+                where += f" · {tabs.get(pane['tab_id'], {}).get('number', '?')}"
+            changed = since.get(pane["pane_id"])
+            agent = {
+                "costume": costumes.get(pane["pane_id"], 0),
+                "state": state,
+                "title": pane.get("label") or pane.get("title") or pane.get("terminal_title_stripped") or folder,
+                "folder": folder,
+                "where": where,
+                "ago": ago(None if changed is None else now - changed),
+                "lit": lit,
+            }
+            lines += [(line, target) for line in agent_lines(agent, width, palette, tick)]
+            order.append(target)
+            # A tab's other panes hang from its first agent.
+            if pane["tab_id"] in placed:
+                continue
+            placed.add(pane["tab_id"])
+            children = others.get(pane["tab_id"], [])
+            for place, child in enumerate(children):
+                target = ("pane", child["pane_id"])
+                chosen = target == selected
+                lit = chosen or child["pane_id"] == focused
+                if chosen or (lit and focus is None):
+                    focus = len(lines)
+                child_cwd = child.get("foreground_cwd") or child.get("cwd") or ""
+                row = {
+                    "name": child.get("label") or os.path.basename(child_cwd) or "shell",
+                    "last": place == len(children) - 1,
+                    "lit": lit,
+                }
+                lines.append((child_line(row, width, palette), target))
+                order.append(target)
+    if not lines:
+        lines = [(seg(fit(" No agents running", width), palette["dim"], palette["chrome"]), None)]
+    return lines, order, focus
 
 
-def build_frame(snap, cols, frame, palette, selected):
-    width = max(cols - 1, 20)
+def build_frame(snap, width, tick, palette, selected, costumes, since):
     labels = [w["label"] for w in snap["workspaces"]]
     hues = assign(labels, len(palette["accents"]))
-    sprites = assign(labels, len(SPRITES))
-    sections = build_sections(snap, selected)
-    busy = sum(s["busy"] for s in sections)
-    dim = mix(palette["fg"], palette["bg"], 0.45)
-    right = f"{busy} BUSY"
-    lines = [
-        (seg("▓▒░ ", dim) + seg(fit("AGENTS", width - 4 - len(right)), dim, None, True) + seg(right, dim), None),
-        ("", None),
-    ]
-    focus_line = 0
-    for section in sections:
-        label = section["workspace"]["label"]
-        accent = palette["accents"][hues[label]]
-        target = ("workspace", section["workspace"]["workspace_id"])
-        header = section_header(label, section["busy"], len(section["cards"]), width, accent, palette)
-        lines.append((header, target))
-        for card in section["cards"]:
-            if card["focused"] or card["selected"]:
-                focus_line = len(lines)
-            for line in card_lines(card, width, accent, palette, frame, sprites[label]):
-                lines.append((line, ("pane", card["pane_id"])))
-    animate = any(c["state"] == "working" for s in sections for c in s["cards"])
-    order = [c["pane_id"] for s in sections for c in s["cards"]]
-    return lines, focus_line, animate, order
+    tints = {w["workspace_id"]: palette["accents"][hues[w["label"]]] for w in snap["workspaces"]}
+    spaces, space_focus = build_spaces(snap, width, tick, palette, selected, tints)
+    agents, panes, agent_focus = build_agents(snap, width, tick, palette, selected, costumes, since)
+    return {
+        "spaces": spaces,
+        "agents": agents,
+        "space_focus": space_focus,
+        "agent_focus": agent_focus,
+        "animate": bool(agent_panes(snap)),
+        "order": [target for _, target in spaces] + panes,
+    }
 
 
 # Panel
@@ -363,12 +573,22 @@ class Panel:
         self.frame = 0
         self.scroll = 0
         self.follow = None
+        self.space_scroll = 0
+        self.space_follow = None
+        self.spaces_at = (0, 0)
         self.selected = None
         self.order = []
-        self.lines = []
+        self.screen = []
+        self.costumes = {}
+        self.states = {}
+        self.since = {}
+        self.tracking = False
         self.drawn = {}
         self.animate = False
         self.naming = None
+        self.prompt_for = None
+        self.menu = None
+        self.menu_row = 0
         self.back = None
         self.new_cwd = None
         self.palette = load_palette()
@@ -403,8 +623,11 @@ class Panel:
             call("pane.close", {"pane_id": self.pane_id})
             raise SystemExit
         focused = self.snap.get("focused_pane_id")
+        if self.menu and focused != self.menu["focused"]:
+            self.menu = None
         if focused == self.pane_id:
-            self.selected = self.selected or self.back
+            if not self.selected and self.back:
+                self.selected = ("pane", self.back)
         else:
             self.selected = None
             self.naming = None
@@ -421,53 +644,141 @@ class Panel:
         except (ApiError, OSError):
             pass
 
+    def track_states(self):
+        # Herdr doesn't say when an agent's state changed, so a panel can only
+        # time the changes it saw itself: agents it starts up with show no time.
+        now = time.monotonic()
+        agents = {p["pane_id"]: p.get("agent_status", "unknown") for p in agent_panes(self.snap)}
+        for pane, state in agents.items():
+            if self.states.get(pane) != state:
+                self.since[pane] = now if self.tracking else None
+        self.states = agents
+        self.tracking = True
+
     def draw(self):
         if not self.snap:
             return
-        self.lines, focus_line, self.animate, self.order = build_frame(
-            self.snap, self.size.columns, self.frame, self.palette, self.selected
-        )
-        rows = self.list_rows()
-        most = max(len(self.lines) - rows, 0)
-        if focus_line != self.follow:
-            self.follow = focus_line
-            if focus_line < self.scroll:
-                self.scroll = max(focus_line - 1, 0)
-            elif focus_line + 6 > self.scroll + rows:
-                self.scroll = focus_line + 6 - rows
-        self.scroll = min(self.scroll, most)
+        self.costumes = costume_map([p["pane_id"] for p in agent_panes(self.snap)], self.costumes)
+        self.track_states()
+        built = build_frame(self.snap, self.width(), self.frame, self.palette, self.selected, self.costumes, self.since)
+        self.animate = built["animate"]
+        self.order = built["order"]
+        self.screen = self.compose(built, self.list_rows())
+        self.overlay_menu()
         out = ["\x1b[?2026h"]
-        for row in range(rows):
-            index = row + self.scroll
-            text = self.lines[index][0] if index < len(self.lines) else ""
+        for row, (text, _) in enumerate(self.screen):
             if self.drawn.get(row) != text:
                 self.drawn[row] = text
                 out.append(f"\x1b[{row + 1};1H\x1b[0m\x1b[2K{text}")
-        footer = self.footer()
-        if self.drawn.get(rows) != footer:
-            self.drawn[rows] = footer
-            out.append(f"\x1b[{rows + 1};1H\x1b[0m\x1b[2K{footer}")
         out.append("\x1b[?2026l")
         sys.stdout.write("".join(out))
         sys.stdout.flush()
 
+    def compose(self, built, rows):
+        # The agents take what the spaces leave: a bot is three rows and a space
+        # is one, so the design's even split would mostly show blanks.
+        width = self.width()
+        palette = self.palette
+        blank = (blank_line(width, palette), None)
+        rule = (rule_line(width, palette), None)
+        top = [blank, (section_title("Spaces", width, palette, "+"), ("new", None))]
+        spaces = built["spaces"]
+        room = min(len(spaces), max(rows // 3, 1))
+        self.space_scroll = min(self.space_scroll, len(spaces) - room)
+        focus = built["space_focus"]
+        if focus is not None and focus != self.space_follow:
+            self.space_follow = focus
+            if focus < self.space_scroll:
+                self.space_scroll = focus
+            elif focus >= self.space_scroll + room:
+                self.space_scroll = focus - room + 1
+        self.spaces_at = (len(top), len(top) + room)
+        screen = top + spaces[self.space_scroll:self.space_scroll + room]
+        screen += [blank, rule, blank, (section_title("Agents", width, palette), None)]
+
+        agents = built["agents"]
+        room = max(rows - len(screen), 0)
+        focus = built["agent_focus"]
+        if focus is not None and focus != self.follow:
+            self.follow = focus
+            if focus < self.scroll:
+                self.scroll = focus
+            elif focus + AGENT_ROWS > self.scroll + room:
+                self.scroll = focus + AGENT_ROWS - room
+        self.scroll = min(self.scroll, max(len(agents) - room, 0))
+        screen += agents[self.scroll:self.scroll + room]
+        return (screen + [blank] * rows)[:rows] + self.footer()
+
+    def width(self):
+        return max(self.size.columns, 20)
+
     def list_rows(self):
-        return max(self.size.lines - 1, 1)
+        return max(self.size.lines - 3, 1)
 
     def footer(self):
-        # Hiding herdr's sidebar hides its "new" and "menu" too. A plugin can
-        # create a space but can't open that menu, so the sidebar is the way there.
-        width = max(self.size.columns - 1, 20)
-        dim = mix(self.palette["fg"], self.palette["bg"], 0.45)
+        # Hiding herdr's sidebar hides its "menu" too, and a plugin can't open
+        # that menu, so the sidebar is the way there.
+        width = self.width()
+        palette = self.palette
+        chrome = palette["chrome"]
+        rule = (rule_line(width, palette), None)
+        settings = (seg(fit(" ⚙ Settings", width), palette["muted"], chrome), ("settings", None))
         if self.naming is not None:
-            room = width - 8
-            return seg(" name: ", dim) + seg(self.naming[-room:] + "▏", self.palette["fg"], None, True)
-        hint = "^space b: menu"
-        left = " + new"
-        pad = " " * max(width - len(left) - len(hint), 1)
-        return seg(left, self.palette["accents"][0], None, True) + seg(pad + hint, dim)
+            label = f" {self.prompt_for[2]}: "
+            room = width - len(label) - 1
+            shown = fit(self.naming[-room:] + "▏", room + 1)
+            return [rule, settings, (seg(label, palette["dim"], chrome) + seg(shown, palette["fg"], chrome, True), None)]
+        hint = "^space b "
+        return [rule, settings, (seg(fit(" ≡ Menu", width - len(hint)), palette["muted"], chrome) + seg(hint, palette["dim"], chrome), None)]
 
-    def start_naming(self):
+    def overlay_menu(self):
+        if not self.menu:
+            return
+        items = self.menu["items"]
+        start = min(self.menu["row"], max(len(self.screen) - len(items), 0))
+        for index, (label, _) in enumerate(items):
+            self.screen[start + index] = (menu_line(label, self.width(), self.palette), ("menu", index))
+
+    def open_menu(self, target, row):
+        kind, value = target
+        if kind == "workspace":
+            workspace = next(w for w in self.snap["workspaces"] if w["workspace_id"] == value)
+            items = [
+                ("Rename space", lambda: self.start_prompt(("workspace", value, "rename"), workspace["label"])),
+                ("New tab", lambda: call("tab.create", {"workspace_id": value, "focus": True})),
+                ("Close space", lambda: self.confirm("workspace.close", {"workspace_id": value}, workspace["label"])),
+            ]
+        elif kind == "pane":
+            pane = next(p for p in self.snap["panes"] if p["pane_id"] == value)
+            name = pane.get("label") or pane.get("terminal_title_stripped") or "pane"
+            items = [
+                ("Rename pane", lambda: self.start_prompt(("pane", value, "rename"), pane.get("label") or "")),
+                ("Close pane", lambda: self.confirm("pane.close", {"pane_id": value}, name)),
+            ]
+        else:
+            return
+        self.menu = {"items": items, "row": row - 1, "focused": self.snap.get("focused_pane_id")}
+        self.draw()
+
+    def confirm(self, method, params, name):
+        # Closing a space or pane ends what runs in it, so it takes a second click.
+        self.menu = {
+            "items": [(f"Close {name}?", lambda: call(method, params)), ("Cancel", lambda: None)],
+            "row": self.menu_row,
+            "focused": self.snap.get("focused_pane_id"),
+        }
+
+    def pick_menu(self, index):
+        self.menu_row = self.menu["row"]
+        action = self.menu["items"][index][1]
+        self.menu = None
+        try:
+            action()
+        except ApiError:
+            pass
+        self.draw()
+
+    def start_prompt(self, prompt_for, text=""):
         focused = self.snap.get("focused_pane_id")
         panes = {p["pane_id"]: p for p in self.snap["panes"]}
         if focused != self.pane_id:
@@ -480,19 +791,33 @@ class Panel:
         except ApiError:
             return
         self.snap["focused_pane_id"] = self.pane_id
-        self.naming = ""
+        self.prompt_for = prompt_for
+        self.naming = text
         self.draw()
+
+    def finish_prompt(self):
+        kind, value, _ = self.prompt_for
+        text = self.naming.strip()
+        self.naming = None
+        if kind == "new":
+            params = {"focus": True}
+            if text:
+                params["label"] = text
+            if self.new_cwd:
+                params["cwd"] = self.new_cwd
+            call("workspace.create", params)
+            return
+        if kind == "workspace" and text:
+            call("workspace.rename", {"workspace_id": value, "label": text})
+        elif kind == "pane":
+            call("pane.rename", {"pane_id": value, "label": text or None})
+        if self.back:
+            self.jump(("pane", self.back))
 
     def on_naming(self, token):
         if token in (b"\r", b"\n"):
-            params = {"focus": True}
-            if self.naming.strip():
-                params["label"] = self.naming.strip()
-            if self.new_cwd:
-                params["cwd"] = self.new_cwd
-            self.naming = None
             try:
-                call("workspace.create", params)
+                self.finish_prompt()
             except ApiError:
                 pass
         elif token in (b"\x1b", b"\x03"):
@@ -528,40 +853,66 @@ class Panel:
         try:
             if kind == "workspace":
                 call("workspace.focus", {"workspace_id": value})
-            else:
+            elif kind == "pane":
                 call("pane.focus", {"pane_id": value})
+            elif kind == "new":
+                self.start_prompt(("new", None, "name"))
+            elif kind == "settings":
+                call("plugin.pane.open", {"plugin_id": PLUGIN_ID, "entrypoint": "settings", "placement": "overlay", "focus": True})
         except ApiError:
             pass
 
+    def target_at(self, row):
+        return self.screen[row - 1][1] if 0 < row <= len(self.screen) else None
+
     def on_mouse(self, button, col, row, release):
-        if button == 64:
-            self.scroll = max(self.scroll - 3, 0)
+        if button in (64, 65):
+            step = -3 if button == 64 else 3
+            if self.spaces_at[0] <= row - 1 < self.spaces_at[1]:
+                self.space_scroll = max(self.space_scroll + step, 0)
+            else:
+                self.scroll = max(self.scroll + step, 0)
             self.draw()
-        elif button == 65:
-            self.scroll = min(self.scroll + 3, max(len(self.lines) - self.list_rows(), 0))
-            self.draw()
-        elif button == 0 and not release and row > self.list_rows():
-            if col <= 7 and self.naming is None:
-                self.start_naming()
-        elif button == 0 and not release:
-            index = row - 1 + self.scroll
-            if 0 <= index < len(self.lines) and self.lines[index][1]:
-                self.jump(self.lines[index][1])
+            return
+        if release:
+            return
+        target = self.target_at(row)
+        if self.menu:
+            if button == 0 and target and target[0] == "menu":
+                self.pick_menu(target[1])
+            else:
+                self.menu = None
+                self.draw()
+        elif button == 2 and target:
+            self.open_menu(target, row)
+        elif button == 0 and target:
+            # The whole row carries the header's target, but only its + is a button.
+            if target[0] != "new" or col >= self.width() - 2:
+                self.jump(target)
 
     def on_key(self, key):
         # Pane navigation can land here, so the column works from the keyboard too.
         if key in (b"\x1b", b"\x03") and self.back:
+            self.menu = None
             self.jump(("pane", self.back))
         if not self.order:
             return
         if key in (b"j", b"\x1b[B", b"k", b"\x1b[A"):
             step = 1 if key in (b"j", b"\x1b[B") else -1
-            current = self.selected or self.snap.get("focused_pane_id")
+            current = self.selected or ("pane", self.snap.get("focused_pane_id"))
             index = self.order.index(current) if current in self.order else -step
             self.selected = self.order[(index + step) % len(self.order)]
             self.draw()
         elif key in (b"\r", b"\n") and self.selected:
-            self.jump(("pane", self.selected))
+            self.jump(self.selected)
+        elif key == b"r" and self.selected:
+            kind, value = self.selected
+            if kind == "workspace":
+                label = next(w["label"] for w in self.snap["workspaces"] if w["workspace_id"] == value)
+                self.start_prompt(("workspace", value, "rename"), label)
+            else:
+                label = next((p.get("label") for p in self.snap["panes"] if p["pane_id"] == value), None)
+                self.start_prompt(("pane", value, "rename"), label or "")
 
     def on_input(self, data):
         tokens = rb"\x1b\[<(\d+);(\d+);(\d+)([Mm])|\x1b\[[0-9;]*[A-Za-z~]|[\x1b\r\n\x7f\x03\x08]|[^\x1b\r\n\x7f\x03\x08]+"
@@ -591,6 +942,12 @@ class Panel:
         signal.signal(signal.SIGWINCH, lambda *_: None)
         selector.register(wake_read, selectors.EVENT_READ, "resize")
 
+        # Otherwise herdr opens its own pane menu on a right-click, which would
+        # offer to rename this panel rather than the row under the mouse.
+        try:
+            call("pane.input.set", {"pane_id": self.pane_id, "right_click": "pane"})
+        except ApiError:
+            pass
         self.refresh()
         self.fit_column()
         due = None

@@ -349,28 +349,45 @@ reads the private key and every copy. Read the diff before moving it.
 
 ### Agent cards in herdr
 
-The `agent-cards` plugin replaces herdr's sidebar with a column of cards at the
-left of every tab: one section per space, one card per agent, with a pixel-art
-sprite and the agent's state. Click a card or section to go there, or press
-`Ctrl+Space w` to move the keyboard into the column: `j`/`k` step through the
-cards across spaces, Enter goes to the highlighted one, Esc goes back.
-`Ctrl+Space a` closes or reopens the column in the current tab. Herdr's own
-picker moved to `Ctrl+Space W`, since its highlight is in the hidden sidebar,
-and renaming a space moved from there to `Ctrl+Space S`.
+The `agent-cards` plugin replaces herdr's sidebar with a panel at the left of
+every tab. Its look follows herdr's desktop app, as
+[herdr-layout-catppuccin](https://github.com/MarcozVD/herdr-layout-catppuccin)
+paints it: spaces with colored letter tiles, agents grouped by state, and
+Settings at the bottom. The tab pills and pane cards aren't here, because the
+terminal herdr draws its own tab bar and pane dividers.
 
-`+ new` at the bottom of the column asks for a name and creates a space. Enter
-confirms, Esc cancels. Herdr's own `new` and `menu` buttons are in its hidden
-sidebar. `Ctrl+Space b` shows it, and it's the only way to reach `menu`.
+Each agent is a pixel Claude bot in its own costume, kept until the agent ends.
+A bot walks while its agent works, waves when it needs you, raises its arms
+when it's done, and blinks when it's idle. There are 16 costumes, and a 17th
+agent shares one. The choices are in
+`~/.local/state/herdr/agent-cards-costumes.json`. Other panes in an agent's tab
+hang from it on a tree guide. The time beside an agent is how long it's been in
+that state. A panel can only time changes it saw, so it's blank at first.
 
-Colors come from the palette Noctalia writes for WezTerm, so the cards change
-with the wallpaper. A wallpaper's palette is often one hue, so the plugin fans
-out the brightest accent's hue to tell spaces apart.
+Click a row to go there. Right-click a space to rename it, open a new tab in it,
+or close it, and right-click an agent or pane to rename or close it. Closing
+asks first. `+` beside Spaces asks for a name and creates a space. Enter
+confirms, Esc cancels.
+
+`Ctrl+Space w` moves the keyboard into the panel: `j`/`k` step through the rows,
+Enter goes to the highlighted one, `r` renames it, Esc goes back. `Ctrl+Space a`
+closes or reopens the panel in the current tab. Herdr's own picker moved to
+`Ctrl+Space W`, since its highlight is in the hidden sidebar, and renaming a
+space moved from there to `Ctrl+Space S`.
+
+Settings opens `config/herdr/config.toml` in Neovim and reloads it when you quit.
+Herdr's `menu` is in its hidden sidebar: `Ctrl+Space b` shows it.
+
+Colors come from the palette Noctalia writes for WezTerm, so the panel, the bots
+and their costumes change with the wallpaper. The bots aren't Claude orange for
+that reason. A wallpaper's palette is often one hue, so the plugin fans out the
+brightest accent's hue to tell spaces apart.
 
 Herdr plugins can only draw in panes, which has a few consequences:
 
 - Each tab holds its own panel pane, and zooming a pane covers it.
 - A new tab docks by itself. Herdr can't add a pane at a layout's root, so a
-  tab that's already split when the column opens gets it beside the top-left
+  tab that's already split when the panel opens gets it beside the top-left
   pane only, not at full height.
 - A session restore brings the panes back as shells, and the plugin's startup
   hook restarts the panels in them. A panel closes itself when its tab has no
@@ -380,8 +397,27 @@ After the first rebuild, herdr only docks new tabs. Run `herdr-agent-cards dock`
 in a herdr pane to dock the existing ones, and press `Ctrl+Space b` to hide the
 sidebar until herdr's next launch hides it.
 
+A panel that's already open keeps running its old code after a rebuild. New tabs
+get the new code, and the rest get it the next time herdr's server starts
+(`herdr server stop`, then `herdr`).
+
 The code is `config/herdr/agent-cards/`, packaged and linked by
 `modules/home/herdr.nix`.
+
+### Session graph in herdr
+
+`Ctrl+Space Z` on a pane running Claude Code opens
+[zoetrope](https://github.com/furkankly/zoetrope) over it: a live graph of the
+agent, its subagents, and their tool calls. The same key or `q` closes it. It
+finds the session through herdr's Claude integration, like the session diff
+below, and an agent started before that integration was installed has to be
+restarted first. `nix flake update zoetrope` updates it, which also helps when a
+Claude Code update changes the transcript format it reads. Its package is
+`pkgs/zoetrope.nix`, and `modules/home/herdr.nix` links its plugin.
+
+The package patches its fixed colors to the terminal's own, so the graph follows
+the wallpaper like everything else. If `nix flake update zoetrope` fails on a
+`substituteInPlace` line, upstream moved one of those colors.
 
 ### Reviewing a Claude session's changes
 

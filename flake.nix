@@ -21,6 +21,12 @@
       url = "github:harveywuk/librepods";
       flake = false;
     };
+    # Session graph in herdr; pkgs/zoetrope.nix builds it, and modules/home/herdr.nix
+    # links the herdr plugin from the same source.
+    zoetrope = {
+      url = "github:furkankly/zoetrope";
+      flake = false;
+    };
     # Clipboard sync for Lan Mouse; built by pkgs/lan-clip.nix. It reads the Lan
     # Mouse private key and every copy, and it's a new project from one author,
     # so it stays on this reviewed commit: read the diff before moving the rev.

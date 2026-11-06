@@ -7,6 +7,10 @@ auto_switch = false
 [ui]
 sidebar_start_collapsed = true
 sidebar_collapsed_mode = "hidden"
+# No frame around the outside, so the panel reaches the window's edge like the
+# desktop app's sidebar, with a single divider beside it.
+pane_outer_borders = false
+pane_gaps = false
 
 [terminal]
 default_shell = "fish"
@@ -36,6 +40,13 @@ key = "prefix+d"
 type = "shell"
 command = "claude-session-diff toggle"
 description = "Claude session diff"
+
+# The focused agent's session as a live graph (zoetrope, modules/home/herdr.nix)
+[[keys.command]]
+key = "prefix+shift+z"
+type = "plugin_action"
+command = "furkankly.zoetrope.open"
+description = "zoetrope: session graph"
 
 [[keys.command]]
 key = "prefix+a"
