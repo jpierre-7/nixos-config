@@ -23,7 +23,9 @@ end
 config.window_background_opacity = 0.95
 local accent = has_scheme and color_scheme.tab_bar.active_tab.bg_color -- Noctalia primary
 
-config.font = wezterm.font("Maple Mono")
+-- Plain Maple Mono has no Nerd Font icons or CJK. NF CN has both, so they stay
+-- Maple instead of falling through to WezTerm's built-ins and Unifont.
+config.font = wezterm.font_with_fallback({ "Maple Mono", "Maple Mono NF CN" })
 config.font_size = 14
 
 config.use_fancy_tab_bar = false
