@@ -59,3 +59,6 @@ key = "prefix+w"
 type = "plugin_action"
 command = "local.agent-cards.navigate"
 description = "Navigate agent cards"
+
+[experimental]
+kitty_graphics = true

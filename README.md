@@ -472,9 +472,12 @@ The `terminal-browser` plugin opens a Chromium page inside Claude Code with
 `/browser`. `config/claude/settings.json` declares the plugin and sets
 `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS`, which it needs. The browser itself is
 `pkgs/terminal-browser.nix`, a pinned upstream binary, so `terminal-browser
-upgrade` does not apply: bump the version and hash there instead. It needs a
-terminal with kitty graphics and unicode placeholders. Upstream names Ghostty
-and kitty, and warns that multiplexers can break it. The package sets
+upgrade` does not apply: bump the version and hash there instead. Claude Code
+only draws images on kitty and Ghostty, and herdr identifies itself as
+`libghostty`, so the page stays blank until
+`CLAUDE_CODE_FORCE_TERMINAL_IMAGES` skips that check. It's set for every session
+in `settings.json`, and tested in herdr on WezTerm, with
+`experimental.kitty_graphics` on in `config/herdr/config.toml`. The package sets
 `TERMINAL_BROWSER_NO_TELEMETRY`, which stops its usage events and crash reports.
 
 ### ADHD mode
