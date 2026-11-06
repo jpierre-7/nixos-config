@@ -466,6 +466,12 @@ loads it by itself from `~/.claude/skills`. Its options go in
 `pluginConfigs."prompt-cache-control@skills-dir".options`. They're listed in
 the mod's README.
 
+### ADHD mode
+
+`config/claude/CLAUDE.md` imports the `i-have-adhd` skill, so every session
+starts with its rules and nobody has to type `/i-have-adhd`. "stop adhd mode"
+turns it off for one session. To turn it off everywhere, delete the import.
+
 ### Routine updates
 
 ```sh
