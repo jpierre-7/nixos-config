@@ -77,13 +77,14 @@ Two things follow from that:
   that adds a plugin, log out and back in (or restart Noctalia) before its
   widget shows up.
 
-The terminal, prompt, editor, launcher and Claude Code (theme and status
-line) take their colors from Noctalia. `noctalia.nix` registers a template
+The window rims, terminal, prompt, editor, launcher and Claude Code (theme and
+status line) take their colors from Noctalia. `noctalia.nix` registers a template
 for each, and Noctalia renders them again each time its palette changes (new
 wallpaper, palette source, scheme or light/dark mode):
 
 | Output | Template | Picked up by |
 |---|---|---|
+| `~/.config/niri/noctalia.kdl` | Noctalia's niri template | `config/niri/config.kdl` includes it; niri reloads when it changes |
 | `~/.config/wezterm/colors/Noctalia.toml` | Noctalia's WezTerm template | `wezterm.lua` loads it and reloads when it changes |
 | `~/.config/starship.toml` | `config/starship.toml` | Starship, on the next prompt |
 | `~/.config/nvim/colors/noctalia.lua` (gitignored) | community `lazyvim` | LazyVim's colorscheme; open Neovims reload on SIGUSR1 |

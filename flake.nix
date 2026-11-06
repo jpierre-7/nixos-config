@@ -102,6 +102,10 @@
           # Again with the desktop's outputs in place of the optional include.
           cp ${./hosts/desktop/niri-outputs.kdl} cfg/host.kdl
           niri validate -c cfg/config.kdl
+          # Again with Noctalia's colors: a bad one would stop niri loading its config.
+          sed -E 's/\{\{[^}]*\}\}/#000000/g' \
+            ${pkgs.noctalia}/share/noctalia/assets/templates/niri/niri.kdl > cfg/noctalia.kdl
+          niri validate -c cfg/config.kdl
           touch $out
         '';
 

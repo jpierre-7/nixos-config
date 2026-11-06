@@ -80,9 +80,8 @@ input {
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
 
 layout {
-    focus-ring {
-	    active-color "#d79921"
-    }
+    // Focus ring and border colors come from noctalia.kdl, included at the end
+    // of this file.
     // Set gaps around windows in logical pixels.
     background-color "transparent"
     // When to center a column when changing focus, options are:
@@ -122,9 +121,6 @@ layout {
     border {
         off
         width 4
-        active-color   "#707070"      // Neutral gray
-        inactive-color "#d0d0d0"      // Light gray
-        urgent-color   "#cc4444"      // Softer red
     }
     shadow {
         softness 30
@@ -209,8 +205,6 @@ window-rule {
 window-rule {
     match app-id=r#"^org\.gnome\."#
     draw-border-with-background false
-    geometry-corner-radius 12
-    clip-to-geometry true
 }
 window-rule {
     match app-id=r#"^gnome-control-center$"#
@@ -252,10 +246,7 @@ window-rule {
 }
 
 window-rule {
-  // Rounded corners for a modern look.
-  geometry-corner-radius 20
-
-  // Clips window contents to the rounded corner boundaries.
+  // Square corners, niri's default radius. Clips client-side shadows.
   clip-to-geometry true
 }
 
@@ -402,3 +393,7 @@ binds {
 // Per-machine settings (outputs). A host's default.nix links host.kdl to its
 // niri-outputs.kdl; without one (the laptop), niri auto-configures outputs.
 include optional=true "host.kdl"
+
+// Colors in the current palette, rendered by Noctalia (modules/home/noctalia.nix).
+// Optional because it doesn't exist until Noctalia's first render.
+include optional=true "noctalia.kdl"

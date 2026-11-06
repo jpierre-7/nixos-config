@@ -144,6 +144,13 @@ in
       # output; the apps reread it or get a reload hook. herdr needs no
       # template: its "terminal" theme draws with WezTerm's colors.
       templates.user = {
+        # Included at the end of config/niri/config.kdl. Niri reloads on change.
+        # Only the template: its built-in apply.sh appends the include to
+        # config.kdl, which is a read-only store file here.
+        niri = {
+          input_path = "${pkgs.noctalia}/share/noctalia/assets/templates/niri/niri.kdl";
+          output_path = "$XDG_CONFIG_HOME/niri/noctalia.kdl";
+        };
         # The whole prompt config is the template, so ~/.config/starship.toml
         # is Noctalia's output, not a Home Manager link (shell.nix).
         starship = {
