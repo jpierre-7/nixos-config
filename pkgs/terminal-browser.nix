@@ -86,6 +86,20 @@ stdenv.mkDerivation rec {
   # Stripping corrupts Electron's binary.
   dontStrip = true;
 
+  # The CLI deletes ELECTRON_RUN_AS_NODE at startup, so these two commands from
+  # the Claude plugin's bridge start as Electron apps, which don't exit when the
+  # command finishes. `ls` hits its timeout, and each `action` is left running
+  # with no window. --replace-fail makes a version bump stop here for a recheck.
+  postPatch = ''
+    substituteInPlace cli/dist/main.js \
+      --replace-fail \
+        '[...args, "ls", "--all", "--json"], { timeout: 5e3 }' \
+        '[...args, "ls", "--all", "--json"], { timeout: 5e3, env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" } }' \
+      --replace-fail \
+        '[...args, "action", ...selectors, "--", "open", url2], { env: process.env, stdio: "ignore" }' \
+        '[...args, "action", ...selectors, "--", "open", url2], { env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" }, stdio: "ignore" }'
+  '';
+
   # The opt-out covers usage events and crash reports alike. It's set here so
   # every launch gets it: the shell, the Claude plugin, and anything else.
   # Claude Code's wrapper sets LD_LIBRARY_PATH to unstable's alsa-lib for voice.
