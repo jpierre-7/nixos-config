@@ -88,12 +88,16 @@ stdenv.mkDerivation rec {
 
   # The opt-out covers usage events and crash reports alike. It's set here so
   # every launch gets it: the shell, the Claude plugin, and anything else.
+  # Claude Code's wrapper sets LD_LIBRARY_PATH to unstable's alsa-lib for voice.
+  # The plugin's launch inherits it, and Electron then loads that build against
+  # this package's older glibc and dies before starting.
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/terminal-browser $out/bin
     cp -r . $out/lib/terminal-browser
     makeWrapper $out/lib/terminal-browser/bin/terminal-browser $out/bin/terminal-browser \
-      --set TERMINAL_BROWSER_NO_TELEMETRY 1
+      --set TERMINAL_BROWSER_NO_TELEMETRY 1 \
+      --unset LD_LIBRARY_PATH
     runHook postInstall
   '';
 

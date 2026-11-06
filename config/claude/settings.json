@@ -1,11 +1,11 @@
 {
+  "env": {
+    "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1"
+  },
   "permissions": {
     "allow": [
       "mcp__claude-in-chrome"
     ]
-  },
-  "env": {
-    "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1"
   },
   "model": "opus",
   "skillOverrides": {
