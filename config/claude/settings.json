@@ -122,6 +122,11 @@
       "options": {
         "status": true
       }
+    },
+    "terminal-browser@terminal-browser": {
+      "options": {
+        "agentTool": false
+      }
     }
   },
   "voice": {
