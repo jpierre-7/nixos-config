@@ -38,6 +38,14 @@ in
     run ln -sfn $VERBOSE_ARG ${repoDir}/config/claude/settings.json ${config.home.homeDirectory}/.claude/settings.json
   '';
 
+  # /pstack:setup-pstack rewrites its model rule with Claude Code's Write tool,
+  # so it gets the same direct link as settings.json above. Claude Code loads
+  # every .md file in ~/.claude/rules into each new session.
+  home.activation.linkClaudePstackModels = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
+    run mkdir -p $VERBOSE_ARG ${config.home.homeDirectory}/.claude/rules
+    run ln -sfn $VERBOSE_ARG ${repoDir}/config/claude/rules/pstack-models.md ${config.home.homeDirectory}/.claude/rules/pstack-models.md
+  '';
+
   # herdr: terminal multiplexer for coding agents (nixpkgs-unstable). Its
   # Claude hook script is written by `herdr integration install claude`,
   # a one-time step listed in the README.
