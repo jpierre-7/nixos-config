@@ -40,6 +40,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "block-dangerous-git",
+            "timeout": 10
+          },
+          {
+            "type": "command",
             "command": "claude-session-diff hook",
             "timeout": 10
           }

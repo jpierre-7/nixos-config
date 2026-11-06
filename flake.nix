@@ -34,6 +34,13 @@
       url = "github:johanjongsma/lan-clip/5e5126dfdf99ce9dba92b5e9ef474a6b6831d849";
       flake = false;
     };
+    # Only for the git-guardrails-claude-code skill, linked in
+    # modules/home/claude.nix. Its hook isn't taken from here: that's
+    # config/claude/block-dangerous-git.sh.
+    mattpocock-skills = {
+      url = "github:mattpocock/skills";
+      flake = false;
+    };
     # Noctalia's community theme templates, the ones its Templates store
     # downloads. modules/home/noctalia.nix renders the Neovim and Vicinae ones.
     noctalia-templates = {
@@ -108,6 +115,90 @@
           niri validate -c cfg/config.kdl
           touch $out
         '';
+
+        # Sample commands against the hook, in all three outcomes. Exit 2 blocks;
+        # exit 0 asks if the hook printed its JSON and allows if it printed nothing.
+        git-guardrails =
+          pkgs.runCommand "git-guardrails-check"
+            {
+              nativeBuildInputs = [
+                pkgs.gnugrep
+                pkgs.jq
+              ];
+            }
+            ''
+              expect() {
+                want=$1
+                reply=$(jq -n --arg c "$2" '{tool_input: {command: $c}}' \
+                  | bash ${./config/claude/block-dangerous-git.sh} 2>/dev/null) && code=0 || code=$?
+                got=allow
+                if [ "$code" = 2 ]; then
+                  got=block
+                elif [ "$code" != 0 ]; then
+                  got="exit $code"
+                elif [ -n "$reply" ]; then
+                  got=$(jq -r .hookSpecificOutput.permissionDecision <<<"$reply")
+                fi
+                if [ "$got" != "$want" ]; then
+                  echo "want $want, got $got: $2" >&2
+                  exit 1
+                fi
+              }
+
+              expect ask 'git push'
+              expect ask 'git push origin main'
+              expect ask 'git -C /some/path push'
+              expect ask 'git -C "/some path" push'
+              expect ask 'git -c x=y push'
+              expect ask 'git --no-pager push'
+              expect ask 'git  push'
+              expect ask 'git add . && git push'
+              expect ask 'git push --dry-run'
+              expect ask 'git push --follow-tags'
+              expect ask 'git commit -m "explain git push"'
+              expect ask 'bash -c "git push"'
+
+              expect block 'git push --force'
+              expect block 'git push -f origin main'
+              expect block 'git push -uf origin main'
+              expect block 'git push --force-with-lease'
+              expect block 'git push origin +main'
+              expect block 'git -C /some/path push --force'
+              expect block 'git push --force --dry-run'
+              expect block 'git reset --hard'
+              expect block 'git reset --hard HEAD~1'
+              expect block 'git -C /some/path reset --hard'
+              expect block 'git clean -f'
+              expect block 'git clean -fd'
+              expect block 'git clean -xdf'
+              expect block 'git branch -D topic'
+              expect block 'git branch --delete --force topic'
+              expect block 'git branch -d -f topic'
+              expect block 'git checkout .'
+              expect block 'git checkout -- .'
+              expect block 'git restore .'
+              expect block 'git restore --source=HEAD .'
+              expect block 'git filter-repo --force'
+              expect block 'git filter-branch'
+              expect block 'git-filter-repo --force'
+              expect block 'git push && git reset --hard'
+              expect block 'bash -c "git push --force"'
+              expect block 'bash -c "git checkout ."'
+
+              expect allow 'git status'
+              expect allow 'git log --oneline'
+              expect allow 'git add .'
+              expect allow 'git clean -n'
+              expect allow 'git branch -d topic'
+              expect allow 'git reset --soft HEAD~1'
+              expect allow 'git checkout main'
+              expect allow 'git restore file.txt'
+              expect allow 'git pull --ff-only; git status -f'
+              expect allow 'git push-foo'
+              expect allow 'echo hi'
+
+              touch $out
+            '';
 
         noctalia-config =
           pkgs.runCommand "noctalia-config-check" { nativeBuildInputs = [ pkgs.noctalia ]; }

@@ -455,6 +455,17 @@ exist only while the hunk pane is open, so keep it open until Claude has
 answered. Notes stick to line numbers, so they can move off their line when
 the file changes under them.
 
+### Git guardrails
+
+A Claude Code hook checks every Bash command, in every project, for risky git
+commands. A plain `git push` opens a prompt, so Claude can push once you approve.
+Force-pushes, `reset --hard`, `clean -f`, `branch -D`, `checkout .`, `restore .`,
+`filter-repo` and `filter-branch` are blocked: run those yourself if you mean them.
+
+It's a guard against mistakes, not a sandbox: `gh` commands and git commands
+inside a script file aren't seen. The script is `config/claude/block-dangerous-git.sh`,
+and the `git-guardrails` check in `flake.nix` tests it with sample commands.
+
 ### Prompt cache meter
 
 The `prompt-cache-control` mod draws a row above the Claude Code prompt: how

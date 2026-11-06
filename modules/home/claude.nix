@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   repoDir,
@@ -38,6 +39,11 @@ in
       force = true;
     };
     ".local/state/terminal-browser/skills-choice".text = "no\n";
+    # Pinned by the mattpocock-skills flake input. Don't run this skill: it
+    # would add a second, weaker copy of the hook. The real one is
+    # block-dangerous-git below, called from config/claude/settings.json.
+    ".claude/skills/git-guardrails-claude-code".source =
+      "${inputs.mattpocock-skills}/skills/misc/git-guardrails-claude-code";
   };
 
   # Claude Code rewrites settings.json itself (/config, /model, plugin installs).
@@ -70,11 +76,22 @@ in
   #
   # terminal-browser: the terminal-browser@terminal-browser plugin runs it from
   # PATH to open a browser inside Claude Code (/browser).
+  #
+  # block-dangerous-git: the Claude hook that asks before a git push and blocks
+  # destructive git commands. Its jq is pinned here, so it can't go missing.
   home.packages = [
     pkgs.bun
     pkgs.herdr
     pkgs.hunk
     terminalBrowser
+    (pkgs.writeShellApplication {
+      name = "block-dangerous-git";
+      runtimeInputs = with pkgs; [
+        gnugrep
+        jq
+      ];
+      text = builtins.readFile ../../config/claude/block-dangerous-git.sh;
+    })
     (pkgs.writeShellApplication {
       name = "claude-session-diff";
       runtimeInputs = with pkgs; [
