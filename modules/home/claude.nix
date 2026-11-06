@@ -7,6 +7,7 @@
 }:
 let
   live = path: config.lib.file.mkOutOfStoreSymlink "${repoDir}/config/${path}";
+  terminalBrowser = pkgs.callPackage ../../pkgs/terminal-browser.nix { };
 in
 {
   programs.claude-code = {
@@ -28,6 +29,15 @@ in
     # file, its module resolves outside the folder and Claude Code refuses it
     # as a path traversal, saying so only in the debug log.
     ".claude/skills/prompt-cache-control".source = ../../config/claude/mods/prompt-cache-control;
+    # Left to itself, terminal-browser links its skill into ~/.claude/skills and
+    # ~/.agents/skills on first run, to one store path that a later update or GC
+    # leaves dangling. "no" here is its own opt-out for that, and it's what its
+    # setup would save. force replaces the link it already made on this machine.
+    ".claude/skills/terminal-browser" = {
+      source = "${terminalBrowser}/lib/terminal-browser/skills/default/terminal-browser";
+      force = true;
+    };
+    ".local/state/terminal-browser/skills-choice".text = "no\n";
   };
 
   # Claude Code rewrites settings.json itself (/config, /model, plugin installs).
@@ -64,7 +74,7 @@ in
     pkgs.bun
     pkgs.herdr
     pkgs.hunk
-    (pkgs.callPackage ../../pkgs/terminal-browser.nix { })
+    terminalBrowser
     (pkgs.writeShellApplication {
       name = "claude-session-diff";
       runtimeInputs = with pkgs; [

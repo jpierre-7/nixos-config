@@ -477,7 +477,9 @@ only draws images on kitty and Ghostty, and herdr identifies itself as
 `libghostty`, so the page stays blank until
 `CLAUDE_CODE_FORCE_TERMINAL_IMAGES` skips that check. It's set for every session
 in `settings.json`, and tested in herdr on WezTerm, with
-`experimental.kitty_graphics` on in `config/herdr/config.toml`. The package sets
+`experimental.kitty_graphics` on in `config/herdr/config.toml`.
+`modules/home/claude.nix` links the browser's skill, so Claude can drive an open
+tab, and turns off the links the browser would make itself. The package sets
 `TERMINAL_BROWSER_NO_TELEMETRY`, which stops its usage events and crash reports.
 
 ### ADHD mode
