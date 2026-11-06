@@ -33,6 +33,13 @@ PLUGIN_ID = "local.agent-cards"
 LABEL = "agents"
 # About the 268 pixels the desktop app gives its sidebar.
 WIDTH = 34
+# At herdr's mobile_width_threshold, a full panel would leave the agent a few
+# columns (Terminus on a phone is about 50), so it shrinks to a rail of status
+# marks and opens as a drawer while it has focus.
+NARROW = 64
+RAIL = 5
+# Below this the panel draws the rail, whatever the reason for its width.
+MIN_COLUMNS = 20
 SOCKET = os.environ.get("HERDR_SOCKET_PATH", "")
 # Noctalia writes this on every wallpaper change, and WezTerm's colors come from
 # it too (modules/home/noctalia.nix), so the panel stays in step with the panes.
@@ -412,6 +419,17 @@ def rule_line(width, palette):
     return seg("─" * width, palette["rule"], palette["chrome"])
 
 
+def rail_lines(snap, rows, width, palette, tick):
+    # Marks in the agents list's order, so the most urgent is on top.
+    chrome = palette["chrome"]
+    states = [p.get("agent_status", "unknown") for p in agent_panes(snap)]
+    states.sort(key=lambda state: [key for key, _ in GROUPS].index(state) if state in dict(GROUPS) else len(GROUPS))
+    lines = [seg(fit(" ≡", width), palette["muted"], chrome)]
+    lines += [seg(fit(" " + state_mark(state, tick), width), state_color(state, palette), chrome) for state in states]
+    blank = blank_line(width, palette)
+    return [(line, ("open", None)) for line in (lines + [blank] * rows)[:rows]]
+
+
 def menu_line(label, width, palette):
     return seg(fit("  " + label, width), palette["fg"], palette["selected"])
 
@@ -641,6 +659,10 @@ class Panel:
         # close its pane and collapse the tab's layout.
         try:
             self.refresh()
+            # Focus opens and closes the drawer, and a tab that was in the
+            # background may have missed a change of screen.
+            if self.visible():
+                self.fit_column()
         except (ApiError, OSError):
             pass
 
@@ -663,8 +685,11 @@ class Panel:
         built = build_frame(self.snap, self.width(), self.frame, self.palette, self.selected, self.costumes, self.since)
         self.animate = built["animate"]
         self.order = built["order"]
-        self.screen = self.compose(built, self.list_rows())
-        self.overlay_menu()
+        if self.size.columns < MIN_COLUMNS:
+            self.screen = rail_lines(self.snap, self.size.lines, self.size.columns, self.palette, self.frame)
+        else:
+            self.screen = self.compose(built, self.list_rows())
+            self.overlay_menu()
         out = ["\x1b[?2026h"]
         for row, (text, _) in enumerate(self.screen):
             if self.drawn.get(row) != text:
@@ -710,7 +735,7 @@ class Panel:
         return (screen + [blank] * rows)[:rows] + self.footer()
 
     def width(self):
-        return max(self.size.columns, 20)
+        return max(self.size.columns, MIN_COLUMNS)
 
     def list_rows(self):
         return max(self.size.lines - 3, 1)
@@ -839,11 +864,14 @@ class Panel:
             mine = [p for p in layout["panes"] if p["pane_id"] == self.pane_id]
             area = layout["area"]
             if mine and is_column(mine[0]["rect"], area) and len(layout["panes"]) > 1:
-                if abs(mine[0]["rect"]["width"] - WIDTH) > 1:
+                want = WIDTH
+                if area["width"] <= NARROW:
+                    want = WIDTH if self.snap.get("focused_pane_id") == self.pane_id else RAIL
+                if abs(mine[0]["rect"]["width"] - want) > 1:
                     try:
                         call("layout.set_split_ratio", {
                             "tab_id": layout["tab_id"], "path": [],
-                            "ratio": max(WIDTH / area["width"], 0.1),
+                            "ratio": min(max(want / area["width"], 0.1), 0.85),
                         })
                     except ApiError:
                         pass
@@ -855,6 +883,8 @@ class Panel:
                 call("workspace.focus", {"workspace_id": value})
             elif kind == "pane":
                 call("pane.focus", {"pane_id": value})
+            elif kind == "open":
+                call("pane.focus", {"pane_id": self.pane_id})
             elif kind == "new":
                 self.start_prompt(("new", None, "name"))
             elif kind == "settings":

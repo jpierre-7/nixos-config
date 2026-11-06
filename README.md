@@ -383,6 +383,12 @@ and their costumes change with the wallpaper. The bots aren't Claude orange for
 that reason. A wallpaper's palette is often one hue, so the plugin fans out the
 brightest accent's hue to tell spaces apart.
 
+On a screen 64 columns wide or less, like Terminus on a phone, the panel shrinks
+to a thin rail of status marks. Tap it or press `Ctrl+Space w` to open it, and
+pick a row or press Esc to shrink it again. With another client attached at the
+same time, herdr sizes the layout for the one that attached or typed last, so
+the rail or panel can look off on the other until you use it.
+
 Herdr plugins can only draw in panes, which has a few consequences:
 
 - Each tab holds its own panel pane, and zooming a pane covers it.
