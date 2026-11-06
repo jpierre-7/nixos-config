@@ -78,7 +78,8 @@
     "typesafe@typesafe-ai": true,
     "mattpocock-skills@mattpocock": true,
     "discord@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true
+    "claude-md-management@claude-plugins-official": true,
+    "pstack@cursor-plugins": true
   },
   "extraKnownMarketplaces": {
     "typesafe-ai": {
@@ -91,6 +92,12 @@
       "source": {
         "source": "github",
         "repo": "mattpocock/skills"
+      }
+    },
+    "cursor-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "cursor/plugins"
       }
     }
   },
