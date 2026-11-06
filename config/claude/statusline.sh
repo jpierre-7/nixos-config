@@ -129,8 +129,14 @@ if [ -n "$SEVEN_D" ] && [ "$SEVEN_D" != "-" ]; then
   USAGE_BADGE="$USAGE_BADGE$(pct_color "$SEVEN_D" "$C_MUTED")wk:${SEVEN_D%.*}%${SEVEN_LEFT:+($SEVEN_LEFT)}${C_RESET}"
 fi
 
+# terminal-browser windows open anywhere, e.g. "browsers:2". Hidden if the
+# count can't be read.
+BROWSER_BADGE=""
+BROWSERS=$(timeout 1 terminal-browser ls --all --json 2>/dev/null | jq -r '.browsers | length' 2>/dev/null)
+[ -n "$BROWSERS" ] && BROWSER_BADGE="${C_MUTED}browsers:${BROWSERS}${C_RESET}"
+
 OUT=""
-for SEG in "$VIM_BADGE" "$DIR_BADGE" "$BRANCH_BADGE" "$CAVEMAN" "$CTX_BADGE" "$IDLE_BADGE" "$USAGE_BADGE"; do
+for SEG in "$VIM_BADGE" "$DIR_BADGE" "$BRANCH_BADGE" "$CAVEMAN" "$CTX_BADGE" "$IDLE_BADGE" "$USAGE_BADGE" "$BROWSER_BADGE"; do
   [ -z "$SEG" ] && continue
   [ -n "$OUT" ] && OUT="$OUT "
   OUT="$OUT$SEG"
