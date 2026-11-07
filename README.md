@@ -302,16 +302,19 @@ power cut until the desktop has been switched on once.
 
 One-time router setup (GL.iNet GL-BE9300, which is in the tailnet):
 
-1. Admin panel → System → Administration: add the laptop's
-   `~/.ssh/id_ed25519.pub` to the SSH keys.
+1. Admin panel → System → Advanced Settings opens LuCI (install it if asked).
+   There, System → Administration → SSH-Keys: add the laptop's
+   `~/.ssh/id_ed25519.pub`.
 2. SSH into the router and run `opkg update && opkg install etherwake` if
    `etherwake` isn't there yet. Firmware upgrades can remove it. The login is
    line 1 of `/run/agenix/wake-desktop`.
 3. Test from the laptop while the desktop is off: `wake-desktop`.
 
-If the router can't be reached on its Tailscale address, check that SSH and
-Tailscale remote access are allowed in its admin panel (Applications →
-Tailscale).
+If `wake-desktop` times out while `tailscale ping` still answers, the router is
+dropping what arrives over Tailscale. Turning off Enable in its admin panel
+(Applications → Tailscale), applying, then turning it back on fixed this once.
+The restart also cleared Run Exit Node and the two Advertise toggles, so check
+them afterwards.
 
 ### Sharing the mouse and keyboard
 
