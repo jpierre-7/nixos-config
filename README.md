@@ -512,6 +512,26 @@ tab, and turns off the links the browser would make itself. The package sets
 starts with its rules and nobody has to type `/i-have-adhd`. "stop adhd mode"
 turns it off for one session. To turn it off everywhere, delete the import.
 
+### Finding a machine that dropped off the network
+
+Work up from the bottom and stop at the first layer that fails. An SSH error only
+tells you about SSH once the layers under it pass.
+
+| Layer | Check | If it fails |
+| --- | --- | --- |
+| Tailnet | `tailscale status` | `offline, last seen ...` means it can't reach Tailscale at all, so look at the layers below instead of SSH |
+| Power | LEDs on the machine | Off: check the outlet and power supply |
+| Link | Lights on the switch port and the machine's port | Off at either end: reseat or swap the cable, try another port |
+| IP | The router's DHCP client list | Not listed: no lease, or a static IP from an old setup. A USB network adapter has its own MAC, so look for that too |
+| Reachability | `ping -c2 <ip>`, then `ip neigh show <ip>` | `FAILED` or `INCOMPLETE`: nothing answered at that IP |
+| SSH | `ssh -v <host>` | Timed out: a firewall or wrong IP. Refused: `sshd` isn't running. Host key error: the machine or its OS changed |
+
+If the IP changed, `ssh-keyscan -t ed25519 <ip>` shows the key a machine presents.
+Compare it with `ssh-keygen -F <host>` to confirm it's the machine you want.
+
+If power and link are fine but it never gets an IP, plug in a monitor. It may be
+stuck at boot, for example on a disk that's no longer attached.
+
 ### Routine updates
 
 ```sh
