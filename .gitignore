@@ -6,3 +6,14 @@ result-*
 .stfolder/
 .stversions/
 *.sync-conflict-*
+
+# Pre-commit config: nix develop links it from the store
+.pre-commit-config.yaml
+
+# Secrets: only the encrypted files and the public key list are tracked
+/secrets/*
+!/secrets/*.age
+!/secrets/secrets.nix
+*.key
+.env
+.env.*

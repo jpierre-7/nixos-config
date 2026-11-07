@@ -6,7 +6,7 @@
 #   (shared, because Noctalia's widgets use them on both machines). Closing the
 #   lid suspends by default.
 # - Graphics: Mesa (shared). See the README if this machine needs NVIDIA's driver.
-{ ... }:
+{ config, ... }:
 {
   imports = [ ./hardware-configuration.nix ];
 
@@ -36,10 +36,17 @@
   # packet is a LAN broadcast and can't cross the internet, and the desktop's
   # Tailscale is down while it's off, so the router (GL-BE9300, always on and
   # in the tailnet) sends it on its LAN bridge. Router setup is in the README.
+  # The router login and the desktop's MAC address are in an agenix secret.
+  age.secrets.wake-desktop = {
+    file = ../../secrets/wake-desktop.age;
+    owner = "john";
+  };
   home-manager.users.john.programs.fish.functions.wake-desktop = {
     description = "Wake the desktop through the router and wait for it on the tailnet";
     body = ''
-      ssh ROUTER-LOGIN-MOVED-TO-AGENIX etherwake -i br-lan DESKTOP-MAC-MOVED-TO-AGENIX
+      set -l target (cat ${config.age.secrets.wake-desktop.path})
+      or return
+      ssh $target[1] etherwake -i br-lan $target[2]
       or return
       echo "Magic packet sent, waiting for the desktop..."
       for i in (seq 60)

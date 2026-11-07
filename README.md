@@ -32,6 +32,7 @@ hosts/<host>/           default.nix (hostname-specific bits, stateVersion)
                         hardware-configuration.nix (generated on the machine)
                         niri-outputs.kdl (desktop only: monitor layout)
                         lan-mouse.toml (screen side and trusted peer)
+secrets/                encrypted secrets and who can read them (see SECURITY.md)
 modules/nixos/          system modules (boot, networking, audio, desktop, ...)
 modules/home/           Home Manager modules (shell, terminal, editor, apps, ...)
 home/john.nix           my user's entry point
@@ -236,6 +237,10 @@ This is how the desktop was set up. It works, with a few extra steps:
 
 These need an account or a login, so they can't be declared:
 
+- Copy `~/.ssh/id_ed25519` from the other machine before rebuilding again, so
+  agenix can decrypt secrets (see [SECURITY.md](SECURITY.md)).
+- `nix develop` in `~/nixos-config`: installs the pre-commit leak check. You can
+  leave the shell right after.
 - `sudo tailscale up`: log the machine into your tailnet
 - `claude`: log in to Claude Code
 - `herdr integration install claude`: writes `~/.claude/hooks/herdr-agent-state.sh`,
@@ -299,8 +304,9 @@ One-time router setup (GL.iNet GL-BE9300, which is in the tailnet):
 
 1. Admin panel → System → Administration: add the laptop's
    `~/.ssh/id_ed25519.pub` to the SSH keys.
-2. `ssh ROUTER-LOGIN-MOVED-TO-AGENIX 'opkg update && opkg install etherwake'` if
-   `etherwake` isn't there yet. Firmware upgrades can remove it.
+2. SSH into the router and run `opkg update && opkg install etherwake` if
+   `etherwake` isn't there yet. Firmware upgrades can remove it. The login is
+   line 1 of `/run/agenix/wake-desktop`.
 3. Test from the laptop while the desktop is off: `wake-desktop`.
 
 If the router can't be reached on its Tailscale address, check that SSH and
@@ -328,7 +334,7 @@ certificate, so update its fingerprint on the other host; until then the
 machines reject each other.
 
 Traffic stays on the tailnet: UDP 4242 is open only on `tailscale0`, and the
-peers are addressed by their Tailscale IPs. Lan Mouse's sender doesn't verify
+peers are addressed by their tailnet hostnames. Lan Mouse's sender doesn't verify
 the receiver's certificate, so WireGuard does that part.
 
 Both daemons run as user services, so the machine you're moving to needs a
@@ -662,13 +668,11 @@ On a hybrid laptop, also set `hardware.nvidia.prime` with the bus IDs from
 
 ## Secrets
 
-The repo is public and contains no secrets, passwords or tokens. Things that
-need one are done by hand after install (user password, `tailscale up`,
+The repo is public and contains no plain-text secrets, passwords or tokens. Most
+things that need one are done by hand after install (user password, `tailscale up`,
 `gh auth login`, Claude Code login, Syncthing pairing).
 
-To declare any of them later, use [sops-nix](https://github.com/Mic92/sops-nix)
-or [agenix](https://github.com/ryantm/agenix). Both keep secrets encrypted in
-the repo and decrypt them on the machine at activation time. Examples:
-`users.users.john.hashedPasswordFile`,
-`services.tailscale.authKeyFile`. Never put a secret in a plain Nix string: it
-ends up world-readable in `/nix/store`.
+The rest are encrypted in `secrets/` with [agenix](https://github.com/ryantm/agenix)
+and decrypted on the machine at activation time. [SECURITY.md](SECURITY.md) covers
+adding a secret, adding a machine, and losing a key. Never put a secret in a plain
+Nix string: it ends up world-readable in `/nix/store`.
