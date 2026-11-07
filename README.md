@@ -471,8 +471,12 @@ commands. A plain `git push` opens a prompt, so Claude can push once you approve
 Force-pushes, `reset --hard`, `clean -f`, `branch -D`, `checkout .`, `restore .`,
 `filter-repo` and `filter-branch` are blocked: run those yourself if you mean them.
 
-It's a guard against mistakes, not a sandbox: `gh` commands and git commands
-inside a script file aren't seen. The script is `config/claude/block-dangerous-git.sh`,
+`gh` commands that git can't see also open a prompt: merging a pull request,
+changing or deleting a repo, deleting an issue or release, secrets, and writes
+through `gh api`. Everyday ones like `gh pr create` and `gh issue create` don't.
+
+It's a guard against mistakes, not a sandbox: commands inside a script file aren't
+seen. The script is `config/claude/block-dangerous-git.sh`,
 and the `git-guardrails` check in `flake.nix` tests it with sample commands.
 
 ### Prompt cache meter

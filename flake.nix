@@ -226,6 +226,25 @@
               expect allow 'git push-foo'
               expect allow 'echo hi'
 
+              expect ask 'gh pr merge 1 --rebase'
+              expect ask 'gh repo delete some/repo --yes'
+              expect ask 'gh repo edit --visibility public'
+              expect ask 'gh issue delete 1'
+              expect ask 'gh release delete v1'
+              expect ask 'gh secret set TOKEN'
+              expect ask 'gh api -X DELETE repos/some/repo'
+              expect ask 'gh api --method=PUT repos/some/repo/branches/main/protection'
+              expect ask 'gh api repos/some/repo/issues -f title=x'
+              expect ask 'cd /tmp && gh pr merge 1'
+
+              expect allow 'gh pr view 1'
+              expect allow 'gh pr create --fill'
+              expect allow 'gh issue create --title x --body y'
+              expect allow 'gh repo view some/repo'
+              expect allow 'gh api repos/some/repo --jq .state'
+              expect allow 'gh api -X GET repos/some/repo'
+              expect allow 'gh run list; echo pr merge'
+
               touch $out
             '';
 

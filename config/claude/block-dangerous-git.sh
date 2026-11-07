@@ -5,8 +5,9 @@
 # Based on block-dangerous-git.sh from mattpocock/skills, which can only block
 # and matches exact wording, so `git -C path push` and `git clean -xdf` got
 # through. A plain push asks the user here, so Claude can still push once they
-# approve; anything destructive is blocked outright. It's a guard against
-# mistakes, not a sandbox: a script file that runs git isn't seen.
+# approve; anything destructive is blocked outright. gh gets the same prompt for
+# what git can't see: merges, repo settings, and writes through its raw API. It's
+# a guard against mistakes, not a sandbox: a script file that runs git isn't seen.
 
 input=$(cat)
 # A hook that can't read the command must not wave it through.
@@ -24,6 +25,7 @@ git="(^|[^[:alnum:]_.-])git($sp+-[^[:space:]]+($sp+(\"[^\"]*\"|'[^']*'|[^[:space
 # The rest of this one command: stop at ; & | so a later command's flags don't count.
 # The patterns also end at a quote, for `bash -c "git push"`.
 rest='[^;&|]*'
+gh="(^|[^[:alnum:]_.-])gh$sp+"
 
 patterns=(
   "${git}push$rest$sp(--force|-[[:alpha:]]*f)"
@@ -46,10 +48,23 @@ for pattern in "${patterns[@]}"; do
   fi
 done
 
-if grep -qE -- "${git}push([^[:alnum:]_-]|$)" <<<"$cmd"; then
-  jq -n '{hookSpecificOutput: {
-    hookEventName: "PreToolUse",
-    permissionDecision: "ask",
-    permissionDecisionReason: "git push needs the user'"'"'s approval"
-  }}'
-fi
+ask_patterns=(
+  "${git}push([^[:alnum:]_-]|$)"
+  "${gh}pr$sp+merge"
+  "${gh}repo$sp+(delete|edit|rename|archive)"
+  "${gh}(issue|release)$sp+delete"
+  "${gh}secret"
+  "${gh}api$rest$sp(-X|--method)[=[:space:]]*(POST|PUT|PATCH|DELETE)"
+  "${gh}api$rest$sp(-[fF]|--field|--raw-field|--input)"
+)
+
+for pattern in "${ask_patterns[@]}"; do
+  if grep -qiE -- "$pattern" <<<"$cmd"; then
+    jq -n '{hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "ask",
+      permissionDecisionReason: "This command needs the user'"'"'s approval"
+    }}'
+    exit 0
+  fi
+done
