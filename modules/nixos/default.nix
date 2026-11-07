@@ -12,6 +12,7 @@
     ./nix-ld.nix
     ./nix.nix
     ./printing.nix
+    ./secrets.nix
     ./users.nix
   ];
 }

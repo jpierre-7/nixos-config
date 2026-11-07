@@ -1,0 +1,32 @@
+# gitleaks' default rules, plus what this public repo must not contain. This
+# file is public too, so each pattern stays generic: naming a private value here
+# would publish it. See SECURITY.md.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "sibling-repo-name"
+description = "Name of another repository beginning with this repo's name"
+regex = '''(?i)nixos-config-[a-z]+'''
+
+[[rules]]
+id = "tailnet-ip"
+description = "Tailscale address (100.64.0.0/10)"
+regex = '''\b100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\.[0-9]{1,3}\.[0-9]{1,3}\b'''
+
+[[rules]]
+id = "mac-address"
+description = "MAC address"
+regex = '''\b[0-9a-fA-F]{2}(:[0-9a-fA-F]{2}){5}\b'''
+# Lan Mouse's certificate fingerprints look like long MAC addresses, and they
+# aren't secret (see the README).
+[[rules.allowlists]]
+paths = ['''hosts/[^/]+/lan-mouse\.toml''']
+
+[[rules]]
+id = "email-address"
+description = "Email address that isn't a noreply one"
+regex = '''[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}'''
+[[rules.allowlists]]
+regexTarget = "match"
+regexes = ['''noreply''']

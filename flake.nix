@@ -41,6 +41,16 @@
       url = "github:mattpocock/skills";
       flake = false;
     };
+    # Encrypted secrets, see SECURITY.md.
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # The pre-commit hook that nix develop installs.
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # Noctalia's community theme templates, the ones its Templates store
     # downloads. modules/home/noctalia.nix renders the Neovim and Vicinae ones.
     noctalia-templates = {
@@ -89,6 +99,19 @@
       # Package set of a real host, so checks use the same versions (and overlay) as the machines.
       pkgs = self.nixosConfigurations.desktop.pkgs;
       hm = self.nixosConfigurations.desktop.config.home-manager.users.john;
+
+      # gitleaks reads .gitleaks.toml. nixfmt skips the generated hardware
+      # configs, as they aren't meant to be reformatted.
+      preCommit = inputs.git-hooks.lib.${system}.run {
+        src = ./.;
+        hooks = {
+          gitleaks.enable = true;
+          nixfmt = {
+            enable = true;
+            excludes = [ "hardware-configuration\\.nix$" ];
+          };
+        };
+      };
     in
     {
       nixosConfigurations = {
@@ -97,6 +120,12 @@
       };
 
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;
+
+      # Entering this shell once installs the pre-commit hook on this machine.
+      devShells.${system}.default = pkgs.mkShell {
+        inherit (preCommit) shellHook;
+        packages = preCommit.enabledPackages;
+      };
 
       # `nix flake check` parses the hand-written niri config and the generated
       # Noctalia config with the exact versions that will run them.
