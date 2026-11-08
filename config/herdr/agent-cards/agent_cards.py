@@ -64,6 +64,8 @@ FRAME_TICK = 0.4
 # Rows a bot takes in the agents list. The design's rows are one line, but a
 # costume needs more pixels than that to read.
 AGENT_ROWS = 3
+# The bots stay Claude orange on every wallpaper, so they read as Claude.
+CLAUDE_ORANGE = (0xD7, 0x77, 0x57)
 # A Claude bot, 8x6, two pixels per terminal cell. b: body, k: eye.
 BOT = (
     "........",
@@ -180,24 +182,25 @@ def load_palette():
     fg = parse_hex(colors["foreground"])
     red = parse_hex(colors["ansi"][1])
     accents = spread(accents)
-    body = max(accents, key=vividness)
+    accent = max(accents, key=vividness)
+    body = CLAUDE_ORANGE
     # Apparel has to stand out on the bot, and a wallpaper's accents can all
     # sit close to its body color.
-    apparel = [c for c in accents + [red] if distance(c, body) > 70] or [red]
+    apparel = [c for c in accents + [red] if distance(c, body) > 70] or [fg]
     return {
         "bg": bg,
         "fg": fg,
         "red": red,
         "green": parse_hex(colors["ansi"][2]),
         "accents": accents,
-        "accent": body,
+        "accent": accent,
         "body": body,
         "apparel": apparel,
         # The design's surfaces, mixed from the wallpaper's instead of its
         # Catppuccin values: the column a shade off the panes, the lit row
         # stronger, text stepping down toward the background.
-        "chrome": mix(bg, body, 0.07),
-        "selected": mix(bg, body, 0.24),
+        "chrome": mix(bg, accent, 0.07),
+        "selected": mix(bg, accent, 0.24),
         "muted": mix(fg, bg, 0.3),
         "dim": mix(fg, bg, 0.5),
         "rule": mix(bg, fg, 0.18),
