@@ -532,6 +532,12 @@ Compare it with `ssh-keygen -F <host>` to confirm it's the machine you want.
 If power and link are fine but it never gets an IP, plug in a monitor. It may be
 stuck at boot, for example on a disk that's no longer attached.
 
+If it only drops off when the cable is in a USB network adapter, run `lsusb`
+after a cold boot. Some Realtek 2.5 Gb adapters start as a driver CD-ROM
+(`0bda:8151`), so no network driver loads. A re-plug often hides this, because
+the adapter then comes up as a network card. A `udev` rule that runs
+`usb_modeswitch` on that ID switches it at boot.
+
 ### Routine updates
 
 ```sh
