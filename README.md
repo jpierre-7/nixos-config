@@ -389,10 +389,10 @@ space moved from there to `Ctrl+Space S`.
 Settings opens `config/herdr/config.toml` in Neovim and reloads it when you quit.
 Herdr's `menu` is in its hidden sidebar: `Ctrl+Space b` shows it.
 
-Colors come from the palette Noctalia writes for WezTerm, so the panel, the bots
-and their costumes change with the wallpaper. The bots aren't Claude orange for
-that reason. A wallpaper's palette is often one hue, so the plugin fans out the
-brightest accent's hue to tell spaces apart.
+Colors come from the palette Noctalia writes for WezTerm, so the panel and the
+bots' costumes change with the wallpaper. The bots themselves stay Claude orange
+(`#D77757`) on every wallpaper. A wallpaper's palette is often one hue, so the
+plugin fans out the brightest accent's hue to tell spaces apart.
 
 On a screen 64 columns wide or less, like Terminus on a phone, the panel shrinks
 to a thin rail of status marks. Tap it or press `Ctrl+Space w` to open it, and
