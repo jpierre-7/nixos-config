@@ -16,7 +16,8 @@
  *
  * The `Image` element draws through the kitty graphics protocol, which herdr
  * passes on (`kitty_graphics` in config/herdr/config.toml) and Claude Code uses
- * only when asked (`CLAUDE_CODE_FORCE_TERMINAL_IMAGES` in its settings.json).
+ * only when asked (`CLAUDE_CODE_FORCE_TERMINAL_IMAGES`, set in herdr's panes by
+ * modules/home/shell.nix). Elsewhere it shows the alt text.
  *
  * Options (pluginConfigs["pasted-image-preview@skills-dir"].options):
  *   rows: number   height of a thumbnail in terminal rows (default 8)
