@@ -189,6 +189,12 @@ in
           input_path = "${../../config/claude/statusline-colors.sh}";
           output_path = "$XDG_CACHE_HOME/noctalia/claude-statusline-colors.sh";
         };
+        # Read by the login screen (modules/nixos/greeter.nix), outside the
+        # home directory so the greeter user can read it.
+        greeter = {
+          input_path = "${../../config/greeter/palette.json}";
+          output_path = "/var/lib/greeter-palette/palette.json";
+        };
       };
     };
 

@@ -10,10 +10,8 @@
     xdg-utils
   ];
 
-  # Login screen, as on Arch. Runs on greetd.
-  services.displayManager.cosmic-greeter.enable = true;
-
-  # Unlock the login keyring with the password typed at the greeter.
+  # Unlock the login keyring with the password typed at the greeter
+  # (greeter.nix).
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.greetd.enableGnomeKeyring = true;
 
