@@ -11,7 +11,7 @@ full system with one `nixos-install` (or `nixos-rebuild switch`).
 | Piece | Choice |
 |---|---|
 | Compositor / shell | [Niri](https://github.com/YaLTeR/niri) + [Noctalia](https://noctalia.dev) |
-| Login | cosmic-greeter (greetd), GNOME Keyring unlocked through PAM |
+| Login | Omarchy-style Quickshell greeter on greetd, GNOME Keyring unlocked through PAM |
 | Terminal, shell, prompt | WezTerm, Fish, Starship |
 | Editor | Neovim with LazyVim; LSPs and formatters from Nix |
 | Launcher | Vicinae |
@@ -187,7 +187,7 @@ The steps are the same for both machines. Every command reads the machine from
    reboot
    ```
 
-   You should get the Limine menu, then the cosmic-greeter login, then niri.
+   You should get the Limine menu, then the login screen, then niri.
    If the machine starts something else instead, open the firmware setup
    (usually F2 or Del at power-on) and make Limine the first boot option. The
    desktop's firmware ignored boot-order changes made from Linux.
@@ -274,6 +274,25 @@ sudo nixos-rebuild switch --flake ~/nixos-config#laptop # explicit
 Home Manager is part of the system build, so this updates your dotfiles too.
 Use `nixos-rebuild boot` instead of `switch` to apply on the next reboot.
 The fish abbreviation `nrs` expands to the first line.
+
+### Login screen
+
+The login screen copies the look of [Omarchy](https://github.com/basecamp/omarchy)'s
+SDDM theme: the hostname in large letters over a lock and an outlined password
+box. Type the password and press Enter; Escape clears it. The box and lock turn
+red after a wrong password. There is no user or session to pick: it logs `john`
+into niri. To power off from it, press the power button.
+
+greetd runs it as a niri of its own with a Quickshell greeter as the only
+client (`modules/nixos/greeter.nix`, `config/greeter/`). That niri has no key
+binds and gets the host's monitor layout. Colors are Noctalia's: Noctalia
+renders them to `/var/lib/greeter-palette/palette.json`, outside your home so
+the greeter user can read it. Until it has run once, the greeter uses Omarchy's
+Tokyo Night colors.
+
+If the login screen is broken, press Ctrl+Alt+F2 for a text login, then
+`sudo nixos-rebuild switch --rollback`, or pick the previous generation in the
+Limine menu (see [Rolling back](#rolling-back)).
 
 ### Keeping both machines in sync
 
@@ -475,7 +494,11 @@ work tree as a baseline, and after each Edit, Write or Bash call they record
 which files changed. The view shows baseline → now for those files only, so
 other sessions in the same repo stay out of it, but your own edits to the same
 files show up. `/clear` starts a new session, and with it a new baseline.
-State is in `~/.local/state/claude-session-diff/`.
+State is in `~/.local/state/claude-session-diff/`. Each baseline is a git tree
+object, kept from `git gc` by a ref, `refs/claude-session-diff/<session>`,
+which goes away with the session's state after 30 days without changes. If the
+baseline is lost anyway (the repo's `.git` was re-created), the view says so
+and offers to take a new one, so the diff starts from that point.
 
 To ask the session about its changes, press `c` on a line in hunk, write a
 note ("explain this", "rename this"), and save it with `Ctrl+S`. Then tell

@@ -1,0 +1,27 @@
+// Niri for the login screen (modules/nixos/greeter.nix), running as the greeter
+// user. It has no binds at all, so the greeter's password box is the only thing
+// that takes input. The host's outputs and the greeter itself are appended in
+// greeter.nix. Like Omarchy's greeter Hyprland: black, no animations.
+
+input {
+    keyboard {
+        // Layout from org.freedesktop.locale1, as in config/niri/config.kdl.
+        numlock
+    }
+    touchpad {
+        tap
+        natural-scroll
+    }
+}
+
+layout {
+    background-color "#000000"
+}
+
+animations {
+    off
+}
+
+hotkey-overlay {
+    skip-at-startup
+}

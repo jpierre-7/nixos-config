@@ -142,6 +142,9 @@
           sed -E 's/\{\{[^}]*\}\}/#000000/g' \
             ${pkgs.noctalia}/share/noctalia/assets/templates/niri/niri.kdl > cfg/noctalia.kdl
           niri validate -c cfg/config.kdl
+          # The login screen's niri (modules/nixos/greeter.nix), with each host's outputs.
+          niri validate -c ${self.nixosConfigurations.desktop.config.environment.etc."greetd/niri.kdl".source}
+          niri validate -c ${self.nixosConfigurations.laptop.config.environment.etc."greetd/niri.kdl".source}
           touch $out
         '';
 

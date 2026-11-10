@@ -6,6 +6,7 @@
     ./boot.nix
     ./desktop.nix
     ./fonts.nix
+    ./greeter.nix
     ./kanata.nix
     ./locale.nix
     ./networking.nix
