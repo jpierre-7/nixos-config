@@ -100,8 +100,11 @@ run() {
 
   local tte stopping=0 held effect
   trap '[[ -n ${tte:-} ]] && kill "$tte" 2>/dev/null; exit 0' HUP TERM INT
-  # Hide the cursor, and have WezTerm report every mouse move as input.
-  printf '\e[?25l\e[?1003h'
+  # Hide the cursor, and have WezTerm report mouse clicks as input. Not moves
+  # (mode 1003): on the laptop, WezTerm reported a move a few seconds in with
+  # nobody touching it, which locked the session at once. Noctalia's resume
+  # command still catches real moves.
+  printf '\e[?25l\e[?1000h'
   clear
 
   while true; do
