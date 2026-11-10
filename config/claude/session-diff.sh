@@ -9,11 +9,12 @@
 #                                     for the diff-notes skill
 #
 # At the session's first event the hook saves the repo's work tree as a git
-# tree object (the baseline). After each tool call it records the files that
-# changed: the path for Edit/Write, and a before/after tree comparison for
-# Bash, which also catches sed, formatters and generators. The view diffs the
-# baseline against the current state of those files only, so other sessions
-# in the same repo stay out of it. User edits to the same files do show up.
+# tree object (the baseline), pinned by a ref so git gc keeps it. After each
+# tool call it records the files that changed: the path for Edit/Write, and a
+# before/after tree comparison for Bash, which also catches sed, formatters
+# and generators. The view diffs the baseline against the current state of
+# those files only, so other sessions in the same repo stay out of it. User
+# edits to the same files do show up.
 #
 # hunk's own `hunk diff <rev>` treats files that were untracked at the
 # baseline as deleted + untracked, so the view builds the patch itself and
@@ -39,19 +40,34 @@ snapshot() {
   fi
 }
 
+# Keep a session's baseline reachable with a ref. Nothing else points at the
+# tree object, so git gc would prune it after gc.pruneExpire (2 weeks), well
+# before init forgets the session (30 days).
+pin() {
+  local repo=$1 sid=$2 base=$3
+  git -C "$repo" update-ref "refs/claude-session-diff/$sid" "$base"
+}
+
 # Start tracking a session. Sessions that were already running when the hooks
 # were added get their baseline at their first tool call.
 init() {
-  local dir=$1 cwd=$2 repo base
+  local dir=$1 cwd=$2 repo base old
   repo=$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null) || return 1
   base=$(snapshot "$repo") || return 1
   mkdir -p "$dir/pre"
   echo "$repo" >"$dir/repo"
   echo "$base" >"$dir/base"
   touch "$dir/files"
-  # Forget sessions that changed nothing for a month.
+  pin "$repo" "${dir##*/}" "$base" || true
+  # Forget sessions that changed nothing for a month, and unpin their
+  # baselines. The repo may be gone by now.
   find "$state_root" -mindepth 2 -maxdepth 2 -name files -mtime +30 -printf '%h\0' |
-    xargs -0 -r rm -rf
+    while IFS= read -r -d '' old; do
+      if [[ -f $old/repo ]]; then
+        git -C "$(<"$old/repo")" update-ref -d "refs/claude-session-diff/${old##*/}" 2>/dev/null || true
+      fi
+      rm -rf "$old"
+    done
 }
 
 hook() {
@@ -100,6 +116,9 @@ render() {
   local -a paths=()
   repo=$(<"$dir/repo") || return 1
   base=$(<"$dir/base") || return 1
+  # A lost baseline: view says so once, so the watch loop shouldn't print
+  # git's error every second.
+  git -C "$repo" cat-file -e "$base^{tree}" 2>/dev/null || return 1
   # A path can be gone by now (created, then deleted); keep it only if it
   # exists on one side, or git add fails on the pathspec.
   while IFS= read -r p; do
@@ -123,14 +142,30 @@ render() {
 }
 
 view() {
-  local sid=$1 dir patch next
+  local sid=$1 dir repo base key='' patch
   dir=$state_root/$sid
   if [[ ! -f $dir/base ]]; then
     echo "Nothing tracked for this Claude session yet (it isn't in a git repo, or hasn't run a tool)."
-    read -rsn1 -p "Press a key to close."
+    read -rsn1 -p "Press a key to close." || true
     return 0
   fi
+  repo=$(<"$dir/repo")
+  base=$(<"$dir/base")
+  # The ref keeps gc away, but not a re-created .git (or a session from before
+  # baselines were pinned).
+  if ! git -C "$repo" cat-file -e "$base^{tree}" 2>/dev/null; then
+    echo "This session's baseline ($base) is gone from $repo:"
+    echo "the repo was re-created, or git gc pruned it. Its changes can't be shown."
+    read -rsn1 -p "Press r to take a new baseline and diff from now on, any other key to close." key || true
+    echo
+    [[ $key == r ]] || return 0
+    base=$(snapshot "$repo")
+    echo "$base" >"$dir/base"
+  fi
+  # Also pins sessions from before baselines were pinned.
+  pin "$repo" "$sid" "$base"
   patch=$dir/session.patch
+  # Not local: the EXIT trap runs after view returns.
   next=$dir/session.patch.next
   render "$dir" >"$patch" || true
   # hunk --watch reloads when the file changes. Rewrite it in place, and only
@@ -143,7 +178,7 @@ view() {
     done
   ) &
   trap 'kill $! 2>/dev/null; rm -f "$next"' EXIT
-  cd "$(<"$dir/repo")"
+  cd "$repo"
   # --agent-notes: the agent's replies to the user's notes show up without
   # pressing `a`.
   hunk patch --watch --agent-notes "$patch"
