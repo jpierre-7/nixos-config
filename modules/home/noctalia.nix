@@ -103,6 +103,34 @@ in
 
     calendar.enabled = true;
 
+    # The only idle daemon. After 5 idle minutes the screensaver plays
+    # (modules/home/screensaver.nix); the next input locks, then ends it. Its
+    # windows don't count as activity, so after 10 more minutes the session
+    # locks (which also ends it) and the monitors go off. Input from Lan Mouse
+    # counts as activity: niri treats virtual input like local input.
+    idle = {
+      behavior_order = [
+        "screensaver"
+        "lock"
+        "screen-off"
+      ];
+      behavior.screensaver = {
+        timeout = 300;
+        action = "command";
+        command = "nixos-screensaver start";
+        resume_command = "nixos-screensaver stop";
+      };
+      behavior.lock = {
+        timeout = 900;
+        action = "lock";
+      };
+      behavior.screen-off = {
+        timeout = 905;
+        locked_timeout = 60; # at the lock screen, e.g. after waking it by accident
+        action = "screen_off";
+      };
+    };
+
     lockscreen_widgets = {
       enabled = false;
       schema_version = 2;
@@ -188,6 +216,11 @@ in
         claude-statusline = {
           input_path = "${../../config/claude/statusline-colors.sh}";
           output_path = "$XDG_CACHE_HOME/noctalia/claude-statusline-colors.sh";
+        };
+        # Sourced by the screensaver (config/screensaver/screensaver.sh).
+        screensaver = {
+          input_path = "${../../config/screensaver/colors.sh}";
+          output_path = "$XDG_CACHE_HOME/noctalia/screensaver-colors.sh";
         };
       };
     };
