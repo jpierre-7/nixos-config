@@ -452,7 +452,11 @@ work tree as a baseline, and after each Edit, Write or Bash call they record
 which files changed. The view shows baseline → now for those files only, so
 other sessions in the same repo stay out of it, but your own edits to the same
 files show up. `/clear` starts a new session, and with it a new baseline.
-State is in `~/.local/state/claude-session-diff/`.
+State is in `~/.local/state/claude-session-diff/`. Each baseline is a git tree
+object, kept from `git gc` by a ref, `refs/claude-session-diff/<session>`,
+which goes away with the session's state after 30 days without changes. If the
+baseline is lost anyway (the repo's `.git` was re-created), the view says so
+and offers to take a new one, so the diff starts from that point.
 
 To ask the session about its changes, press `c` on a line in hunk, write a
 note ("explain this", "rename this"), and save it with `Ctrl+S`. Then tell
