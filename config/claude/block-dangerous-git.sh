@@ -18,8 +18,13 @@
 # run, it falls back to grepping the whole text like before, and code it can't
 # read at all (`bash -c "$cmd"`, `... | bash`) asks the user.
 
+# A hook that can't read the command must not wave it through. Claude Code
+# runs the command anyway when a hook fails with any exit code but 2, so a
+# failure anywhere below blocks.
+set -o errtrace
+trap 'echo "BLOCKED: the git guardrail hook failed on this command. Stop and ask the user." >&2; exit 2' ERR
+
 input=$(cat)
-# A hook that can't read the command must not wave it through.
 if ! cmd=$(jq -er '.tool_input.command' <<<"$input"); then
   echo "BLOCKED: couldn't read the command from the hook input." >&2
   exit 2
@@ -83,11 +88,14 @@ unknown=false  # some shell code can't be read: ask at least
 
 # $1: shell code, $2: how deeply it is nested in other shell code.
 analyze() {
-  local ast tag val
+  local ast out tag val
   if (($2 > 8)) || ! ast=$(shfmt -ln bash --to-json <<<"$1" 2>/dev/null); then
     opaque=true
     return
   fi
+  # Not `done < <(jq ...)`: a failing jq there would go unnoticed.
+  out=$(jq -r "$walk" <<<"$ast")
+  [[ -n $out ]] || return 0
   while IFS=$'\t' read -r tag val; do
     case $tag in
       L) lines+=("$val") ;;
@@ -95,7 +103,7 @@ analyze() {
       U) unknown=true opaque=true ;;
       *) opaque=true ;;
     esac
-  done < <(jq -r "$walk" <<<"$ast")
+  done <<<"$out"
 }
 analyze "$cmd" 0
 

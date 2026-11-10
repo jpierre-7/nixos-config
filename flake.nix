@@ -272,6 +272,7 @@
               expect allow 'gh issue create --title x --body "never git push --force"'
               expect allow 'echo "git push --force" > notes.txt'
               expect allow 'grep -rn "git reset --hard" config'
+              expect allow 'ls # not git push --force'
               expect allow 'git log --grep="reset --hard"'
               expect allow 'bash scripts/build.sh'
               expect allow 'bash -c "git status"'
