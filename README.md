@@ -521,9 +521,18 @@ Force-pushes, `reset --hard`, `clean -f`, `branch -D`, `checkout .`, `restore .`
 changing or deleting a repo, deleting an issue or release, secrets, and writes
 through `gh api`. Everyday ones like `gh pr create` and `gh issue create` don't.
 
-It's a guard against mistakes, not a sandbox: commands inside a script file aren't
-seen. The script is `config/claude/block-dangerous-git.sh`,
-and the `git-guardrails` check in `flake.nix` tests it with sample commands.
+It looks at the commands that will run, not at text that only mentions them. A
+commit message, a `gh issue create --body`, or a `cat > notes.md <<'EOF'` that
+names `git reset --hard` goes through. Text that a shell runs is still checked:
+`bash -c "..."`, `eval`, a heredoc fed to `bash`, `ssh host "..."`, and `$(...)`.
+Shell code it can't read, like `bash -c "$cmd"` or `curl ... | sh`, opens a
+prompt.
+
+It's a guard against mistakes, not a sandbox: commands inside a script file, or
+inside another language's code (`python3 -c "..."`), aren't seen. The script is
+`config/claude/block-dangerous-git.sh`, and the `git-guardrails` check in
+`flake.nix` tests it with sample commands (`nix log` on the check prints each
+case and its result).
 
 ### Prompt cache meter
 

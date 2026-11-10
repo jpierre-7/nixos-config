@@ -78,7 +78,8 @@ in
   # PATH to open a browser inside Claude Code (/browser).
   #
   # block-dangerous-git: the Claude hook that asks before a git push and blocks
-  # destructive git commands. Its jq is pinned here, so it can't go missing.
+  # destructive git commands. Its jq and shfmt (which parses each command, so
+  # quoted text doesn't count) are pinned here, so they can't go missing.
   home.packages = [
     pkgs.bun
     pkgs.herdr
@@ -89,6 +90,7 @@ in
       runtimeInputs = with pkgs; [
         gnugrep
         jq
+        shfmt
       ];
       text = builtins.readFile ../../config/claude/block-dangerous-git.sh;
     })
