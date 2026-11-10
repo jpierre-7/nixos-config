@@ -10,6 +10,7 @@
     ./neovim.nix
     ./niri.nix
     ./noctalia.nix
+    ./screensaver.nix
     ./shell.nix
     ./syncthing.nix
     ./terminal.nix

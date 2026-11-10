@@ -79,8 +79,8 @@ Two things follow from that:
   that adds a plugin, log out and back in (or restart Noctalia) before its
   widget shows up.
 
-The window rims, terminal, prompt, editor, launcher and Claude Code (theme and
-status line) take their colors from Noctalia. `noctalia.nix` registers a template
+The window rims, terminal, prompt, editor, launcher, screensaver and Claude
+Code (theme and status line) take their colors from Noctalia. `noctalia.nix` registers a template
 for each, and Noctalia renders them again each time its palette changes (new
 wallpaper, palette source, scheme or light/dark mode):
 
@@ -93,6 +93,7 @@ wallpaper, palette source, scheme or light/dark mode):
 | `~/.local/share/vicinae/themes/noctalia.toml` | community `vicinae` | Vicinae, through `vicinae theme set noctalia` |
 | `~/.claude/themes/noctalia.json` | community `claude-code` | Claude Code (`"theme": "custom:noctalia"` in `config/claude/settings.json`), on change |
 | `~/.cache/noctalia/claude-statusline-colors.sh` | `config/claude/statusline-colors.sh` | `statusline.sh`, on its next update |
+| `~/.cache/noctalia/screensaver-colors.sh` | `config/screensaver/colors.sh` | The [idle screensaver](#idle-screensaver), when it starts |
 
 herdr uses its built-in `terminal` theme, which draws with WezTerm's colors,
 so it follows along without a template. Its
@@ -376,6 +377,28 @@ daemon restarts.
 
 The `lan-clip` flake input is pinned to a reviewed commit, because the daemon
 reads the private key and every copy. Read the diff before moving it.
+
+### Idle screensaver
+
+After 5 idle minutes the NixOS logo plays on every monitor, animated by
+[terminaltexteffects](https://github.com/ChrisBuilds/terminaltexteffects) in
+fullscreen WezTerms, as on [Omarchy](https://github.com/basecamp/omarchy). Each
+round picks a random effect, in the current Noctalia colors. Any key or mouse
+move locks the session first and then ends the screensaver, so it never leads
+back to an unlocked desktop. After 15 idle minutes the session locks and the
+monitors go off; at the lock screen they go off after one idle minute.
+
+Noctalia's idle settings run it (`idle` in `modules/home/noctalia.nix`); there is
+no other idle daemon. Its caffeine toggle and apps that inhibit idle (video)
+hold it off. `nixos-screensaver start` shows it right away and
+`nixos-screensaver stop` locks and ends it. The script is
+`config/screensaver/screensaver.sh`, the logo `config/screensaver/nixos-logo.txt`
+(from `fastfetch --print-logos`).
+
+The shared mouse and keyboard count as input on the idle machine, so crossing
+over with Lan Mouse wakes it and types the password. The lock screen hides Lan
+Mouse's edge, so the cursor can't cross back until that machine is unlocked;
+Left Ctrl+Shift+Super+Alt brings it back.
 
 ### Agent cards in herdr
 

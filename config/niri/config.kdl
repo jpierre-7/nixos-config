@@ -245,6 +245,14 @@ window-rule {
     open-floating true
 }
 
+// The idle screensaver's WezTerms (modules/home/screensaver.nix), one per
+// monitor. Fullscreen draws over the bar.
+window-rule {
+    match app-id=r#"^org\.nixos\.screensaver$"#
+    open-fullscreen true
+    open-focused true
+}
+
 window-rule {
   // Square corners, niri's default radius. Clips client-side shadows.
   clip-to-geometry true
