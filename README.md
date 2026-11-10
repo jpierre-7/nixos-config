@@ -285,7 +285,9 @@ into niri. To power off from it, press the power button.
 
 greetd runs it as a niri of its own with a Quickshell greeter as the only
 client (`modules/nixos/greeter.nix`, `config/greeter/`). That niri has no key
-binds and gets the host's monitor layout. Colors are Noctalia's: Noctalia
+binds and gets the host's monitor layout. The other machine's mouse and keyboard
+reach it through Lan Mouse (see [Sharing the mouse and
+keyboard](#sharing-the-mouse-and-keyboard)). Colors are Noctalia's: Noctalia
 renders them to `/var/lib/greeter-palette/palette.json`, outside your home so
 the greeter user can read it. Until it has run once, the greeter uses Omarchy's
 Tokyo Night colors.
@@ -360,11 +362,14 @@ Traffic stays on the tailnet: UDP 4242 is open only on `tailscale0`, and the
 peers are addressed by their tailnet hostnames. Lan Mouse's sender doesn't verify
 the receiver's certificate, so WireGuard does that part.
 
-Both daemons run as user services, so the machine you're moving to needs a
-logged-in session. Its lock screen works: cross over and type the password from
-the other machine. Its login screen doesn't, because logging out stops the
-services, and neither does suspend, including Noctalia's "Lock and suspend". Use
-that machine's own keyboard there; sharing comes back after login or wake.
+Both daemons run as user services, so they start when you log in. The login
+screen runs a Lan Mouse of its own (`modules/nixos/greeter.nix`) that only
+receives: cross over from the logged-in machine and type the password. It trusts
+the same fingerprints as the host's `lan-mouse.toml` and has its own certificate
+in `/var/lib/greeter`, which the sender doesn't check, so there's nothing to add
+on the other host. It never sends the login screen's input away, and lan-clip
+doesn't run there. The lock screen works too. Suspend doesn't, including
+Noctalia's "Lock and suspend": use that machine's own keyboard to wake it.
 
 [lan-clip](https://github.com/johanjongsma/lan-clip) adds clipboard sharing: every
 copy of text, HTML or a PNG goes to the other machine at once, over TCP 4243 on
