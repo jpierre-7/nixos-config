@@ -30,6 +30,9 @@ in
     # file, its module resolves outside the folder and Claude Code refuses it
     # as a path traversal, saying so only in the debug log.
     ".claude/skills/prompt-cache-control".source = ../../config/claude/mods/prompt-cache-control;
+    # Thumbnails of pasted images above the prompt; claude-paste-preview below
+    # reads them from the clipboard.
+    ".claude/skills/pasted-image-preview".source = ../../config/claude/mods/pasted-image-preview;
     # Left to itself, terminal-browser links its skill into ~/.claude/skills and
     # ~/.agents/skills on first run, to one store path that a later update or GC
     # leaves dangling. "no" here is its own opt-out for that, and it's what its
@@ -80,6 +83,9 @@ in
   # block-dangerous-git: the Claude hook that asks before a git push and blocks
   # destructive git commands. Its jq and shfmt (which parses each command, so
   # quoted text doesn't count) are pinned here, so they can't go missing.
+  #
+  # claude-paste-preview: the pasted-image-preview mod runs it from PATH to
+  # thumbnail the clipboard image a Ctrl+V just attached.
   home.packages = [
     pkgs.bun
     pkgs.herdr
@@ -106,6 +112,16 @@ in
         jq
       ];
       text = builtins.readFile ../../config/claude/session-diff.sh;
+    })
+    (pkgs.writeShellApplication {
+      name = "claude-paste-preview";
+      runtimeInputs = with pkgs; [
+        coreutils
+        gnugrep
+        imagemagick
+        wl-clipboard
+      ];
+      text = builtins.readFile ../../config/claude/paste-preview.sh;
     })
   ];
   # Live link, because herdr rewrites its config itself.

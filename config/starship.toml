@@ -1,15 +1,20 @@
 add_newline = true
 
+# Each bar is a pill: its outer ends are the Nerd Font round caps U+E0B6
+# (left) and U+E0B4 (right), the same ones the herdr agent cards use
+# (config/herdr/agent-cards/agent_cards.py). They are private-use glyphs
+# that tools can silently drop, which once left these ends flat. If an end
+# looks square, check that its codepoint is still there.
 format = """\
-[󱞬 ](text)[](primary)$os$username$sudo\
+[󱞬 ](text)[](primary)$os$username$sudo\
 [▓▒░](fg:primary bg:secondary)$directory\
 [▓▒░](fg:secondary bg:tertiary)$nix_shell$cmd_duration$status\
-[ ](tertiary)[  ](text)$fill[   ](text)\
-[ ](primary)$git_branch$git_status\
+[ ](tertiary)[  ](text)$fill[   ](text)\
+[ ](primary)$git_branch$git_status\
 [▓▒░](fg:primary bg:secondary)$c$deno$golang$java$lua$nim$nodejs$ruby$rust$php$python\
 [▓▒░](fg:secondary bg:tertiary)$package\
 [▓▒░](fg:tertiary bg:primary)$time\
-[](primary)
+[](primary)
 [󱞪 ](text)$character\
 """
 

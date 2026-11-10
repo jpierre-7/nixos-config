@@ -41,6 +41,17 @@
       fish_greeting = "fastfetch";
     };
 
+    # Claude Code draws images (terminal-browser pages, pasted-image previews)
+    # only on kitty and Ghostty, and herdr reports itself as libghostty, so
+    # herdr's panes force them on. Only there: plain WezTerm can't draw kitty's
+    # Unicode placeholders and shows them as boxes, with the picture at the
+    # cursor.
+    shellInit = ''
+      if set -q HERDR_ENV
+          set -gx CLAUDE_CODE_FORCE_TERMINAL_IMAGES 1
+      end
+    '';
+
     # Interactive only, as on Arch: an on-variable handler declared through
     # `functions` would also fire in scripts.
     interactiveShellInit = ''

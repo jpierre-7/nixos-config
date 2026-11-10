@@ -545,6 +545,29 @@ loads it by itself from `~/.claude/skills`. Its options go in
 `pluginConfigs."prompt-cache-control@skills-dir".options`. They're listed in
 the mod's README.
 
+### Pasted image preview
+
+Paste an image into the Claude Code prompt with Ctrl+V and a thumbnail of it
+shows above the prompt, captioned `Image #N` and its size, until you send the
+prompt or delete the `[Image #N]` token. The `pasted-image-preview` mod in
+`config/claude/mods/pasted-image-preview/` draws it; Claude Code loads it from
+`~/.claude/skills`, like the cache meter.
+
+Claude Code holds a pasted image in memory and only lets a mod read it once the
+prompt is sent, so the mod reads the clipboard instead: when a new
+`[Image #N]` lands in the prompt it runs `claude-paste-preview`
+(`config/claude/paste-preview.sh`, packaged in `modules/home/claude.nix`),
+which thumbnails the clipboard's image, the one Ctrl+V just attached. A copied
+path to an image file works too. An image attached from a dropped or typed
+file path never touches the clipboard, so its tile says there's nothing to
+preview, or shows whatever image the clipboard still holds. The thumbnail size
+is `pluginConfigs."pasted-image-preview@skills-dir".options.rows` (terminal
+rows, default 8).
+
+The pictures draw in herdr, which passes kitty graphics on to WezTerm (see
+below). In a plain WezTerm tab you get the caption only: Claude Code places
+images with kitty's Unicode placeholders, which WezTerm doesn't support.
+
 ### Terminal browser
 
 The `terminal-browser` plugin opens a Chromium page inside Claude Code with
@@ -554,9 +577,11 @@ The `terminal-browser` plugin opens a Chromium page inside Claude Code with
 upgrade` does not apply: bump the version and hash there instead. Claude Code
 only draws images on kitty and Ghostty, and herdr identifies itself as
 `libghostty`, so the page stays blank until
-`CLAUDE_CODE_FORCE_TERMINAL_IMAGES` skips that check. It's set for every session
-in `settings.json`, and tested in herdr on WezTerm, with
-`experimental.kitty_graphics` on in `config/herdr/config.toml`.
+`CLAUDE_CODE_FORCE_TERMINAL_IMAGES` skips that check. Fish sets it only in
+herdr's panes (`HERDR_ENV`, `modules/home/shell.nix`): in a plain WezTerm tab
+the forced images come out as boxes, with the picture drawn at the cursor. It's
+tested in herdr on WezTerm, with `experimental.kitty_graphics` on in
+`config/herdr/config.toml`.
 `modules/home/claude.nix` links the browser's skill, so Claude can drive an open
 tab, and turns off the links the browser would make itself. The package sets
 `TERMINAL_BROWSER_NO_TELEMETRY`, which stops its usage events and crash reports.
