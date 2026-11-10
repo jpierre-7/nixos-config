@@ -17,12 +17,30 @@ let
   # can't stay in /home/john, which the greeter user can't read.
   paletteDir = "/var/lib/greeter-palette";
 
+  # john's Lan Mouse (modules/home/lan-mouse.nix) starts with his session, so
+  # the login screen gets one of its own: the other machine can cross over and
+  # type the password. Same trusted peers as the host's lan-mouse.toml, minus
+  # [[clients]]: the listener takes any peer in authorized_fingerprints without
+  # one, and without clients the greeter never sends its own input away. The
+  # certificate is the greeter user's own, since senders don't verify it.
+  lanMouseConfig = (pkgs.formats.toml { }).generate "greeter-lan-mouse.toml" (
+    removeAttrs (lib.importTOML hm.xdg.configFile."lan-mouse/config.toml".source) [ "clients" ]
+  );
+
   greeter = pkgs.writeShellScript "greeter" ''
     export GREETER_USER=john
     export GREETER_HOST=${config.networking.hostName}
     export GREETER_SESSION=${config.programs.niri.package}/bin/niri-session
     export GREETER_PALETTE=${paletteDir}/palette.json
+    ${lib.getExe pkgs.lan-mouse} -c ${lanMouseConfig} \
+      --cert-path ${config.users.users.greeter.home}/lan-mouse.pem daemon &
+    lan_mouse=$!
+    # It holds UDP 4242, which john's Lan Mouse needs once he's logged in, so it
+    # has to end with the greeter however that ends.
+    trap 'kill $lan_mouse 2>/dev/null' EXIT HUP TERM
     ${lib.getExe pkgs.quickshell} -p ${../../config/greeter/shell.qml}
+    kill $lan_mouse 2>/dev/null
+    wait $lan_mouse
     # However the greeter ended (a login or a crash), end niri too: greetd then
     # starts the session, or a new greeter.
     ${niri} msg action quit --skip-confirmation

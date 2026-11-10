@@ -2,7 +2,8 @@
 # or EIS, so Lan Mouse falls through to its layer-shell backend and emulates with
 # wlr-virtual-pointer and virtual-keyboard. Each host links its own config.toml
 # (hosts/*/lan-mouse.toml). The key in ~/.config/lan-mouse/lan-mouse.pem is
-# generated on first start and stays out of the repo.
+# generated on first start and stays out of the repo. The login screen runs a
+# receive-only copy from the same config (modules/nixos/greeter.nix).
 #
 # Lan Mouse has no clipboard sharing, so lan-clip adds it. It trusts the machines
 # and certificates in the Lan Mouse config and never sends a copy that offers
