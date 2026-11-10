@@ -175,6 +175,30 @@
         "type": "github"
       }
     },
+    "qutewarden": {
+      "inputs": {
+        "home-manager": [
+          "home-manager"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1791575401,
+        "narHash": "sha256-DDyh1Wt4UaPGSNB1w0oDYHQnx1R3CqN0kq5qGObniHA=",
+        "owner": "HefKer",
+        "repo": "qutewarden",
+        "rev": "d981ad533121d6a60d59c6714e0eee854c9ceac8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "HefKer",
+        "repo": "qutewarden",
+        "rev": "d981ad533121d6a60d59c6714e0eee854c9ceac8",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
@@ -186,6 +210,7 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "noctalia-templates": "noctalia-templates",
+        "qutewarden": "qutewarden",
         "wallpapers": "wallpapers",
         "zoetrope": "zoetrope"
       }

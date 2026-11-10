@@ -34,6 +34,16 @@
       url = "github:johanjongsma/lan-clip/5e5126dfdf99ce9dba92b5e9ef474a6b6831d849";
       flake = false;
     };
+    # Bitwarden (rbw) userscript for qutebrowser; its Home Manager module is
+    # imported in modules/home/qutebrowser.nix. It handles vault secrets and
+    # comes from one author, so it stays on a fixed commit that `nix flake
+    # update` can't move: read the diff before changing the rev. Its
+    # home-manager input only feeds its own checks.
+    qutewarden = {
+      url = "github:HefKer/qutewarden/d981ad533121d6a60d59c6714e0eee854c9ceac8";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
     # Only for the git-guardrails-claude-code skill, linked in
     # modules/home/claude.nix. Its hook isn't taken from here: that's
     # config/claude/block-dangerous-git.sh.
