@@ -556,8 +556,8 @@ is `pluginConfigs."pasted-image-preview@skills-dir".options.rows` (terminal
 rows, default 8).
 
 The pictures draw in herdr, which passes kitty graphics on to WezTerm (see
-below). WezTerm alone can't show them: Claude Code places images with kitty's
-Unicode placeholders, which WezTerm doesn't support.
+below). In a plain WezTerm tab you get the caption only: Claude Code places
+images with kitty's Unicode placeholders, which WezTerm doesn't support.
 
 ### Terminal browser
 
@@ -568,9 +568,11 @@ The `terminal-browser` plugin opens a Chromium page inside Claude Code with
 upgrade` does not apply: bump the version and hash there instead. Claude Code
 only draws images on kitty and Ghostty, and herdr identifies itself as
 `libghostty`, so the page stays blank until
-`CLAUDE_CODE_FORCE_TERMINAL_IMAGES` skips that check. It's set for every session
-in `settings.json`, and tested in herdr on WezTerm, with
-`experimental.kitty_graphics` on in `config/herdr/config.toml`.
+`CLAUDE_CODE_FORCE_TERMINAL_IMAGES` skips that check. Fish sets it only in
+herdr's panes (`HERDR_ENV`, `modules/home/shell.nix`): in a plain WezTerm tab
+the forced images come out as boxes, with the picture drawn at the cursor. It's
+tested in herdr on WezTerm, with `experimental.kitty_graphics` on in
+`config/herdr/config.toml`.
 `modules/home/claude.nix` links the browser's skill, so Claude can drive an open
 tab, and turns off the links the browser would make itself. The package sets
 `TERMINAL_BROWSER_NO_TELEMETRY`, which stops its usage events and crash reports.
