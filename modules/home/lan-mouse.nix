@@ -18,11 +18,49 @@
 let
   lan-clip = pkgs.callPackage ../../pkgs/lan-clip.nix { src = inputs.lan-clip; };
   configSource = "${config.xdg.configFile."lan-mouse/config.toml".source}";
+
+  # Mod+M in config/niri/config.kdl. Lan Mouse can't enter a client on demand: the
+  # layer-shell backend starts capturing only when the pointer enters its 1 px strip
+  # at the shared edge (feschber/lan-mouse#260, #482), and niri has no action that
+  # moves the pointer. So this pushes the pointer into that edge with a virtual
+  # pointer. Niri clamps the big move to the output's edge, and Lan Mouse starts
+  # capturing as if the mouse had crossed it. One event, so no leftover motion
+  # reaches the other machine. The small move away first leaves the strip in case
+  # the pointer still sits on it after coming back. On the other machine, the same
+  # bind sends input back: its niri sees the keys from Lan Mouse's virtual keyboard.
+  clients = (lib.importTOML config.xdg.configFile."lan-mouse/config.toml".source).clients or [ ];
+  client =
+    lib.throwIfNot (builtins.length clients == 1)
+      "lan-mouse-switch expects exactly one [[clients]] entry in lan-mouse.toml"
+      (builtins.head clients);
+  # Direction of the shared edge: 1 or -1 on one axis, 0 on the other.
+  dx =
+    {
+      left = -1;
+      right = 1;
+    }
+    .${client.position} or 0;
+  dy =
+    {
+      top = -1;
+      bottom = 1;
+    }
+    .${client.position} or 0;
+  move = n: "${toString (n * dx)} ${toString (n * dy)}";
+  lan-mouse-switch = pkgs.writeShellApplication {
+    name = "lan-mouse-switch";
+    runtimeInputs = [ pkgs.wlrctl ];
+    text = ''
+      wlrctl pointer move ${move (-4)}
+      wlrctl pointer move ${move 100000}
+    '';
+  };
 in
 {
   home.packages = [
     pkgs.lan-mouse
     lan-clip
+    lan-mouse-switch
   ];
 
   systemd.user.services.lan-mouse = {
