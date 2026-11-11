@@ -30,6 +30,7 @@ let
   greeter = pkgs.writeShellScript "greeter" ''
     export GREETER_USER=john
     export GREETER_HOST=${config.networking.hostName}
+    export GREETER_LOGO=${../../config/screensaver/nixos-logo.txt}
     export GREETER_SESSION=${config.programs.niri.package}/bin/niri-session
     export GREETER_PALETTE=${paletteDir}/palette.json
     ${lib.getExe pkgs.lan-mouse} -c ${lanMouseConfig} \
