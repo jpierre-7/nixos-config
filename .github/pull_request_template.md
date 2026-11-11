@@ -4,5 +4,5 @@
 
 ## Ticket
 
-<!-- The ticket number with no #, or "none". GitHub would link #12 to this repo's own issue 12. -->
-Planning: 
+<!-- Add the ticket number, or replace the line with "none". Merging closes the ticket. -->
+Closes jpierre-7/nixos-config-planning#12 

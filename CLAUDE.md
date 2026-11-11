@@ -63,5 +63,5 @@ Noctalia is different. `modules/home/noctalia.nix` generates its shared config r
 
 - The repo is public. No secrets, passwords, or tokens in Nix code. They would also become world-readable in `/nix/store`. Secrets are set by hand after install, or encrypted with agenix in `secrets/` (`SECURITY.md`). `.gitleaks.toml` is public too, so its rules stay generic.
 - Comments explain *why* (often the Arch behavior being reproduced or a bug being worked around) and point to the related file. Follow the same style.
-- Pull requests reference their private ticket as `Planning: 12`, a bare number with no `#`. Nothing else about that tracker goes in this repo: not its name, and not its issue text.
+- Pull requests close their private ticket with `Closes jpierre-7/nixos-config-planning#12`, so merging closes it. Nothing else about that tracker goes in this repo: not its issue text.
 - Commit messages: short imperative subject, then a body that explains the reason for the change.

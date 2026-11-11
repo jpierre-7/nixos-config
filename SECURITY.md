@@ -49,5 +49,8 @@ on line 2. If it's ever lost, the login is in the router's admin panel, and
 
 # Linking a pull request to a ticket
 
-Put `Planning: 12` in the pull request body. Use the bare number: GitHub would
-link `#12` to this repo's own issue or pull request 12.
+Put `Closes jpierre-7/nixos-config-planning#12` in the pull request body.
+Merging then closes the ticket. The tracker is private: the reference shows only
+its name and the number, and the link is a 404 for anyone without access. Keep
+its issue text out of this repo. A bare `#12` would link this repo's own issue
+or pull request 12.
