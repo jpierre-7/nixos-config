@@ -79,7 +79,7 @@ Two things follow from that:
   that adds a plugin, log out and back in (or restart Noctalia) before its
   widget shows up.
 
-The window rims, terminal, prompt, editor, launcher, screensaver and Claude
+The window rims, terminal, prompt, system monitor (btop), editor, launcher, screensaver and Claude
 Code (theme and status line) take their colors from Noctalia. `noctalia.nix` registers a template
 for each, and Noctalia renders them again each time its palette changes (new
 wallpaper, palette source, scheme or light/dark mode):
@@ -89,6 +89,7 @@ wallpaper, palette source, scheme or light/dark mode):
 | `~/.config/niri/noctalia.kdl` | Noctalia's niri template | `config/niri/config.kdl` includes it; niri reloads when it changes |
 | `~/.config/wezterm/colors/Noctalia.toml` | Noctalia's WezTerm template | `wezterm.lua` loads it and reloads when it changes |
 | `~/.config/starship.toml` | `config/starship.toml` | Starship, on the next prompt |
+| `~/.config/btop/themes/noctalia.theme` | Noctalia's btop template | btop (`color_theme = "noctalia"`); an open btop reloads on SIGUSR2 |
 | `~/.config/nvim/colors/noctalia.lua` (gitignored) | community `lazyvim` | LazyVim's colorscheme; open Neovims reload on SIGUSR1 |
 | `~/.local/share/vicinae/themes/noctalia.toml` | community `vicinae` | Vicinae, through `vicinae theme set noctalia` |
 | `~/.claude/themes/noctalia.json` | community `claude-code` | Claude Code (`"theme": "custom:noctalia"` in `config/claude/settings.json`), on change |
