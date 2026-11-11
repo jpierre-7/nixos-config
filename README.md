@@ -281,8 +281,11 @@ The fish abbreviation `nrs` expands to the first line.
 ### Login screen
 
 The login screen copies the look of [Omarchy](https://github.com/basecamp/omarchy)'s
-SDDM theme: the hostname in large letters over a lock and an outlined password
-box. Type the password and press Enter; Escape clears it. The box and lock turn
+SDDM theme: a lock and an outlined password box, under the NixOS logo (the
+screensaver's, `config/screensaver/nixos-logo.txt`) and a "Welcome back!" that
+types itself out in pixel letters and then ripples every few seconds. The
+animation never holds up the password: you can type from the first frame. Type
+the password and press Enter; Escape clears it. The box and lock turn
 red after a wrong password. There is no user or session to pick: it logs `john`
 into niri. To power off from it, press the power button.
 
