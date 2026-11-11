@@ -212,6 +212,15 @@ in
           input_path = "${inputs.noctalia-templates}/claude-code/claude-code.json";
           output_path = "${config.home.homeDirectory}/.claude/themes/noctalia.json";
         };
+        # Sourced by modules/home/qutebrowser.nix's config.py. The hook reloads
+        # an open qutebrowser; the community template's own hook would start
+        # one when none is open (its `pgrep -f qutebrowser` matches the hook's
+        # own path).
+        qutebrowser = {
+          input_path = "${inputs.noctalia-templates}/qutebrowser/template.py";
+          output_path = "$XDG_CONFIG_HOME/qutebrowser/noctalia/colors.py";
+          post_hook = "${config.home.profileDirectory}/bin/qutebrowser-ipc :config-source || true";
+        };
         # Sourced by the Claude Code status line (config/claude/statusline.sh).
         claude-statusline = {
           input_path = "${../../config/claude/statusline-colors.sh}";

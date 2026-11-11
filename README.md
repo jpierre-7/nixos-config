@@ -257,6 +257,9 @@ These need an account or a login, so they can't be declared:
   its window) move past them; commit the lock file after updating on purpose,
   or `:Lazy restore` to go back.
 - Vivaldi downloads its media codecs on first start; restart it when it asks.
+- rbw (Bitwarden for qutebrowser): `rbw config set email <your Bitwarden email>`,
+  then `rbw login`. The email stays out of the repo (see
+  [qutebrowser](#qutebrowser)).
 - Wake-on-LAN (desktop): in the firmware setup, turn on wake from LAN/PCIe
   ("Power On By PCI-E", "Wake on LAN") and turn off ErP / deep sleep, which
   cuts power to the NIC. See [Waking the desktop](#waking-the-desktop) for the
@@ -404,6 +407,41 @@ The shared mouse and keyboard count as input on the idle machine, so crossing
 over with Lan Mouse wakes it and types the password. The lock screen hides Lan
 Mouse's edge, so the cursor can't cross back until that machine is unlocked;
 Left Ctrl+Shift+Super+Alt brings it back.
+
+### qutebrowser
+
+A keyboard-driven second browser; Vivaldi stays the default. The config is in
+`modules/home/qutebrowser.nix`, with ideas from
+[HefKer's](https://github.com/HefKer/dots/tree/main/qutebrowser). Its colors
+follow Noctalia like the other apps.
+
+**Bitwarden.** [qutewarden](https://github.com/HefKer/qutewarden) fills from
+the vault through `rbw`. It matches Items by URI, not by name. The picker is
+Vicinae, and the master password prompt is pinentry-qt. Binds:
+
+| Keys | Does |
+|---|---|
+| `,qf` | fill login (or TOTP on a code-only page) |
+| `,qt` | fill TOTP |
+| `,qg` | generate a password, save it, fill it |
+| `,qv` | pick any Item from the vault |
+| `,qc` / `,qi` | fill a card / an address |
+| `,qu` `,ql` `,qs` `,qS` | unlock, lock, sync, status |
+
+It needs the one-time `rbw config set email` and `rbw login`
+([above](#one-time-steps-after-the-first-login)). The email is set by hand
+because Home Manager would put it into the store. A rebuild sets only rbw's
+pinentry. rbw is a separate client from the `bw` CLI that Noctalia's
+Bitwarden plugin uses, so each one has its own login.
+
+**Ad blocking.** qutebrowser's built-in blocker runs EasyList, EasyPrivacy
+and uBlock Origin's lists. A user timer refreshes them while qutebrowser is
+open: when the list changes, and otherwise weekly. Run `:adblock-update` to do
+it now. The blocker only blocks requests. It can't hide page elements, and it
+can't run uBO's scriptlets. YouTube serves its ads from its own servers, so
+`config/qutebrowser/youtube-ads.js` (greasemonkey) hides the ad slots and
+fast-forwards video ads. When YouTube changes its markup, update that file's
+selectors.
 
 ### Agent cards in herdr
 
