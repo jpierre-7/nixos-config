@@ -284,6 +284,7 @@ The login screen copies the look of [Omarchy](https://github.com/basecamp/omarch
 SDDM theme: a lock and an outlined password box, under the NixOS logo (the
 screensaver's, `config/screensaver/nixos-logo.txt`) and a "Welcome back!" that
 types itself out in pixel letters and then ripples every few seconds. The
+hostname sits in small letters under the box. The
 animation never holds up the password: you can type from the first frame. Type
 the password and press Enter; Escape clears it. The box and lock turn
 red after a wrong password. There is no user or session to pick: it logs `john`

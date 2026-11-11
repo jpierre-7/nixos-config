@@ -5,7 +5,8 @@
 // As there, the user and the session are fixed, so there is nothing to pick.
 // In place of Omarchy's wordmark: the screensaver's NixOS logo
 // (config/screensaver/nixos-logo.txt) and a "Welcome back!" typed out in
-// pixel letters that then ripple now and then.
+// pixel letters that then ripple now and then. The hostname sits small under
+// the password box, to tell the machines apart.
 pragma ComponentBehavior: Bound
 
 import QtQuick
@@ -20,6 +21,7 @@ ShellRoot {
     // Set by the greeter script in modules/nixos/greeter.nix.
     readonly property string user: Quickshell.env("GREETER_USER")
     readonly property string session: Quickshell.env("GREETER_SESSION")
+    readonly property string host: Quickshell.env("GREETER_HOST")
 
     property string password: ""
     property bool failed: false
@@ -328,70 +330,85 @@ ShellRoot {
                     }
                 }
 
-                Row {
-                    id: prompt
+                Column {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 15
+                    spacing: 16
 
-                    readonly property color accent: root.failed ? root.colors.error : root.colors.foreground
+                    Row {
+                        id: prompt
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 15
 
-                    // Omarchy's lock.png, drawn: a shackle over a body with a keyhole.
-                    Item {
-                        width: 34
-                        height: 38
-                        anchors.verticalCenter: parent.verticalCenter
+                        readonly property color accent: root.failed ? root.colors.error : root.colors.foreground
 
-                        Rectangle {
-                            x: 7
-                            width: 20
-                            height: 24
-                            radius: 10
-                            color: "transparent"
-                            border.width: 4
-                            border.color: prompt.accent
-                        }
-                        Rectangle {
-                            y: 15
+                        // Omarchy's lock.png, drawn: a shackle over a body with a keyhole.
+                        Item {
                             width: 34
-                            height: 23
-                            radius: 4
-                            color: prompt.accent
+                            height: 38
+                            anchors.verticalCenter: parent.verticalCenter
 
                             Rectangle {
-                                anchors.centerIn: parent
-                                width: 4
-                                height: 9
-                                radius: 2
-                                color: root.colors.background
+                                x: 7
+                                width: 20
+                                height: 24
+                                radius: 10
+                                color: "transparent"
+                                border.width: 4
+                                border.color: prompt.accent
+                            }
+                            Rectangle {
+                                y: 15
+                                width: 34
+                                height: 23
+                                radius: 4
+                                color: prompt.accent
+
+                                Rectangle {
+                                    anchors.centerIn: parent
+                                    width: 4
+                                    height: 9
+                                    radius: 2
+                                    color: root.colors.background
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            width: 286
+                            height: 48
+                            radius: 3
+                            color: "transparent"
+                            border.width: 2
+                            border.color: prompt.accent
+
+                            Row {
+                                anchors.left: parent.left
+                                anchors.leftMargin: 20
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 5
+
+                                Repeater {
+                                    model: Math.min(root.password.length, 21)
+
+                                    Rectangle {
+                                        width: 7
+                                        height: 7
+                                        radius: 3.5
+                                        color: root.colors.foreground
+                                    }
+                                }
                             }
                         }
                     }
 
-                    Rectangle {
-                        width: 286
-                        height: 48
-                        radius: 3
-                        color: "transparent"
-                        border.width: 2
-                        border.color: prompt.accent
-
-                        Row {
-                            anchors.left: parent.left
-                            anchors.leftMargin: 20
-                            anchors.verticalCenter: parent.verticalCenter
-                            spacing: 5
-
-                            Repeater {
-                                model: Math.min(root.password.length, 21)
-
-                                Rectangle {
-                                    width: 7
-                                    height: 7
-                                    radius: 3.5
-                                    color: root.colors.foreground
-                                }
-                            }
-                        }
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: root.host
+                        color: root.colors.foreground
+                        opacity: 0.6
+                        font.family: "Maple Mono"
+                        font.pixelSize: 16
+                        font.letterSpacing: 2
                     }
                 }
             }
