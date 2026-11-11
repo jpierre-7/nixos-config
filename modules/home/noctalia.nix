@@ -6,6 +6,15 @@
 }:
 let
   toml = pkgs.formats.toml { };
+
+  # Idle timeout for every host, in seconds: nothing happens before it. The
+  # idle timers below are derived from it.
+  idleTimeout = 10 * 60;
+  # How long the screensaver plays before the lock timer fires. The lock can't
+  # share idleTimeout: Noctalia would fire both together and lock right after
+  # starting the screensaver (src/idle/idle_manager.cpp), so it would never be
+  # seen. Input during the screensaver locks anyway.
+  screensaverRun = 5 * 60;
 in
 {
   # From nixpkgs-unstable (overlays/default.nix). Niri starts it (spawn-at-startup).
@@ -103,9 +112,9 @@ in
 
     calendar.enabled = true;
 
-    # The only idle daemon. After 5 idle minutes the screensaver plays
+    # The only idle daemon. After idleTimeout the screensaver plays
     # (modules/home/screensaver.nix); the next input locks, then ends it. Its
-    # windows don't count as activity, so after 10 more minutes the session
+    # windows don't count as activity, so after screensaverRun more the session
     # locks (which also ends it) and the monitors go off. Input from Lan Mouse
     # counts as activity: niri treats virtual input like local input.
     idle = {
@@ -115,17 +124,17 @@ in
         "screen-off"
       ];
       behavior.screensaver = {
-        timeout = 300;
+        timeout = idleTimeout;
         action = "command";
         command = "nixos-screensaver start";
         resume_command = "nixos-screensaver stop";
       };
       behavior.lock = {
-        timeout = 900;
+        timeout = idleTimeout + screensaverRun;
         action = "lock";
       };
       behavior.screen-off = {
-        timeout = 905;
+        timeout = idleTimeout + screensaverRun + 5; # just after the lock
         locked_timeout = 60; # at the lock screen, e.g. after waking it by accident
         action = "screen_off";
       };

@@ -388,13 +388,15 @@ reads the private key and every copy. Read the diff before moving it.
 
 ### Idle screensaver
 
-After 5 idle minutes the NixOS logo plays on every monitor, animated by
+After 10 idle minutes the NixOS logo plays on every monitor, animated by
 [terminaltexteffects](https://github.com/ChrisBuilds/terminaltexteffects) in
 fullscreen WezTerms, as on [Omarchy](https://github.com/basecamp/omarchy). Each
 round picks a random effect, in the current Noctalia colors. Any key or mouse
 move locks the session first and then ends the screensaver, so it never leads
-back to an unlocked desktop. After 15 idle minutes the session locks and the
-monitors go off; at the lock screen they go off after one idle minute.
+back to an unlocked desktop. Nothing happens before those 10 minutes, on either
+host. If the screensaver plays on for 5 more minutes, the session locks and the
+monitors go off; at the lock screen they go off after one idle minute. The
+timeout is `idleTimeout` in `modules/home/noctalia.nix`.
 
 Noctalia's idle settings run it (`idle` in `modules/home/noctalia.nix`); there is
 no other idle daemon. Its caffeine toggle and apps that inhibit idle (video)
