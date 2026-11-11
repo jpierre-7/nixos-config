@@ -230,6 +230,14 @@ in
           output_path = "$XDG_CONFIG_HOME/qutebrowser/noctalia/colors.py";
           post_hook = "${config.home.profileDirectory}/bin/qutebrowser-ipc :config-source || true";
         };
+        # Selected by color_theme in btop.conf (shell.nix). SIGUSR2 makes an
+        # open btop reload its theme. Only the template: the built-in apply.sh
+        # rewrites color_theme in btop.conf, a read-only store file here.
+        btop = {
+          input_path = "${pkgs.noctalia}/share/noctalia/assets/templates/btop/btop.theme";
+          output_path = "$XDG_CONFIG_HOME/btop/themes/noctalia.theme";
+          post_hook = "${pkgs.procps}/bin/pkill -USR2 -x btop || true";
+        };
         # Sourced by the Claude Code status line (config/claude/statusline.sh).
         claude-statusline = {
           input_path = "${../../config/claude/statusline-colors.sh}";

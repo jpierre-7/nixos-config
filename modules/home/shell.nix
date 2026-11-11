@@ -128,5 +128,13 @@
 
   programs.htop.enable = true;
 
+  # Colors: btop/themes/noctalia.theme is Noctalia's output (the btop template
+  # in noctalia.nix). Until Noctalia has rendered it once, btop falls back to
+  # its default theme.
+  programs.btop = {
+    enable = true;
+    settings.color_theme = "noctalia";
+  };
+
   home.packages = [ pkgs.onefetch ];
 }
