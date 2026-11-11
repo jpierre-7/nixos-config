@@ -661,6 +661,36 @@ after a cold boot. Some Realtek 2.5 Gb adapters start as a driver CD-ROM
 the adapter then comes up as a network card. A `udev` rule that runs
 `usb_modeswitch` on that ID switches it at boot.
 
+### External SSDs
+
+The dual-bay USB enclosure holds two SSDs, each with one ext4 partition. On
+either host, `modules/nixos/external-drives.nix` mounts them by label:
+
+| Drive | Label | Mount point |
+|---|---|---|
+| Samsung 850 PRO 256GB | `samsung` | `/mnt/samsung` |
+| T-FORCE 1TB | `tforce` | `/mnt/tforce` |
+
+Nothing mounts when you plug the enclosure in. A drive mounts the first time
+something opens its folder (`ls /mnt/tforce`, a file manager, a copy). It
+unmounts after 10 idle minutes. Without the enclosure, the host boots
+normally. Opening an empty mount point fails after 5 seconds.
+
+After a drive is formatted, its root folder belongs to root. Run this once
+with the enclosure plugged in. The owner is stored on the drive, so it carries
+over to the other host:
+
+```sh
+sudo chown john:users /mnt/samsung /mnt/tforce
+```
+
+Before you unplug, close anything using the drives, then run
+`sudo umount /mnt/samsung /mnt/tforce`. (`umount` also reports "not mounted"
+for a drive that idled out; that's fine.)
+
+A new drive needs an ext4 label (`sudo mkfs.ext4 -L <label> /dev/sdX1`) and a
+line in that module.
+
 ### Routine updates
 
 ```sh

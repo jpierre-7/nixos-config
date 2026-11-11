@@ -5,6 +5,7 @@
     ./bluetooth.nix
     ./boot.nix
     ./desktop.nix
+    ./external-drives.nix
     ./fonts.nix
     ./greeter.nix
     ./kanata.nix
