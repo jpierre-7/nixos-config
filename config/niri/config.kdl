@@ -284,6 +284,10 @@ binds {
 
     Mod+S { screenshot; }
 
+    // Send keyboard and mouse to the other machine, like crossing the Lan Mouse
+    // edge. Pressed there, it brings them back (modules/home/lan-mouse.nix).
+    Mod+M repeat=false hotkey-overlay-title="Move input to the other machine" { spawn "lan-mouse-switch"; }
+
     Mod+Left  { focus-column-left; }
     Mod+Down  { focus-window-down; }
     Mod+Up    { focus-window-up; }
