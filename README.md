@@ -689,8 +689,10 @@ either host, `modules/nixos/external-drives.nix` mounts them by label:
 
 Nothing mounts when you plug the enclosure in. A drive mounts the first time
 something opens its folder (`ls /mnt/tforce`, a file manager, a copy). It
-unmounts after 10 idle minutes. Without the enclosure, the host boots
-normally. Opening an empty mount point fails after 5 seconds.
+unmounts after 10 idle minutes. Nautilus lists them in its sidebar as
+"Samsung SSD" and "T-FORCE SSD" while the enclosure is plugged in. Without
+the enclosure, the host boots normally. Opening an empty mount point fails
+after 5 seconds.
 
 After a drive is formatted, its root folder belongs to root. Run this once
 with the enclosure plugged in. The owner is stored on the drive, so it carries
