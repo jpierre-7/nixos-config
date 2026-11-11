@@ -142,6 +142,11 @@ in
       ];
     };
 
+    # The blocker stays off on YouTube pages: with it on, videos stop after
+    # about 40 seconds with "Something went wrong. Refresh or try again
+    # later." The YouTube script below still mutes and skips the ads there.
+    perDomainSettings."*://*.youtube.com/*".content.blocking.enabled = false;
+
     searchEngines = {
       DEFAULT = "https://duckduckgo.com/?q={}";
       g = "https://www.google.com/search?q={}";

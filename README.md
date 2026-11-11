@@ -438,10 +438,11 @@ Bitwarden plugin uses, so each one has its own login.
 and uBlock Origin's lists. A user timer refreshes them while qutebrowser is
 open: when the list changes, and otherwise weekly. Run `:adblock-update` to do
 it now. The blocker only blocks requests. It can't hide page elements, and it
-can't run uBO's scriptlets. YouTube serves its ads from its own servers, so
-`config/qutebrowser/youtube-ads.js` (greasemonkey) hides the ad slots and
-fast-forwards video ads. When YouTube changes its markup, update that file's
-selectors.
+can't run uBO's scriptlets. It is off on YouTube, which stops videos after
+about 40 seconds with "Something went wrong" when requests from its pages are
+blocked. There, `config/qutebrowser/youtube-ads.js` (greasemonkey) hides the
+ad slots and mutes and fast-forwards video ads. When YouTube changes its
+markup, update that file's selectors.
 
 ### Agent cards in herdr
 
