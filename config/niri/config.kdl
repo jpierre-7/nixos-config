@@ -383,12 +383,14 @@ binds {
     Mod+Shift+7 { move-window-to-workspace 7 focus=false; }
     Mod+Shift+8 { move-window-to-workspace 8 focus=false; }
     Mod+Shift+9 { move-window-to-workspace 9 focus=false; }
-    // The LG on the desktop's HDMI port, by its name so the port doesn't matter.
+    // The LG on the desktop's HDMI port and back to the ultrawide (the two ends
+    // of the number row), by name so the port doesn't matter.
     // Niri's move-window-to-monitor always takes focus along, so the wrapper
     // (modules/home/niri.nix) focuses the old monitor again. Here, not in the
     // desktop's host.kdl: the login screen appends that file and has no binds.
-    // On the laptop the output doesn't exist and the bind does nothing.
+    // On the laptop neither output exists and the binds do nothing.
     Mod+Shift+0 hotkey-overlay-title="Send window to the LG monitor" { spawn "niri-send-window" "LG Electronics LG FULL HD 0x01010101"; }
+    Mod+Shift+grave hotkey-overlay-title="Send window to the ultrawide" { spawn "niri-send-window" "Shenzhen KTC Technology Group EI491CUR J0 0000000000000"; }
 
     Mod+BracketLeft  { consume-or-expel-window-left; }
     Mod+BracketRight { consume-or-expel-window-right; }

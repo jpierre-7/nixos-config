@@ -285,11 +285,12 @@ The fish abbreviation `nrs` expands to the first line.
 |---|---|
 | `Mod+Shift+1` to `9` | Sends the focused window to that workspace on the current monitor |
 | `Mod+Shift+0` | Sends the focused window to the LG monitor (desktop, HDMI) |
+| ``Mod+Shift+` `` | Sends the focused window to the ultrawide (desktop, DP-1) |
 
 You stay where you are. Focus doesn't follow the window. `Mod+Ctrl+1` to `9`
 move the whole column and take focus along. `Mod+Shift+/` lists every bind.
-The LG bind finds the monitor by name (`config/niri/config.kdl`), so it works
-on any port, and does nothing when the LG isn't plugged in.
+The monitor binds find each monitor by name (`config/niri/config.kdl`), so
+they work on any port, and do nothing when that monitor isn't plugged in.
 
 ### Login screen
 
