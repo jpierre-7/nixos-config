@@ -206,9 +206,6 @@ ShellRoot {
             id: win
 
             required property ShellScreen modelData
-            // Only one surface can hold the keyboard. The others draw the same
-            // screen from the shared state above.
-            readonly property bool typing: modelData === Quickshell.screens[0]
 
             screen: modelData
             anchors {
@@ -220,7 +217,12 @@ ShellRoot {
             exclusionMode: ExclusionMode.Ignore
             WlrLayershell.layer: WlrLayer.Overlay
             WlrLayershell.namespace: "greeter"
-            WlrLayershell.keyboardFocus: typing ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+            // Every screen asks for the keyboard: niri gives it only to the
+            // exclusive surface on the active output (the one the pointer is
+            // on). With one taker, moving the pointer to another monitor, as
+            // Lan Mouse does on arrival, left no one typing. They all type
+            // into the shared password above.
+            WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
             color: root.colors.background
 
             // Full size on screens at least 1200 px tall; smaller ones shrink
@@ -231,7 +233,7 @@ ShellRoot {
 
             Item {
                 anchors.fill: parent
-                focus: win.typing
+                focus: true
 
                 // No text field: like Omarchy's hidden TextInput, keys only
                 // add to or clear the password, which is never drawn.
