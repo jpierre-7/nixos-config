@@ -279,6 +279,18 @@ Home Manager is part of the system build, so this updates your dotfiles too.
 Use `nixos-rebuild boot` instead of `switch` to apply on the next reboot.
 The fish abbreviation `nrs` expands to the first line.
 
+### Sending windows elsewhere
+
+| Keys | Does |
+|---|---|
+| `Mod+Shift+1` to `9` | Sends the focused window to that workspace on the current monitor |
+| `Mod+Shift+0` | Sends the focused window to the LG monitor (desktop, HDMI) |
+
+You stay where you are. Focus doesn't follow the window. `Mod+Ctrl+1` to `9`
+move the whole column and take focus along. `Mod+Shift+/` lists every bind.
+The LG bind finds the monitor by name (`config/niri/config.kdl`), so it works
+on any port, and does nothing when the LG isn't plugged in.
+
 ### Login screen
 
 The login screen copies the look of [Omarchy](https://github.com/basecamp/omarchy)'s

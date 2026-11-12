@@ -372,6 +372,23 @@ binds {
     Mod+Ctrl+7 { move-column-to-workspace 7; }
     Mod+Ctrl+8 { move-column-to-workspace 8; }
     Mod+Ctrl+9 { move-column-to-workspace 9; }
+    // One window rather than its whole column, and focus stays where it was.
+    // Only the first has an overlay title, so the overlay lists one line for all.
+    Mod+Shift+1 hotkey-overlay-title="Send window to workspace 1-9 (Mod+Shift+number)" { move-window-to-workspace 1 focus=false; }
+    Mod+Shift+2 { move-window-to-workspace 2 focus=false; }
+    Mod+Shift+3 { move-window-to-workspace 3 focus=false; }
+    Mod+Shift+4 { move-window-to-workspace 4 focus=false; }
+    Mod+Shift+5 { move-window-to-workspace 5 focus=false; }
+    Mod+Shift+6 { move-window-to-workspace 6 focus=false; }
+    Mod+Shift+7 { move-window-to-workspace 7 focus=false; }
+    Mod+Shift+8 { move-window-to-workspace 8 focus=false; }
+    Mod+Shift+9 { move-window-to-workspace 9 focus=false; }
+    // The LG on the desktop's HDMI port, by its name so the port doesn't matter.
+    // Niri's move-window-to-monitor always takes focus along, so the wrapper
+    // (modules/home/niri.nix) focuses the old monitor again. Here, not in the
+    // desktop's host.kdl: the login screen appends that file and has no binds.
+    // On the laptop the output doesn't exist and the bind does nothing.
+    Mod+Shift+0 hotkey-overlay-title="Send window to the LG monitor" { spawn "niri-send-window" "LG Electronics LG FULL HD 0x01010101"; }
 
     Mod+BracketLeft  { consume-or-expel-window-left; }
     Mod+BracketRight { consume-or-expel-window-right; }
