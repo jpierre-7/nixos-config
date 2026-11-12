@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 let
   # Vesktop (Discord client) with GPU acceleration off: the known fix carried
   # over from Arch. Its desktop entry runs `vesktop` from PATH, so launching
@@ -42,6 +42,27 @@ in
 
   # Backup browser; Vivaldi stays the main one.
   programs.google-chrome.enable = true;
+
+  # The magnifying lamp's camera in "PC Camera" mode is a plain UVC webcam
+  # (GENERAL - UVC, 1b3f:2002) that only offers MJPG 1280x720 at 30 fps. The
+  # by-id path stays the same when /dev/videoN renumbers (the Brio is video0).
+  # Low-latency flags so the picture keeps up with the soldering iron.
+  xdg.desktopEntries.magnifier-camera = {
+    name = "Magnifier camera";
+    comment = "Live view from the magnifying lamp's USB camera";
+    icon = "camera-web";
+    exec = lib.concatStringsSep " " [
+      (lib.getExe pkgs.mpv)
+      ''"--title=Magnifier camera"''
+      "--profile=low-latency"
+      "--untimed"
+      "--demuxer-lavf-format=video4linux2"
+      "--demuxer-lavf-o=input_format=mjpeg,video_size=1280x720"
+      "av://v4l2:/dev/v4l/by-id/usb-GENERAL_GENERAL_-_UVC-video-index0"
+    ];
+    categories = [ "AudioVideo" ];
+    settings.Keywords = "webcam;microscope;magnifier;lamp;";
+  };
 
   # Account switcher (experimental, off by default). The app only reads this file;
   # its profiles and logins stay in its own state under ~/.config/teams-for-linux.
