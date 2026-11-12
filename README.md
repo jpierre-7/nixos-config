@@ -689,6 +689,21 @@ tested in herdr on WezTerm, with `experimental.kitty_graphics` on in
 tab, and turns off the links the browser would make itself. The package sets
 `TERMINAL_BROWSER_NO_TELEMETRY`, which stops its usage events and crash reports.
 
+### Ponytail
+
+The [ponytail](https://github.com/DietrichGebert/ponytail) plugin pushes
+Claude toward the shortest solution that works: no unrequested abstractions,
+the standard library before a dependency. `config/claude/settings.json`
+declares its marketplace and enables it, so Claude Code installs it on each
+machine the first time it starts after a rebuild. Its hooks inject the rules at
+session start, on every prompt, and into each subagent. They run `node`, which
+`modules/home/dev.nix` puts on PATH. `/ponytail lite|full|ultra|off` changes
+the level for one session; `PONYTAIL_DEFAULT_MODE` in the settings' `env`
+changes it for every session. The plugin offers to add its own status line
+only when none is set, so it leaves ours alone. Its task board writes one CSV
+row per turn to `~/.config/ponytail/band/`. Its webhook is empty, so nothing
+leaves the machine.
+
 ### ADHD mode
 
 `config/claude/CLAUDE.md` imports the `i-have-adhd` skill, so every session
