@@ -17,7 +17,9 @@
  * The `Image` element draws through the kitty graphics protocol, which herdr
  * passes on (`kitty_graphics` in config/herdr/config.toml) and Claude Code uses
  * only when asked (`CLAUDE_CODE_FORCE_TERMINAL_IMAGES`, set in herdr's panes by
- * modules/home/shell.nix). Elsewhere it shows the alt text.
+ * modules/home/shell.nix). Elsewhere it shows the alt text, which says so:
+ * plain WezTerm can't draw kitty's placeholders, and Claude Code uses iTerm2
+ * images only for a terminal reporting itself as iTerm2 3.5+ (README).
  *
  * Options (pluginConfigs["pasted-image-preview@skills-dir"].options):
  *   rows: number   height of a thumbnail in terminal rows (default 8)
@@ -27,6 +29,9 @@ import type { EngineInterface, Register } from 'claude-code'
 type Preview = { width: number; height: number; png: string } | { missing: string }
 
 const TOKEN = /\[Image #(\d+)\]/g
+// Drawn in the thumbnail's place where the terminal can't draw it: outside
+// herdr, the caption under it would otherwise show twice.
+const NO_PICTURE = 'preview needs herdr'
 // Terminal cells are about twice as tall as they are wide.
 const CELL_ASPECT = 2
 
@@ -132,7 +137,7 @@ export const register: Register = (on, options) => {
       if (!Image) return <Text dimColor>{caption}</Text>
       return (
         <Box flexDirection="column">
-          <Image source={{ png: p.png }} columns={columnsFor(p, rows)} rows={rows} alt={caption} />
+          <Image source={{ png: p.png }} columns={columnsFor(p, rows)} rows={rows} alt={NO_PICTURE} />
           <Text dimColor wrap="truncate-end">
             {caption}
           </Text>
