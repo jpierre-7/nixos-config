@@ -612,6 +612,18 @@ prompt or delete the `[Image #N]` token. The `pasted-image-preview` mod in
 `config/claude/mods/pasted-image-preview/` draws it; Claude Code loads it from
 `~/.claude/skills`, like the cache meter.
 
+**The thumbnail only draws when Claude Code runs inside herdr.** In a plain
+WezTerm tab the spot shows `preview needs herdr` instead, with the caption
+under it. Claude Code draws images in two ways: kitty's Unicode placeholders,
+used only on kitty and Ghostty (or when `CLAUDE_CODE_FORCE_TERMINAL_IMAGES` is
+set), and iTerm2 inline images, used only when the terminal reports itself as
+iTerm2 3.5 or later. WezTerm can't draw the placeholders and reports itself as
+WezTerm, so neither applies. herdr reports itself as Ghostty and passes the
+images on to WezTerm (see below), and fish sets
+`CLAUDE_CODE_FORCE_TERMINAL_IMAGES` in its panes (`modules/home/shell.nix`).
+A terminal that draws the placeholders itself (kitty, Ghostty) would show the
+thumbnail without herdr.
+
 Claude Code holds a pasted image in memory and only lets a mod read it once the
 prompt is sent, so the mod reads the clipboard instead: when a new
 `[Image #N]` lands in the prompt it runs `claude-paste-preview`
@@ -622,10 +634,6 @@ file path never touches the clipboard, so its tile says there's nothing to
 preview, or shows whatever image the clipboard still holds. The thumbnail size
 is `pluginConfigs."pasted-image-preview@skills-dir".options.rows` (terminal
 rows, default 8).
-
-The pictures draw in herdr, which passes kitty graphics on to WezTerm (see
-below). In a plain WezTerm tab you get the caption only: Claude Code places
-images with kitty's Unicode placeholders, which WezTerm doesn't support.
 
 ### Terminal browser
 
