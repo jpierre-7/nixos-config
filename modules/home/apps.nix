@@ -1,11 +1,24 @@
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 let
   # Vesktop (Discord client) with GPU acceleration off: the known fix carried
   # over from Arch. Its desktop entry runs `vesktop` from PATH, so launching
   # from Vicinae/Noctalia also goes through this wrapper.
+  # Its Vencord is built in the store with the QuickActions userplugin
+  # (HefKer/vc-actions) compiled in, instead of the copy Vesktop downloads.
+  vesktopWithPlugins = pkgs.vesktop.override {
+    withSystemVencord = true;
+    vencord = pkgs.callPackage ../../pkgs/vencord-userplugins.nix {
+      plugins.vcActions = inputs.vc-actions;
+    };
+  };
   vesktop = pkgs.symlinkJoin {
-    name = "vesktop-${pkgs.vesktop.version}";
-    paths = [ pkgs.vesktop ];
+    name = "vesktop-${vesktopWithPlugins.version}";
+    paths = [ vesktopWithPlugins ];
     nativeBuildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/vesktop --add-flags "--disable-gpu"
