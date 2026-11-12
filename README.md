@@ -292,6 +292,23 @@ move the whole column and take focus along. `Mod+Shift+/` lists every bind.
 The monitor binds find each monitor by name (`config/niri/config.kdl`), so
 they work on any port, and do nothing when that monitor isn't plugged in.
 
+### Music and volume keys
+
+| Key | Does |
+|---|---|
+| `F6` | Stops the music |
+| `F7` | Previous song |
+| `F8` | Play/pause |
+| `F9` | Next song |
+| `F10` | Mutes the speakers |
+| `F11` | Volume down |
+| `F12` | Volume up |
+
+Niri sends them to Noctalia (`noctalia msg media …`, `noctalia msg volume-…`),
+which controls whichever player is active and shows the volume OSD. They work
+on the lock screen too. The F keys no longer reach apps, so F11 doesn't
+toggle fullscreen and F12 doesn't open devtools.
+
 ### Login screen
 
 The login screen copies the look of [Omarchy](https://github.com/basecamp/omarchy)'s

@@ -284,6 +284,17 @@ binds {
 
     Mod+S { screenshot; }
 
+    // Music and volume on the F row. Noctalia drives the MPRIS player and
+    // PipeWire, and shows its volume OSD. Takes the keys from every app (F11
+    // fullscreen, F12 devtools). Media keys work on the lock screen too.
+    F6  allow-when-locked=true hotkey-overlay-title="Stop music" { spawn "noctalia" "msg" "media" "stop"; }
+    F7  allow-when-locked=true hotkey-overlay-title="Previous song" { spawn "noctalia" "msg" "media" "previous"; }
+    F8  allow-when-locked=true hotkey-overlay-title="Play/pause" { spawn "noctalia" "msg" "media" "toggle"; }
+    F9  allow-when-locked=true hotkey-overlay-title="Next song" { spawn "noctalia" "msg" "media" "next"; }
+    F10 allow-when-locked=true hotkey-overlay-title="Mute" { spawn "noctalia" "msg" "volume-mute"; }
+    F11 allow-when-locked=true hotkey-overlay-title="Volume down" { spawn "noctalia" "msg" "volume-down"; }
+    F12 allow-when-locked=true hotkey-overlay-title="Volume up" { spawn "noctalia" "msg" "volume-up"; }
+
     // Send keyboard and mouse to the other machine, like crossing the Lan Mouse
     // edge. Pressed there, it brings them back (modules/home/lan-mouse.nix).
     Mod+M repeat=false hotkey-overlay-title="Move input to the other machine" { spawn "lan-mouse-switch"; }
