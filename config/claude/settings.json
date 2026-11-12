@@ -88,7 +88,8 @@
     "discord@claude-plugins-official": true,
     "claude-md-management@claude-plugins-official": true,
     "pstack@cursor-plugins": true,
-    "terminal-browser@terminal-browser": true
+    "terminal-browser@terminal-browser": true,
+    "ponytail@ponytail": true
   },
   "extraKnownMarketplaces": {
     "typesafe-ai": {
@@ -113,6 +114,12 @@
       "source": {
         "source": "github",
         "repo": "zenbu-labs/terminal-browser"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
       }
     }
   },
