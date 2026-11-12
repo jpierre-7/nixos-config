@@ -727,6 +727,15 @@ sudo systemctl start mnt-samsung.automount mnt-tforce.automount
 A new drive needs an ext4 label (`sudo mkfs.ext4 -L <label> /dev/sdX1`) and a
 line in that module.
 
+### Magnifier camera
+
+The magnifying lamp's camera works as a normal USB webcam when the lamp is set
+to "PC Camera" mode. It shows up as `GENERAL - UVC`. Plug it in on either
+host, then open "Magnifier camera" from Vicinae. That runs mpv in low-latency
+mode on the camera's `/dev/v4l/by-id/` path (`modules/home/apps.nix`). Close
+the window with `q`. If the window opens but stays empty, check that the lamp
+is in PC Camera mode and that `ls /dev/v4l/by-id/` lists `GENERAL`.
+
 ### Routine updates
 
 ```sh
