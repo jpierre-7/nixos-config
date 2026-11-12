@@ -714,6 +714,16 @@ Before you unplug, close anything using the drives, then run
 `sudo umount /mnt/samsung /mnt/tforce`. (`umount` also reports "not mounted"
 for a drive that idled out; that's fine.)
 
+If the enclosure is pulled while a drive is mounted, systemd stops
+automounting it until reboot. Clicking the drive in Nautilus still mounts it,
+after a password prompt (Soteria, the polkit agent in
+`modules/nixos/desktop.nix`). To get the automount back without a reboot:
+
+```sh
+sudo umount /mnt/samsung /mnt/tforce
+sudo systemctl start mnt-samsung.automount mnt-tforce.automount
+```
+
 A new drive needs an ext4 label (`sudo mkfs.ext4 -L <label> /dev/sdX1`) and a
 line in that module.
 
