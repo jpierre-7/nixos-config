@@ -44,6 +44,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+    # QuickActions, a Vencord userplugin built into Vesktop's Vencord
+    # (pkgs/vencord-userplugins.nix). Pinned to a commit: it runs inside
+    # Discord with the account's session, so read the diff before moving it.
+    vc-actions = {
+      url = "github:HefKer/vc-actions/0eb1ff8ef5c62539cb6d1eec482bdc1c6eee4e83";
+      flake = false;
+    };
     # Only for the git-guardrails-claude-code skill, linked in
     # modules/home/claude.nix. Its hook isn't taken from here: that's
     # config/claude/block-dangerous-git.sh.

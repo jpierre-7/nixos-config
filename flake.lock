@@ -211,8 +211,26 @@
         "nixpkgs-unstable": "nixpkgs-unstable",
         "noctalia-templates": "noctalia-templates",
         "qutewarden": "qutewarden",
+        "vc-actions": "vc-actions",
         "wallpapers": "wallpapers",
         "zoetrope": "zoetrope"
+      }
+    },
+    "vc-actions": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794272363,
+        "narHash": "sha256-ZdCQFZhqu1o0OnxcQVpad2MXnSGscikBQUzQwmdWUbU=",
+        "owner": "HefKer",
+        "repo": "vc-actions",
+        "rev": "0eb1ff8ef5c62539cb6d1eec482bdc1c6eee4e83",
+        "type": "github"
+      },
+      "original": {
+        "owner": "HefKer",
+        "repo": "vc-actions",
+        "rev": "0eb1ff8ef5c62539cb6d1eec482bdc1c6eee4e83",
+        "type": "github"
       }
     },
     "wallpapers": {

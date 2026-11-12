@@ -27,7 +27,7 @@ full system with one `nixos-install` (or `nixos-rebuild switch`).
 ```
 flake.nix               inputs, the two hosts, checks, formatter
 overlays/default.nix    the only packages not taken from stable nixpkgs
-pkgs/                   local derivations (librepods, lan-clip)
+pkgs/                   local derivations (librepods, lan-clip, Vencord with userplugins)
 hosts/<host>/           default.nix (hostname-specific bits, stateVersion)
                         hardware-configuration.nix (generated on the machine)
                         niri-outputs.kdl (desktop only: monitor layout)
@@ -772,6 +772,23 @@ mode on the camera's `/dev/v4l/by-id/` path (`modules/home/apps.nix`). Close
 the window with `q`. If the window opens but stays empty, check that the lamp
 is in PC Camera mode and that `ls /dev/v4l/by-id/` lists `GENERAL`.
 
+### Vesktop plugins
+
+Vesktop runs a Vencord built in the Nix store, not the copy it downloads, so
+userplugins can be compiled in. The one built in is QuickActions
+([HefKer/vc-actions](https://github.com/HefKer/vc-actions)): slash commands,
+hotkeys and a palette for voice, streaming and pop-outs. After the first
+rebuild, enable it in Vesktop under Settings → Plugins → **QuickActions**; its
+settings are kept by Vesktop, not here. Its stream actions also need the
+VcPresets plugin, which isn't installed, and say so when run.
+
+The package is `pkgs/vencord-userplugins.nix`, called from
+`modules/home/apps.nix` with one entry per plugin. The `vc-actions` input is
+pinned to a commit, because the plugin runs inside Discord with your session:
+read the upstream diff before changing the rev. The package pins its own
+Vencord version, newer than nixpkgs'. To bump it, change `version`, then
+rebuild and replace each hash with the one the error reports.
+
 ### Routine updates
 
 ```sh
@@ -868,7 +885,7 @@ Home Manager modules of the same name (`programs.fish`,
 
 | Arch (AUR / other) | Here |
 |---|---|
-| `vesktop` (AUR) | nixpkgs `vesktop`, wrapped to always pass `--disable-gpu` (`modules/home/apps.nix`) |
+| `vesktop` (AUR) | nixpkgs `vesktop` with a store-built Vencord (see [Vesktop plugins](#vesktop-plugins)), wrapped to always pass `--disable-gpu` (`modules/home/apps.nix`) |
 | `vicinae-bin` (AUR) | nixpkgs `vicinae` (stable, 0.23.x) |
 | `maplemono-ttf`, `maplemono-nf-unhinted`, `maplemono-nf-cn-unhinted` (AUR) | `maple-mono.truetype`, `.NF-unhinted`, `.NF-CN-unhinted` |
 | `visual-studio-code-bin`, `slack-desktop`, `anydesk-bin` (AUR) | `vscode`, `slack`, `anydesk` (unfree; allowed in `modules/nixos/nix.nix`) |
