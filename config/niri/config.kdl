@@ -285,15 +285,24 @@ binds {
     Mod+S { screenshot; }
 
     // Music and volume on the F row. Noctalia drives the MPRIS player and
-    // PipeWire, and shows its volume OSD. Takes the keys from every app (F11
-    // fullscreen, F12 devtools). Media keys work on the lock screen too.
+    // PipeWire, and shows its volume OSD. Takes F6-F10 from every app. Media
+    // keys work on the lock screen too.
     F6  allow-when-locked=true hotkey-overlay-title="Stop music" { spawn "noctalia" "msg" "media" "stop"; }
     F7  allow-when-locked=true hotkey-overlay-title="Previous song" { spawn "noctalia" "msg" "media" "previous"; }
     F8  allow-when-locked=true hotkey-overlay-title="Play/pause" { spawn "noctalia" "msg" "media" "toggle"; }
     F9  allow-when-locked=true hotkey-overlay-title="Next song" { spawn "noctalia" "msg" "media" "next"; }
     F10 allow-when-locked=true hotkey-overlay-title="Mute" { spawn "noctalia" "msg" "volume-mute"; }
-    F11 allow-when-locked=true hotkey-overlay-title="Volume down" { spawn "noctalia" "msg" "volume-down"; }
-    F12 allow-when-locked=true hotkey-overlay-title="Volume up" { spawn "noctalia" "msg" "volume-up"; }
+    // Real media keys (the laptop's). F11/F12 stay F keys for apps (fullscreen,
+    // devtools): the desktop's keyboard sends volume keys for them instead and
+    // F11/F12 for Fn+F11/F12, swapped in hosts/desktop/default.nix.
+    XF86AudioStop        allow-when-locked=true { spawn "noctalia" "msg" "media" "stop"; }
+    XF86AudioPrev        allow-when-locked=true { spawn "noctalia" "msg" "media" "previous"; }
+    XF86AudioPlay        allow-when-locked=true { spawn "noctalia" "msg" "media" "toggle"; }
+    XF86AudioPause       allow-when-locked=true { spawn "noctalia" "msg" "media" "toggle"; }
+    XF86AudioNext        allow-when-locked=true { spawn "noctalia" "msg" "media" "next"; }
+    XF86AudioMute        allow-when-locked=true { spawn "noctalia" "msg" "volume-mute"; }
+    XF86AudioLowerVolume allow-when-locked=true hotkey-overlay-title="Volume down" { spawn "noctalia" "msg" "volume-down"; }
+    XF86AudioRaiseVolume allow-when-locked=true hotkey-overlay-title="Volume up" { spawn "noctalia" "msg" "volume-up"; }
 
     // Send keyboard and mouse to the other machine, like crossing the Lan Mouse
     // edge. Pressed there, it brings them back (modules/home/lan-mouse.nix).
