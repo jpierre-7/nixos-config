@@ -3,6 +3,13 @@
   # Niri session, portals (GNOME + GTK), polkit and dconf come from this module.
   programs.niri.enable = true;
 
+  # Polkit authentication agent. The niri module runs polkitd but no agent,
+  # so GUI actions that need the admin password failed with no prompt; e.g.
+  # Nautilus showed "Operation was cancelled" when mounting the external SSDs
+  # through udisks (external-drives.nix). Runs as a user service under
+  # graphical-session.target.
+  security.soteria.enable = true;
+
   environment.systemPackages = with pkgs; [
     # Niri starts this on demand for X11 apps (ONLYOFFICE, AnyDesk); it only
     # has to be on PATH. The niri module doesn't install it.
