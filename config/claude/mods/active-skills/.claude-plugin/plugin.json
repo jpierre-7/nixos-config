@@ -1,0 +1,6 @@
+{
+  "name": "active-skills",
+  "version": "0.1.0",
+  "description": "Shows which skills are on and used this session: a band after each change, /active for the full list",
+  "types": "./types/index.d.ts"
+}

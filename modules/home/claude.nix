@@ -33,6 +33,9 @@ in
     # Thumbnails of pasted images above the prompt; claude-paste-preview below
     # reads them from the clipboard.
     ".claude/skills/pasted-image-preview".source = ../../config/claude/mods/pasted-image-preview;
+    # A band above the prompt after a skill turns on or runs, and /active for
+    # the plugins and skills this session has.
+    ".claude/skills/active-skills".source = ../../config/claude/mods/active-skills;
     # Left to itself, terminal-browser links its skill into ~/.claude/skills and
     # ~/.agents/skills on first run, to one store path that a later update or GC
     # leaves dangling. "no" here is its own opt-out for that, and it's what its

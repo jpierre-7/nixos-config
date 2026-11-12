@@ -671,6 +671,19 @@ preview, or shows whatever image the clipboard still holds. The thumbnail size
 is `pluginConfigs."pasted-image-preview@skills-dir".options.rows` (terminal
 rows, default 8).
 
+### Active plugins and skills
+
+The `active-skills` mod (`config/claude/mods/active-skills/`) shows what a
+session has turned on. One dim line above the prompt lists the skills a
+CLAUDE.md `@`-imports (`on: i-have-adhd`) when a session starts, and the skills
+the last turn used, with the turn number (`just used: caveman (t4)`). It hides
+once you send the next prompt, so it only shows after something changes.
+`/active` lists everything: the imported skills, each skill used with its turn
+and time, the enabled plugins, and the skills not used yet (`/active all` for
+all of them). A plugin that adds its rules through hooks, like ponytail, is
+listed under plugins, not skills. Its test runs with
+`claude plugin test config/claude/mods/active-skills`.
+
 ### Terminal browser
 
 The `terminal-browser` plugin opens a Chromium page inside Claude Code with
