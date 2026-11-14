@@ -305,7 +305,8 @@ what it does, so searching "split" or "workspace" finds the key:
 ```
 
 Picking a `niri` or `noctalia` row runs it. Picking any other row copies its
-trigger and shows it in a notification.
+trigger and shows it in a notification. Ctrl+J and Ctrl+K move the selection,
+as in every Vicinae list (`"keybinding": "vim"` in `config/vicinae/settings.json`).
 
 | Scope | Read from |
 |---|---|
