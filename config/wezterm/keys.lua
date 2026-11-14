@@ -12,13 +12,21 @@ local function is_vim(pane)
 	return pane:get_user_vars().IS_NVIM == "true"
 end
 
+-- Callbacks are named events, not action_callback, so `wezterm show-keys`
+-- prints what they do (EmitEvent("move-pane-left")) instead of a generated
+-- "user-defined-N". bind-palette (pkgs/bind-palette/) lists them by that name.
+local function named(name, fn)
+	wezterm.on(name, fn)
+	return act.EmitEvent(name)
+end
+
 local function split_nav(resize_or_move, key)
 	local moveMod = "CTRL"
 	local resizeMod = "CTRL|ALT"
 	return {
 		key = key,
 		mods = resize_or_move == "resize" and resizeMod or moveMod,
-		action = wezterm.action_callback(function(win, pane)
+		action = named(resize_or_move .. "-pane-" .. direction_keys[key]:lower() .. "-or-send-to-nvim", function(win, pane)
 			if is_vim(pane) then
 				-- pass the keys through to vim/nvim
 				win:perform_action({
@@ -41,7 +49,7 @@ local function scroll_line(key, lines)
 	return {
 		key = key,
 		mods = "ALT",
-		action = wezterm.action_callback(function(win, pane)
+		action = named("scroll-line-" .. (lines < 0 and "up" or "down") .. "-or-send-to-app", function(win, pane)
 			if pane:is_alt_screen_active() then
 				win:perform_action({ SendKey = { key = key, mods = "ALT" } }, pane)
 			else

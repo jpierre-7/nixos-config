@@ -320,6 +320,39 @@
               touch $out
             '';
 
+        # bind-palette's readers against the real configs: each scope it can read
+        # here gives rows, and every niri row it would run is a `niri msg action`
+        # niri accepts, flags included. nvim and WezTerm need their running setup.
+        bind-palette =
+          pkgs.runCommand "bind-palette-check"
+            {
+              nativeBuildInputs = [
+                pkgs.niri
+                (pkgs.callPackage ./pkgs/bind-palette { kanataKeymap = ./config/kanata/keymap.kbd; })
+              ];
+            }
+            ''
+              export HOME=$TMPDIR XDG_CONFIG_HOME=$TMPDIR/config
+              mkdir -p $XDG_CONFIG_HOME/niri $XDG_CONFIG_HOME/herdr
+              cp ${./config/niri/config.kdl} $XDG_CONFIG_HOME/niri/config.kdl
+              cp ${./config/herdr/config.toml} $XDG_CONFIG_HOME/herdr/config.toml
+              bind-palette list >rows
+              for scope in niri noctalia kanata herdr; do
+                n=$(grep -c "^$scope"$'\t' rows || true)
+                echo "$scope: $n rows"
+                [ "$n" -gt 0 ] || failed=1
+              done
+              grep -oP '^niri\t[^\t]*\t[^\t]*\tniri msg action \K.*' rows | sort -u >actions
+              while read -r action rest; do
+                help=$(niri msg action "$action" --help 2>&1) || { echo "FAIL not an action: $action"; failed=1; continue; }
+                for flag in $(grep -oP -- '--[a-z-]+(?= )' <<<"$rest"); do
+                  grep -q -- "$flag" <<<"$help" || { echo "FAIL $action has no $flag"; failed=1; }
+                done
+              done <actions
+              [ -z "''${failed:-}" ]
+              touch $out
+            '';
+
         noctalia-config =
           pkgs.runCommand "noctalia-config-check" { nativeBuildInputs = [ pkgs.noctalia ]; }
             ''
