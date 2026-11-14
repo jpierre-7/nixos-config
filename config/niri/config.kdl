@@ -275,6 +275,9 @@ recent-windows {
 // Keybinds
 binds {
     Mod+Shift+Slash { show-hotkey-overlay; }
+    // One search over every app's binds (pkgs/bind-palette/): niri rows run,
+    // app rows copy their trigger.
+    Mod+Slash repeat=false hotkey-overlay-title="Search all keybinds" { spawn "bind-palette"; }
 
     Mod+Q { close-window; }
     Mod+F { maximize-column; }

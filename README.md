@@ -292,6 +292,41 @@ move the whole column and take focus along. `Mod+Shift+/` lists every bind.
 The monitor binds find each monitor by name (`config/niri/config.kdl`), so
 they work on any port, and do nothing when that monitor isn't plugged in.
 
+### Bind palette
+
+`Mod+Slash` opens one Vicinae search over every keybind, each trigger beside
+what it does, so searching "split" or "workspace" finds the key:
+
+```
+[niri]        Mod+C                        center-column
+[noctalia]    F8                           Play/pause
+[herdr]       Ctrl+Space t                 new tab
+[nvim]        <Space><Space>               Find Files (Root Dir)
+```
+
+Picking a `niri` or `noctalia` row runs it. Picking any other row copies its
+trigger and shows it in a notification.
+
+| Scope | Read from |
+|---|---|
+| niri, Noctalia | the `binds` blocks of the running `config.kdl` (Noctalia's are the ones spawning `noctalia msg`); Alt+Tab's switcher rows only copy, `niri msg` can't run them |
+| qutebrowser | `~/.cache/qutebrowser/binds.json`, which `config/qutebrowser/bindsdump.py` writes each time the config loads (asking over IPC would raise the window) |
+| nvim | a headless nvim's global maps with a description (buffer-local ones stay on `<leader>sk`) |
+| kanata | the home-row mods and base-layer remaps in `config/kanata/keymap.kbd` |
+| herdr | only the keys `config/herdr/config.toml` sets: herdr can't list its defaults |
+| WezTerm | only the keys that differ from WezTerm's defaults (`show-keys` with and without the config) |
+
+It reads each app's active config every time it opens, so a bind shows up
+exactly when it works: after `nrs` for niri, kanata and WezTerm (qutebrowser
+also needs a restart or `:config-source`), right away for nvim and herdr.
+WezTerm's Lua callbacks in `config/wezterm/keys.lua` are named events, so they
+list as `move-pane-left-or-send-to-nvim` rather than `user-defined-3`.
+`bind-palette list` prints the rows as TSV; the `bind-palette` check in
+`nix flake check` makes sure every niri row it would run is a valid
+`niri msg action`. Adapted from
+[HefKer/nixos-config](https://github.com/HefKer/nixos-config)'s bind-palette:
+`pkgs/bind-palette/`, `modules/home/bind-palette.nix`.
+
 ### Music and volume keys
 
 | Key | Does |
