@@ -10,4 +10,6 @@ let
 in
 {
   "wake-desktop.age".publicKeys = all;
+  # backlog's project list (pkgs/backlog/), decrypted by backlog itself, not at activation.
+  "backlog-projects.age".publicKeys = all;
 }
