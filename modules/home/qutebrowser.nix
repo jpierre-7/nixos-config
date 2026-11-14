@@ -86,15 +86,26 @@ let
   # its default, fuzzel. qutewarden passes its prompt ("Fill which Item?",
   # "Replace the password?") only to pickers it knows by name, so this adapter
   # is called `dmenu`: it gets `-p <prompt>` and shows it as Vicinae's title
-  # and placeholder. Vicinae returns typed text when nothing matches, which
-  # `generate` needs to ask for a username.
+  # and placeholder. Vicinae's dmenu returns only a picked row, never typed
+  # text, so a prompt with no rows (`generate` asking for a username) goes to
+  # fuzzel instead, in Noctalia's colors when they're rendered (the fuzzel
+  # template in noctalia.nix; fuzzel's own are light).
   vicinae-picker = pkgs.writeShellScriptBin "dmenu" ''
     prompt=
     if [ "''${1-}" = -p ]; then
       prompt=$2
       shift 2
     fi
-    exec ${lib.getExe config.programs.vicinae.package} dmenu --no-quick-look \
+    rows=$(cat)
+    if [ -z "$rows" ]; then
+      theme=''${XDG_CONFIG_HOME:-$HOME/.config}/fuzzel/themes/noctalia
+      [ -r "$theme" ] || noctalia msg templates-apply >/dev/null 2>&1 || true
+      colors=()
+      [ -r "$theme" ] && colors=(--config "$theme")
+      exec ${lib.getExe pkgs.fuzzel} "''${colors[@]}" --dmenu --prompt-only "$prompt: " \
+        --width 60 --no-exit-on-keyboard-focus-loss </dev/null
+    fi
+    printf '%s\n' "$rows" | exec ${lib.getExe config.programs.vicinae.package} dmenu --no-quick-look \
       -n "$prompt" -p "$prompt" "$@"
   '';
 
