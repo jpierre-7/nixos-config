@@ -176,7 +176,7 @@ pick() {
   local rows shown picked row scope trigger action cmd
   rows=$(list)
   shown=$(awk -F'\t' '{ printf "%-13s %-28s %s\n", "[" $1 "]", $2, $3 }' <<<"$rows")
-  picked=$(vicinae dmenu --no-quick-look --no-footer -n "Keybinds" -p "search binds" <<<"$shown") || return 0
+  picked=$(vicinae dmenu --no-quick-look --no-footer -n "Keybinds" -p "e.g. workspace · split · screenshot · find files  (Ctrl+J/K: move)" <<<"$shown") || return 0
   # Vicinae prints the picked row, never typed text; its line number finds the row. Compared with
   # runs of spaces squeezed, so the column padding needn't come back byte for byte.
   row=$(awk -v p="$picked" '
