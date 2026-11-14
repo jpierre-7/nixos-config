@@ -3,6 +3,7 @@
   imports = [
     ./airpods.nix
     ./apps.nix
+    ./backlog.nix
     ./bind-palette.nix
     ./claude.nix
     ./dev.nix

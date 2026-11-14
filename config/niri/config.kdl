@@ -284,6 +284,9 @@ binds {
 
     Mod+Return { spawn "wezterm"; }
     Mod+Space repeat=false { spawn "vicinae" "toggle"; }
+    // An idea into a project's GitHub tracker (pkgs/backlog/): pick the
+    // project, type `title // body`. Shift+Enter attaches the clipboard image.
+    Mod+B repeat=false hotkey-overlay-title="File an idea (backlog)" { spawn "backlog" "prompt"; }
 
     Mod+S { screenshot; }
 

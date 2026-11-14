@@ -238,6 +238,13 @@ in
           output_path = "$XDG_CONFIG_HOME/btop/themes/noctalia.theme";
           post_hook = "${pkgs.procps}/bin/pkill -USR2 -x btop || true";
         };
+        # Colors for the fuzzel box backlog types its line in (pkgs/backlog/),
+        # which copies them into the config it hands fuzzel. Only the template:
+        # the community apply.sh edits fuzzel.ini in place.
+        fuzzel = {
+          input_path = "${inputs.noctalia-templates}/fuzzel/fuzzel.conf";
+          output_path = "$XDG_CONFIG_HOME/fuzzel/themes/noctalia";
+        };
         # Sourced by the Claude Code status line (config/claude/statusline.sh).
         claude-statusline = {
           input_path = "${../../config/claude/statusline-colors.sh}";

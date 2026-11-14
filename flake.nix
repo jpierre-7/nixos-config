@@ -360,6 +360,9 @@
               noctalia config validate ${hm.xdg.configFile."noctalia/noctalia-config.toml".source}
               touch $out
             '';
+
+        # pkgs/backlog/ against fakes of gh, the picker, the box and the clipboard.
+        backlog = pkgs.callPackage ./pkgs/backlog/tests.nix { };
       };
     };
 }
