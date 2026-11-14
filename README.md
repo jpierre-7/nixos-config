@@ -359,8 +359,9 @@ Images are committed to that private attachments repo and embedded by URL,
 since GitHub's API can't attach files to issues; a public one is refused, as
 is any public tracker unless its entry says `public_ok: true`. Vicinae's dmenu
 only returns a picked row, never typed text, which is why the line goes into
-fuzzel. Fuzzel takes Noctalia's colors from its `fuzzel` template
-(`modules/home/noctalia.nix`). Adapted from
+fuzzel. Fuzzel takes Noctalia's dark colors from its `fuzzel` template
+(`modules/home/noctalia.nix`); if they haven't been rendered yet, backlog runs
+`noctalia msg templates-apply` first, since fuzzel's own colors are light. Adapted from
 [HefKer/nixos-config](https://github.com/HefKer/nixos-config)'s backlog:
 `pkgs/backlog/`, `modules/home/backlog.nix`; the tests run in `nix flake check`.
 

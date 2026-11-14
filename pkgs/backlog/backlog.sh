@@ -457,6 +457,9 @@ clipboard_image() {
 fuzzel_config() {
   local theme=${XDG_CONFIG_HOME:-$HOME/.config}/fuzzel/themes/noctalia
   mkdir -p "$state"
+  # Not rendered yet (the template is new, or Noctalia hasn't changed palette since): render it now,
+  # since fuzzel's own colors are solarized light.
+  [ -r "$theme" ] || noctalia msg templates-apply >/dev/null 2>&1 || true
   {
     printf '[key-bindings]\ncancel=none\nexecute-input=none\n'
     printf 'custom-1=Shift+Return Shift+KP_Enter\ncustom-2=Escape Control+bracketleft\ncustom-3=Control+g\n'

@@ -107,6 +107,14 @@ let
     esac
   '';
 
+  # Noctalia: templates-apply renders the fuzzel colors, unless $FAKE/no-noctalia.
+  fakeNoctalia = writeShellScriptBin "noctalia" ''
+    [ -e "$FAKE/no-noctalia" ] && exit 1
+    echo "$*" >>"$FAKE/noctalia-args"
+    mkdir -p "$HOME/.config/fuzzel/themes"
+    printf '[colors]\nbackground=112233ff\n' >"$HOME/.config/fuzzel/themes/noctalia"
+  '';
+
   # The clipboard: $FAKE/clip-types lists its types, $FAKE/clip holds the bytes.
   fakeWlPaste = writeShellScriptBin "wl-paste" ''
     case $1 in
@@ -128,6 +136,7 @@ runCommandLocal "backlog-tests"
     nativeBuildInputs = [
       age
       backlog
+      fakeNoctalia
       fakeVicinae
       jq
       openssh
@@ -335,16 +344,20 @@ runCommandLocal "backlog-tests"
     box "" "no such project"
     expect "$([ -e "$FAKE/fuzzel-prompts" ] && echo opened || echo none)" none "a row that isn't a project opens no box"
 
+    touch "$FAKE/no-noctalia"
     box "" dots 'from the picker'
     filed "from the picker"
     expect "$(cat "$FAKE/fuzzel-prompts")" "dots> " "the picked project's box opens"
     expect "$(created .repo)" "o/dots-issues" "and its line is filed there"
     expect "$(grep -c '^\[key-bindings\]' "$FAKE/fuzzel.ini")" 1 "the box gets its key bindings"
+    expect "$(grep -c '^\[colors\]' "$FAKE/fuzzel.ini" || true)" 0 "and no colors while Noctalia can't render them"
 
-    mkdir -p "$HOME/.config/fuzzel/themes"
-    printf '[colors]\nbackground=112233ff\n' >"$HOME/.config/fuzzel/themes/noctalia"
+    rm "$FAKE/no-noctalia"
     box dots ESC
-    expect "$(tail -n 2 "$FAKE/fuzzel.ini" | tr '\n' ' ')" "[colors] background=112233ff " "and Noctalia's colors once rendered"
+    expect "$(cat "$FAKE/noctalia-args")" "msg templates-apply" "colors not rendered yet are rendered by Noctalia"
+    expect "$(tail -n 2 "$FAKE/fuzzel.ini" | tr '\n' ' ')" "[colors] background=112233ff " "and used in the box"
+    box dots ESC
+    expect "$(wc -l <"$FAKE/noctalia-args")" 1 "once: rendered colors are reused"
 
     : >"$FAKE/notes"
     box removed
