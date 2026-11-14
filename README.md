@@ -554,7 +554,9 @@ follow Noctalia like the other apps.
 
 **Bitwarden.** [qutewarden](https://github.com/HefKer/qutewarden) fills from
 the vault through `rbw`. It matches Items by URI, not by name. The picker is
-Vicinae, and the master password prompt is pinentry-qt. Binds:
+Vicinae, except where qutewarden asks for typed text (`,qg` on a page whose form
+has no username yet): Vicinae's dmenu never returns typed text, so that prompt
+is a fuzzel box. The master password prompt is pinentry-qt. Binds:
 
 | Keys | Does |
 |---|---|
