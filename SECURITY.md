@@ -34,6 +34,10 @@ keys in `secrets.nix` cut the keyholes, and the private key stays on the machine
 - **Lost every key:** the encrypted files can't be recovered. Generate a new key,
   delete the `.age` files, and create them again from the real values.
 
+`backlog-projects.age` is backlog's project list (README, Backlog). It has no
+`age.secrets` entry: backlog decrypts it from the checkout with
+`~/.ssh/id_ed25519` on each run, so editing it needs a commit, not a rebuild.
+
 `wake-desktop.age` holds the router login on line 1 and the desktop's MAC address
 on line 2. If it's ever lost, the login is in the router's admin panel, and
 `ip link` on the desktop shows the MAC.

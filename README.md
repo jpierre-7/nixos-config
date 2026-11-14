@@ -27,7 +27,7 @@ full system with one `nixos-install` (or `nixos-rebuild switch`).
 ```
 flake.nix               inputs, the two hosts, checks, formatter
 overlays/default.nix    the only packages not taken from stable nixpkgs
-pkgs/                   local derivations (librepods, lan-clip, Vencord with userplugins)
+pkgs/                   local derivations (librepods, lan-clip, Vencord with userplugins, backlog)
 hosts/<host>/           default.nix (hostname-specific bits, stateVersion)
                         hardware-configuration.nix (generated on the machine)
                         niri-outputs.kdl (desktop only: monitor layout)
@@ -314,6 +314,55 @@ The desktop's SINOWEALTH keyboard sends volume keys only with Fn, and Linux
 never sees Fn itself. So `hosts/desktop/default.nix` swaps F11/F12 with
 volume down/up in that keyboard's keymap (udev hwdb). After a rebuild, unplug
 and replug it once, or run `sudo udevadm trigger -s input`.
+
+### Backlog
+
+`Mod+B` files an idea as a GitHub issue without leaving what you're doing.
+Pick the project in Vicinae (the guess from the focused window comes first,
+then the most recent), then type one line in a small fuzzel box:
+
+```
+Fix: bar clock is cut off // only on the laptop
+└──────── title ────────┘    └──── body ────┘
+```
+
+| Key in the box | Does |
+|---|---|
+| `Enter` | Files it in the background; a notification links the issue |
+| `Shift+Enter` | Same, with the clipboard's image attached |
+| `Esc` | Closes, keeping the text as that project's draft (marked ✎ in the picker, back in the box next time) |
+| `Ctrl+G` | Closes and discards the text |
+
+Every issue gets the `capture` label and the planning tickets' layout (What,
+Notes, Done when; What holds the line, the rest is for triage). A title
+starting `Add:`, `Fix:` or `Change:` also gets `type:feature`, `type:bug` or
+`type:change`. Offline, the idea (and its image) is queued and filed by the
+next capture or a user timer every 15 minutes (`backlog queue` lists it). A
+line the repo refuses comes back as the draft.
+
+From a shell or an agent: `backlog add [project] "title // body"`, guessing the
+project from the working directory; stdin is appended to the body, and
+`--image FILE` attaches a file. `backlog projects` lists the projects.
+
+The project list names a private tracker, so it's an agenix secret,
+`secrets/backlog-projects.age`, that backlog decrypts itself with
+`~/.ssh/id_ed25519` on each run. Nothing to set up on a fresh install, and no
+rebuild after an edit:
+
+```sh
+cd ~/nixos-config/secrets && agenix -e backlog-projects.age   # then commit
+backlog config      # prints what backlog reads
+backlog setup       # after adding a repo or label: creates missing labels and the private attachments repo
+```
+
+Images are committed to that private attachments repo and embedded by URL,
+since GitHub's API can't attach files to issues; a public one is refused, as
+is any public tracker unless its entry says `public_ok: true`. Vicinae's dmenu
+only returns a picked row, never typed text, which is why the line goes into
+fuzzel. Fuzzel takes Noctalia's colors from its `fuzzel` template
+(`modules/home/noctalia.nix`). Adapted from
+[HefKer/nixos-config](https://github.com/HefKer/nixos-config)'s backlog:
+`pkgs/backlog/`, `modules/home/backlog.nix`; the tests run in `nix flake check`.
 
 ### Login screen
 
@@ -985,6 +1034,7 @@ things that need one are done by hand after install (user password, `tailscale u
 `gh auth login`, Claude Code login, Syncthing pairing).
 
 The rest are encrypted in `secrets/` with [agenix](https://github.com/ryantm/agenix)
-and decrypted on the machine at activation time. [SECURITY.md](SECURITY.md) covers
+and decrypted on the machine at activation time, except backlog's project list,
+which backlog decrypts itself (see Backlog). [SECURITY.md](SECURITY.md) covers
 adding a secret, adding a machine, and losing a key. Never put a secret in a plain
 Nix string: it ends up world-readable in `/nix/store`.
