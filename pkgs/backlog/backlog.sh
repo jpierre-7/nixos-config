@@ -499,8 +499,8 @@ cmd_prompt() {
   while :; do
     rc=0
     line=$(fuzzel --config "$state/fuzzel.ini" --dmenu --prompt-only "$name> " \
-      --placeholder "title // body (Shift+Enter: + clipboard image)" \
-      --width 60 "${refill[@]}" --no-exit-on-keyboard-focus-loss </dev/null) || rc=$?
+      --placeholder "Fix: short title // details  ·  Add: / Change:  ·  Shift+Enter: +image" \
+      --width 80 "${refill[@]}" --no-exit-on-keyboard-focus-loss </dev/null) || rc=$?
     case $rc in
       0 | 10) ;;
       11) save_draft "$name" "$line"; exit 0 ;;
