@@ -211,9 +211,30 @@
         "nixpkgs-unstable": "nixpkgs-unstable",
         "noctalia-templates": "noctalia-templates",
         "qutewarden": "qutewarden",
+        "snapmaker-orca": "snapmaker-orca",
         "vc-actions": "vc-actions",
         "wallpapers": "wallpapers",
         "zoetrope": "zoetrope"
+      }
+    },
+    "snapmaker-orca": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs-unstable"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793191334,
+        "narHash": "sha256-O7k/wh743sywRv3wNGQilDZQw+5dFqjknQiWPxGqPwM=",
+        "owner": "chrstnwhlrt",
+        "repo": "nix-snapmaker-orca",
+        "rev": "4a5da70ea00d707194dca61bcd2bd43ca8803e84",
+        "type": "github"
+      },
+      "original": {
+        "owner": "chrstnwhlrt",
+        "repo": "nix-snapmaker-orca",
+        "type": "github"
       }
     },
     "vc-actions": {

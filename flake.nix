@@ -58,6 +58,13 @@
       url = "github:mattpocock/skills";
       flake = false;
     };
+    # Snapmaker Orca slicer, built from Snapmaker's source with a recipe based
+    # on nixpkgs' orca-slicer; modules/nixos/snapmaker-orca.nix. Not cached
+    # anywhere, so each new version compiles locally.
+    snapmaker-orca = {
+      url = "github:chrstnwhlrt/nix-snapmaker-orca";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
     # Encrypted secrets, see SECURITY.md.
     agenix = {
       url = "github:ryantm/agenix";
