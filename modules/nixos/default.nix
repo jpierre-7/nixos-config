@@ -14,6 +14,7 @@
     ./nix-ld.nix
     ./nix.nix
     ./printing.nix
+    ./snapmaker-orca.nix
     ./secrets.nix
     ./users.nix
   ];

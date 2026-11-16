@@ -888,6 +888,16 @@ mode on the camera's `/dev/v4l/by-id/` path (`modules/home/apps.nix`). Close
 the window with `q`. If the window opens but stays empty, check that the lamp
 is in PC Camera mode and that `ls /dev/v4l/by-id/` lists `GENERAL`.
 
+### Snapmaker Orca
+
+Snapmaker's slicer for the U1 (`snapmaker-orca`). nixpkgs has no package for it, so it comes from the
+[nix-snapmaker-orca](https://github.com/chrstnwhlrt/nix-snapmaker-orca) flake,
+which builds Snapmaker's source against nixpkgs-unstable
+(`modules/nixos/snapmaker-orca.nix`). No binary cache has it: the first
+rebuild, and each one after its input moves, compiles it locally for a long
+while. Settings and printer profiles live in `~/.config/Snapmaker_Orca`, not
+here.
+
 ### Vesktop plugins
 
 Vesktop runs a Vencord built in the Nix store, not the copy it downloads, so
