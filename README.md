@@ -547,10 +547,11 @@ Left Ctrl+Shift+Super+Alt brings it back.
 
 ### qutebrowser
 
-A keyboard-driven second browser; Vivaldi stays the default. The config is in
+The default browser, keyboard-driven. The config is in
 `modules/home/qutebrowser.nix`, with ideas from
 [HefKer's](https://github.com/HefKer/dots/tree/main/qutebrowser). Its colors
-follow Noctalia like the other apps.
+follow Noctalia like the other apps. Tabs are a narrow column of favicons on
+the left, with no titles. Searches go to Brave Search.
 
 **Bitwarden.** [qutewarden](https://github.com/HefKer/qutewarden) fills from
 the vault through `rbw`. It matches Items by URI, not by name. The picker is

@@ -1,6 +1,6 @@
-# qutebrowser, a keyboard-driven second browser; Vivaldi stays the default
-# (apps.nix). Ideas taken from HefKer's config (github.com/HefKer/dots), but
-# nothing copied: that repo has no license. Its colors are a Noctalia template
+# qutebrowser, the default browser (apps.nix makes it the link handler).
+# Ideas taken from HefKer's config (github.com/HefKer/dots), but nothing
+# copied: that repo has no license. Its colors are a Noctalia template
 # (noctalia.nix), Bitwarden comes through qutewarden and rbw, and ads are
 # blocked by qutebrowser's own adblock plus a YouTube script.
 {
@@ -130,6 +130,13 @@ in
       # have a dark theme use it.
       colors.webpage.preferred_color_scheme = "dark";
 
+      # A narrow bar of favicons on the left; titles are in the window title
+      # and `:tab-select`. Width fits a 16px icon plus padding and indicator.
+      tabs.position = "left";
+      tabs.width = 36;
+      tabs.title.format = "";
+      tabs.title.format_pinned = "";
+
       content.autoplay = false;
       # "both": the hosts lists (default: Peter Lowe's) and the adblock engine.
       content.blocking = {
@@ -159,7 +166,7 @@ in
     perDomainSettings."*://*.youtube.com/*".content.blocking.enabled = false;
 
     searchEngines = {
-      DEFAULT = "https://duckduckgo.com/?q={}";
+      DEFAULT = "https://search.brave.com/search?q={}";
       g = "https://www.google.com/search?q={}";
       gh = "https://github.com/search?q={}&type=repositories";
       yt = "https://www.youtube.com/results?search_query={}";
