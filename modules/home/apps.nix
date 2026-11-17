@@ -53,8 +53,18 @@ in
 
   programs.calibre.enable = true;
 
-  # Backup browser; Vivaldi stays the main one.
+  # Backup browsers; Brave is the default.
   programs.google-chrome.enable = true;
+  programs.brave.enable = true;
+
+  # Brave opens links. mimeapps.list stays writable (Claude Code, Vesktop and
+  # Slack register their URL handlers in it), so this sets only the browser
+  # entries instead of owning the file through xdg.mimeApps.
+  home.activation.defaultBrowser = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    run ${pkgs.xdg-utils}/bin/xdg-mime default brave-browser.desktop \
+      text/html x-scheme-handler/http x-scheme-handler/https \
+      x-scheme-handler/about x-scheme-handler/unknown
+  '';
 
   # The magnifying lamp's camera in "PC Camera" mode is a plain UVC webcam
   # (GENERAL - UVC, 1b3f:2002) that only offers MJPG 1280x720 at 30 fps. The

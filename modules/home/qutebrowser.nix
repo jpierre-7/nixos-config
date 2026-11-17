@@ -1,4 +1,4 @@
-# qutebrowser, a keyboard-driven second browser; Vivaldi stays the default
+# qutebrowser, a keyboard-driven second browser; Brave is the default
 # (apps.nix). Ideas taken from HefKer's config (github.com/HefKer/dots), but
 # nothing copied: that repo has no license. Its colors are a Noctalia template
 # (noctalia.nix), Bitwarden comes through qutewarden and rbw, and ads are
@@ -129,6 +129,13 @@ in
       # Noctalia runs in dark mode (theme.mode in noctalia.nix); sites that
       # have a dark theme use it.
       colors.webpage.preferred_color_scheme = "dark";
+
+      # A narrow bar of favicons on the left; titles are in the window title
+      # and `:tab-select`. Width fits a 16px icon plus padding and indicator.
+      tabs.position = "left";
+      tabs.width = 36;
+      tabs.title.format = "";
+      tabs.title.format_pinned = "";
 
       content.autoplay = false;
       # "both": the hosts lists (default: Peter Lowe's) and the adblock engine.
