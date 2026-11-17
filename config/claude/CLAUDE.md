@@ -5,3 +5,5 @@ When breaking something down or teaching me something new, use the writing and t
 ADHD mode is on from the start of every session, without running the skill:
 
 @~/.claude/skills/i-have-adhd/SKILL.md
+
+Never put claude.ai session links anywhere: no `Claude-Session:` trailer in commits, no session URL in PR bodies, issues, or comments. Other attribution lines ("Generated with Claude Code", Co-Authored-By) are fine.
