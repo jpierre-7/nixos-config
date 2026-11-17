@@ -694,6 +694,38 @@ exist only while the hunk pane is open, so keep it open until Claude has
 answered. Notes stick to line numbers, so they can move off their line when
 the file changes under them.
 
+### Prompt pane for Claude Code
+
+In herdr, `Ctrl+Space i` on a pane running Claude Code opens Neovim zoomed over
+it, with Claude's unsent prompt moved in, so long prompts get a full editor.
+Claude's last reply sits rendered above the draft. Ported from
+[HefKer/dots](https://github.com/HefKer/dots/blob/main/nvim/README.md#prompt-pane),
+core only.
+
+| Key | Where | Does |
+|-----|-------|------|
+| `<leader>as` | either window | send the draft to Claude |
+| `Alt+j/k/u/d`, `Alt+g/G` | draft, also insert mode | scroll the reply |
+| `[r` / `]r` | either window | older / newer reply |
+| `<CR>` | reply (normal or visual) | quote the block or selection at the end of the draft |
+| `<leader>aq` / `<leader>aQ` | draft | quote the whole reply / strip quoted lines |
+| `:q` | draft | close the pane |
+
+The reply comes from the session transcript (`~/.claude/projects/*/<session>.jsonl`),
+not the screen, and only a turn's final text counts, so narration between tool
+calls never replaces it. The pane follows `/clear` and a restarted Claude
+within a couple of seconds. The send goes through `herdr agent prompt`, which
+pastes, so newlines don't submit early, and refuses while Claude is blocked on
+a dialog.
+
+The unsent prompt is moved through Claude's Ctrl+G editor: `VISUAL` in
+`config/claude/settings.json` is `claude-prompt-editor`, which hands the input
+over while `claude-prompt` (`config/claude/prompt-pane.sh`) is waiting for it,
+and opens Neovim as usual otherwise. A Claude started before that setting
+existed opens Neovim in its own pane instead; restart it. The pane's binds are
+buffer-local, so the claudecode extra's `<leader>a` binds elsewhere are
+unchanged. Code: `config/nvim/lua/config/prompt.lua`.
+
 ### Git guardrails
 
 A Claude Code hook checks every Bash command, in every project, for risky git
