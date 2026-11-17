@@ -1,24 +1,35 @@
 # claude-prompt: opens the prompt pane (config/nvim/lua/config/prompt.lua) zoomed over
 # the active herdr pane, moving Claude's unsent prompt into it. Run by herdr's prefix+i.
+# With --fresh PANE [DRAFT], by claude-prompt-tab (prompt-tab.sh), over a Claude just
+# started, which has no prompt to move; DRAFT's text goes in the prompt instead.
 # Ported from github.com/HefKer/dots (scripts/claude-prompt).
-pane="$HERDR_ACTIVE_PANE_ID"
+pane="${HERDR_ACTIVE_PANE_ID:-}"
+fresh=""
+if [ "${1:-}" = --fresh ]; then
+  pane=$2 fresh=1
+fi
 marker="${XDG_RUNTIME_DIR:-/tmp}/claude-prompt-capture"
 draft=$(mktemp --suffix=.md)
+if [ -n "$fresh" ] && [ -f "${3:-}" ]; then
+  mv -f "$3" "$draft"
+fi
 
 # Ctrl+G runs Claude's $VISUAL, claude-prompt-editor (config/claude/settings.json env),
 # which sees the marker and moves the input into $draft.
 # shortcut: no check that this Claude has that VISUAL (settings env isn't in
 # /proc/<pid>/environ), so a Claude started before it was set opens nvim in its own
 # pane instead; restart such a Claude.
-echo "$draft" >"$marker"
-herdr pane send-keys "$pane" ctrl+g >/dev/null
-# Claude ignores Ctrl+G behind a dialog, so don't wait for it, and don't leave the
-# marker to swallow the next real Ctrl+G.
-for _ in 1 2 3 4 5 6 7 8 9 10; do
-  [ -e "$marker" ] || break
-  sleep 0.1
-done
-rm -f "$marker"
+if [ -z "$fresh" ]; then
+  echo "$draft" >"$marker"
+  herdr pane send-keys "$pane" ctrl+g >/dev/null
+  # Claude ignores Ctrl+G behind a dialog, so don't wait for it, and don't leave the
+  # marker to swallow the next real Ctrl+G.
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    [ -e "$marker" ] || break
+    sleep 0.1
+  done
+  rm -f "$marker"
+fi
 
 new=$(herdr pane split "$pane" --direction right --ratio 0.4 --focus | jq -r .result.pane.pane_id)
 herdr pane zoom "$new" --on >/dev/null

@@ -93,6 +93,8 @@ in
   # claude-prompt: herdr's prefix+i opens the nvim prompt pane over Claude
   # (config/nvim/lua/config/prompt.lua). claude-prompt-editor is Claude's
   # $VISUAL (settings.json env), which hands it Claude's unsent prompt on Ctrl+G.
+  # claude-prompt-tab: the prompt pane's sessions picker resumes a session in a
+  # new tab through it.
   home.packages = [
     pkgs.bun
     pkgs.herdr
@@ -143,6 +145,15 @@ in
       name = "claude-prompt-editor";
       runtimeInputs = [ pkgs.coreutils ];
       text = builtins.readFile ../../config/claude/prompt-editor.sh;
+    })
+    (pkgs.writeShellApplication {
+      name = "claude-prompt-tab";
+      runtimeInputs = with pkgs; [
+        coreutils
+        herdr
+        jq
+      ];
+      text = builtins.readFile ../../config/claude/prompt-tab.sh;
     })
   ];
   # Live link, because herdr rewrites its config itself.
