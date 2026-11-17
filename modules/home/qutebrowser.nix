@@ -1,6 +1,6 @@
-# qutebrowser, a keyboard-driven second browser; Brave is the default
-# (apps.nix). Ideas taken from HefKer's config (github.com/HefKer/dots), but
-# nothing copied: that repo has no license. Its colors are a Noctalia template
+# qutebrowser, the default browser (apps.nix makes it the link handler).
+# Ideas taken from HefKer's config (github.com/HefKer/dots), but nothing
+# copied: that repo has no license. Its colors are a Noctalia template
 # (noctalia.nix), Bitwarden comes through qutewarden and rbw, and ads are
 # blocked by qutebrowser's own adblock plus a YouTube script.
 {
@@ -166,7 +166,7 @@ in
     perDomainSettings."*://*.youtube.com/*".content.blocking.enabled = false;
 
     searchEngines = {
-      DEFAULT = "https://duckduckgo.com/?q={}";
+      DEFAULT = "https://search.brave.com/search?q={}";
       g = "https://www.google.com/search?q={}";
       gh = "https://github.com/search?q={}&type=repositories";
       yt = "https://www.youtube.com/results?search_query={}";

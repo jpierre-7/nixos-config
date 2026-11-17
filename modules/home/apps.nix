@@ -53,15 +53,14 @@ in
 
   programs.calibre.enable = true;
 
-  # Backup browsers; Brave is the default.
+  # Backup browser; qutebrowser is the default (qutebrowser.nix).
   programs.google-chrome.enable = true;
-  programs.brave.enable = true;
 
-  # Brave opens links. mimeapps.list stays writable (Claude Code, Vesktop and
-  # Slack register their URL handlers in it), so this sets only the browser
-  # entries instead of owning the file through xdg.mimeApps.
+  # qutebrowser opens links. mimeapps.list stays writable (Claude Code,
+  # Vesktop and Slack register their URL handlers in it), so this sets only
+  # the browser entries instead of owning the file through xdg.mimeApps.
   home.activation.defaultBrowser = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    run ${pkgs.xdg-utils}/bin/xdg-mime default brave-browser.desktop \
+    run ${pkgs.xdg-utils}/bin/xdg-mime default org.qutebrowser.qutebrowser.desktop \
       text/html x-scheme-handler/http x-scheme-handler/https \
       x-scheme-handler/about x-scheme-handler/unknown
   '';
