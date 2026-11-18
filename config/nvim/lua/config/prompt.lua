@@ -856,6 +856,12 @@ end
 ------------------------------------------------------------------------------
 -- Sending
 
+-- Image embeds from paste() go to Claude as bare paths, which it attaches; a leading
+-- `![` would also put Claude in bash mode.
+local function unembed(text)
+  return (text:gsub("!%[[^%]\n]*%]%(([^)\n]+)%)", "%1"))
+end
+
 -- `agent prompt` rather than `pane send-text`: it pastes, so newlines don't submit
 -- early and Claude's vim mode can't run the text, and it refuses a blocked agent.
 -- Claude only runs a command outside a long paste, which it reads as plain text, so a
@@ -866,7 +872,7 @@ end
 local function send_item(agent, item, cb)
   local function prompt(text)
     vim.system(
-      { "herdr", "agent", "prompt", agent.pane_id, text },
+      { "herdr", "agent", "prompt", agent.pane_id, unembed(text) },
       { text = true },
       vim.schedule_wrap(function(sent)
         cb(sent.code ~= 0 and herdr_error(sent) or nil)
@@ -1156,7 +1162,7 @@ local function send()
     return run_queue(items)
   end
   vim.system(
-    { "herdr", "agent", "prompt", agent.pane_id, text },
+    { "herdr", "agent", "prompt", agent.pane_id, unembed(text) },
     { text = true },
     vim.schedule_wrap(function(sent)
       if sent.code ~= 0 then
