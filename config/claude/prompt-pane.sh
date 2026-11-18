@@ -32,10 +32,11 @@ if [ -z "$fresh" ]; then
 fi
 
 # Claude shrinks to a strip at the bottom, enough for the bands its plugins draw under
-# the chat (cost, tokens, cache) and its input. Not zoom, which would cover the agent
-# cards pane. herdr splits only right or down, and --ratio is the top pane's share,
-# so the split leaves Claude on top and the swap moves it down, keeping the sizes.
-strip=16
+# the chat (cost, tokens, cache) and its input; Claude drops them below 22 rows. Not
+# zoom, which would cover the agent cards pane. herdr splits only right or down, and
+# --ratio is the top pane's share, so the split leaves Claude on top and the swap
+# moves it down, keeping the sizes.
+strip=22
 rows=$(herdr pane get "$pane" | jq -r '.result.pane.scroll.viewport_rows // 0')
 ratio=$(awk -v r="$rows" -v s="$strip" 'BEGIN { x = r > 0 ? (r - s) / r : 0; print (x < 0.5 ? 0.5 : x) }')
 new=$(herdr pane split "$pane" --direction down --ratio "$ratio" --focus | jq -r .result.pane.pane_id)
