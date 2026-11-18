@@ -1,5 +1,5 @@
 -- The hand-off of the prompt pane (config/prompt.lua): when Claude opens a dialog only its own pane
--- answers, the prompt pane focuses Claude's pane beside it, and takes focus back once
+-- answers, the prompt pane focuses Claude's pane below it, and takes focus back once
 -- Claude is at its input box again. Only from a focused prompt pane: a Claude blocked
 -- while you're elsewhere is left alone.
 local M = {}

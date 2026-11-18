@@ -1227,7 +1227,8 @@ local function start_polling()
 end
 
 -- Ctrl+V pastes like Claude's input box: a clipboard image is saved where Claude can
--- Read it from any cwd and goes in by absolute path; anything else pastes as text.
+-- Read it from any cwd and goes in by absolute path, as an embed snacks.image
+-- previews; anything else pastes as text.
 local function paste()
   local types = vim.fn.systemlist({ "wl-paste", "--list-types" })
   local mime = vim.iter(types):find(function(t)
@@ -1246,7 +1247,7 @@ local function paste()
   end
   file:write(out.stdout)
   file:close()
-  vim.api.nvim_paste(path, true, -1)
+  vim.api.nvim_paste("![](" .. path .. ")", true, -1)
 end
 
 ------------------------------------------------------------------------------
