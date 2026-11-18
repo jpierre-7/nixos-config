@@ -694,6 +694,66 @@ exist only while the hunk pane is open, so keep it open until Claude has
 answered. Notes stick to line numbers, so they can move off their line when
 the file changes under them.
 
+### Prompt pane for Claude Code
+
+In herdr, `Ctrl+Space i` on a pane running Claude Code opens Neovim beside
+it, with Claude's unsent prompt moved in, so long prompts get a full editor.
+After that, `Ctrl+Space i` jumps between Neovim and Claude.
+Claude's last reply sits rendered above the draft. Ported from
+[HefKer/dots](https://github.com/HefKer/dots/blob/main/nvim/README.md#prompt-pane),
+without its table drawing, task list, statusline bar, history, templates
+and interrupt.
+
+| Key | Where | Does |
+|-----|-------|------|
+| `<leader>as` | either window | send the draft to Claude |
+| `Alt+j/k/u/d`, `Alt+g/G` | draft, also insert mode | scroll the reply |
+| `[r` / `]r` | either window | older / newer reply |
+| `<CR>` | reply (normal or visual) | quote the block or selection at the end of the draft |
+| `<leader>aq` / `<leader>aQ` | draft | quote the whole reply / strip quoted lines |
+| `<leader>ay` `aY` `an` `a1`..`a9` | either window | answer Claude's permission dialog: yes, yes always, no, option N |
+| `<leader>ac` | either window | go to Claude's pane until its next dialog closes (`:ClaudePane`) |
+| `<leader>ad` | draft | pick a saved draft from another pane |
+| `<leader>al` / `<leader>aL` | draft | stash this session with a note and the draft / and close it |
+| `<leader>aH` | draft | pick any session to resume in a new tab (`:ClaudeSessions`) |
+| `Ctrl+V` | draft, insert mode | paste text, or a clipboard image saved to `$XDG_RUNTIME_DIR/claude-prompt-images/` as its path |
+| `Ctrl+C` | draft, visual (a mouse drag) | copy the selection |
+| `:q` | draft | close the pane |
+
+- **Reply.** Read from the session transcript (`~/.claude/projects/*/<session>.jsonl`),
+  not the screen, and only a turn's final text counts, so narration between tool
+  calls never replaces it. Replies with no prompt of yours between them (a
+  background task finishing) join under a rule. The pane follows `/clear` and a
+  restarted Claude within a couple of seconds.
+- **Drafts.** The draft is saved as you type to
+  `~/.local/state/nvim/claude-drafts/<session>.md` and deleted once sent, so a
+  crash doesn't lose it; the next `Ctrl+Space i` in that tab brings it back.
+- **Completion.** `/` completes skills and commands, and `@` files in Claude's
+  directory, as Claude's own input does (`config/nvim/lua/plugins/blink.lua`).
+- **Command queue.** Slash commands leading the draft are sent one at a time,
+  each once the one before has finished, then the prose: `/clear`, `/model
+  opus`, then a question, in one send. Progress shows in the reply's bar. It
+  pauses at a dialog and goes on once it's answered.
+- **Permission dialogs.** While Claude is blocked on a tool call, the reply
+  gives way to the call (the command, the edit's diff, the questions, the plan)
+  and the dialog's options. Each answer is checked against the options on
+  Claude's screen first. A dialog the pane can't read (`/model`'s picker, free
+  text) hands off: Claude's pane is focused, and the prompt pane
+  comes back once the dialog closes.
+- **Stash and sessions.** The stash is `~/.local/state/nvim/claude-stash.json`.
+  The sessions picker lists stashed sessions first, then this project's, then
+  the rest; Enter resumes the pick through `claude-prompt-tab`
+  (`config/claude/prompt-tab.sh`), `Ctrl+X` unstashes.
+
+The send goes through `herdr agent prompt`, which pastes, so newlines don't
+submit early. The unsent prompt is moved through Claude's Ctrl+G editor:
+`VISUAL` in `config/claude/settings.json` is `claude-prompt-editor`, which hands
+the input over while `claude-prompt` (`config/claude/prompt-pane.sh`) waits for
+it, and opens Neovim as usual otherwise. A Claude started before that setting
+existed opens Neovim in its own pane instead; restart it. The pane's binds are
+buffer-local, so the claudecode extra's `<leader>a` binds elsewhere are
+unchanged. Code: `config/nvim/lua/config/prompt*.lua`.
+
 ### Git guardrails
 
 A Claude Code hook checks every Bash command, in every project, for risky git

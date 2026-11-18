@@ -48,6 +48,14 @@ type = "plugin_action"
 command = "furkankly.zoetrope.open"
 description = "zoetrope: session graph"
 
+# nvim prompt pane over the tab's Claude, with its unsent prompt moved in
+# (config/nvim/lua/config/prompt.lua, claude-prompt in modules/home/claude.nix).
+[[keys.command]]
+key = "prefix+i"
+type = "shell"
+command = "claude-prompt"
+description = "Claude prompt pane"
+
 [[keys.command]]
 key = "prefix+a"
 type = "plugin_action"
