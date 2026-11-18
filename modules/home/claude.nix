@@ -138,6 +138,7 @@ in
         coreutils
         herdr
         jq
+        socat
       ];
       text = builtins.readFile ../../config/claude/prompt-pane.sh;
     })
