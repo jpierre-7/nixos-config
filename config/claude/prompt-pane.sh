@@ -1,5 +1,5 @@
-# claude-prompt: opens the prompt pane (config/nvim/lua/config/prompt.lua) zoomed over
-# the active herdr pane, moving Claude's unsent prompt into it. Run by herdr's prefix+i.
+# claude-prompt: opens the prompt pane (config/nvim/lua/config/prompt.lua) beside the
+# active herdr pane, moving Claude's unsent prompt into it. Run by herdr's prefix+i.
 # With --fresh PANE [DRAFT], by claude-prompt-tab (prompt-tab.sh), over a Claude just
 # started, which has no prompt to move; DRAFT's text goes in the prompt instead.
 # Ported from github.com/HefKer/dots (scripts/claude-prompt).
@@ -32,6 +32,5 @@ if [ -z "$fresh" ]; then
 fi
 
 new=$(herdr pane split "$pane" --direction right --ratio 0.4 --focus | jq -r .result.pane.pane_id)
-herdr pane zoom "$new" --on >/dev/null
 herdr pane rename "$new" prompt >/dev/null
 herdr pane run "$new" "exec nvim $draft -c 'lua require(\"config.prompt\").open()'" >/dev/null

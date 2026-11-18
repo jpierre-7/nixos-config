@@ -696,12 +696,12 @@ the file changes under them.
 
 ### Prompt pane for Claude Code
 
-In herdr, `Ctrl+Space i` on a pane running Claude Code opens Neovim zoomed over
+In herdr, `Ctrl+Space i` on a pane running Claude Code opens Neovim beside
 it, with Claude's unsent prompt moved in, so long prompts get a full editor.
 Claude's last reply sits rendered above the draft. Ported from
 [HefKer/dots](https://github.com/HefKer/dots/blob/main/nvim/README.md#prompt-pane),
 without its table drawing, task list, statusline bar, history, templates,
-interrupt and image paste.
+and interrupt.
 
 | Key | Where | Does |
 |-----|-------|------|
@@ -715,6 +715,8 @@ interrupt and image paste.
 | `<leader>ad` | draft | pick a saved draft from another pane |
 | `<leader>al` / `<leader>aL` | draft | stash this session with a note and the draft / and close it |
 | `<leader>aH` | draft | pick any session to resume in a new tab (`:ClaudeSessions`) |
+| `Ctrl+V` | draft, insert mode | paste text, or a clipboard image saved to `$XDG_RUNTIME_DIR/claude-prompt-images/` as its path |
+| `Ctrl+C` | draft, visual (a mouse drag) | copy the selection |
 | `:q` | draft | close the pane |
 
 - **Reply.** Read from the session transcript (`~/.claude/projects/*/<session>.jsonl`),
@@ -735,7 +737,7 @@ interrupt and image paste.
   gives way to the call (the command, the edit's diff, the questions, the plan)
   and the dialog's options. Each answer is checked against the options on
   Claude's screen first. A dialog the pane can't read (`/model`'s picker, free
-  text) hands off: Claude's pane is zoomed and focused, and the prompt pane
+  text) hands off: Claude's pane is focused, and the prompt pane
   comes back once the dialog closes.
 - **Stash and sessions.** The stash is `~/.local/state/nvim/claude-stash.json`.
   The sessions picker lists stashed sessions first, then this project's, then

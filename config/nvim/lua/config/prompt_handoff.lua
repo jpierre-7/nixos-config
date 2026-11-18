@@ -1,5 +1,5 @@
 -- The hand-off of the prompt pane (config/prompt.lua): when Claude opens a dialog only its own pane
--- answers, the prompt pane zooms and focuses Claude's pane, and takes focus back once
+-- answers, the prompt pane focuses Claude's pane beside it, and takes focus back once
 -- Claude is at its input box again. Only from a focused prompt pane: a Claude blocked
 -- while you're elsewhere is left alone.
 local M = {}
@@ -52,10 +52,26 @@ local function focused(cb)
   )
 end
 
--- Zooming a pane focuses it too, and its tab; the tab's zoom moves to it. Waited for,
--- so the first check after it sees the focus it set.
-local function zoom(pane_id)
-  return vim.system({ "herdr", "pane", "zoom", pane_id, "--on" }):wait().code == 0
+-- Focuses a pane through herdr's socket: the CLI focuses only by direction. Not zoom,
+-- which would cover the agent cards pane. Waited for, so the first check after it sees
+-- the focus it set.
+local function focus(pane_id)
+  local reply = ""
+  local ok, ch = pcall(vim.fn.sockconnect, "pipe", vim.env.HERDR_SOCKET_PATH or "", {
+    on_data = function(_, data)
+      reply = reply .. table.concat(data, "\n")
+    end,
+  })
+  if not ok or ch == 0 then
+    return false
+  end
+  local request = { id = "claude-prompt", method = "pane.focus", params = { pane_id = pane_id } }
+  vim.fn.chansend(ch, vim.json.encode(request) .. "\n")
+  vim.wait(1000, function()
+    return reply:find("\n") ~= nil
+  end)
+  vim.fn.chanclose(ch)
+  return reply:find('"result"') ~= nil
 end
 
 local function finish(how)
@@ -89,7 +105,7 @@ local function watch()
           local answered = trip.armed and screen and not dialog_up(screen)
           trip.armed = trip.armed or dialog_up(screen)
           if pane == trip.agent and answered then
-            zoom(vim.env.HERDR_PANE_ID)
+            focus(vim.env.HERDR_PANE_ID)
             return finish("resume")
           elseif pane == vim.env.HERDR_PANE_ID and answered then
             return finish("resume")
@@ -127,7 +143,7 @@ function M.go(agent, opts, cb)
     if trip or not read_screen or not vim.env.HERDR_PANE_ID or pane ~= vim.env.HERDR_PANE_ID then
       return cb and cb(false)
     end
-    if not zoom(agent.pane_id) then
+    if not focus(agent.pane_id) then
       return cb and cb(false)
     end
     trip = { agent = agent.pane_id, armed = opts.armed, resume = opts.resume, abandon = opts.abandon }

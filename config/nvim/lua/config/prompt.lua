@@ -1226,6 +1226,29 @@ local function start_polling()
   )
 end
 
+-- Ctrl+V pastes like Claude's input box: a clipboard image is saved where Claude can
+-- Read it from any cwd and goes in by absolute path; anything else pastes as text.
+local function paste()
+  local types = vim.fn.systemlist({ "wl-paste", "--list-types" })
+  local mime = vim.iter(types):find(function(t)
+    return t:match("^image/%w+$")
+  end)
+  if not mime then
+    return vim.api.nvim_paste(vim.fn.getreg("+"), true, -1)
+  end
+  local out = vim.system({ "wl-paste", "--type", mime }):wait()
+  local dir = (vim.env.XDG_RUNTIME_DIR or "/tmp") .. "/claude-prompt-images"
+  local path = ("%s/%s.%s"):format(dir, os.date("%Y%m%d-%H%M%S"), mime:match("/(%w+)"))
+  vim.fn.mkdir(dir, "p")
+  local file = out.code == 0 and io.open(path, "wb")
+  if not file then
+    return vim.notify("Couldn't save the clipboard image", vim.log.levels.ERROR)
+  end
+  file:write(out.stdout)
+  file:close()
+  vim.api.nvim_paste(path, true, -1)
+end
+
 ------------------------------------------------------------------------------
 -- Opening
 
@@ -1314,6 +1337,9 @@ function M.open()
   end, "Stash Session and Close")
   map("n", "<leader>aH", pick_sessions, "Claude Sessions")
   map("n", "<leader>ac", to_claude, "Claude's Pane")
+  map("i", "<C-v>", paste, "Paste Image or Text")
+  -- Ctrl+C copies like Claude's input box; a mouse drag lands here as a selection.
+  map("x", "<C-c>", '"+y', "Copy Selection")
   map_answers(buf)
   vim.api.nvim_create_user_command(
     "ClaudePane",
