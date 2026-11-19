@@ -40,7 +40,8 @@ keys in `secrets.nix` cut the keyholes, and the private key stays on the machine
 
 `wake-desktop.age` holds the router login on line 1 and the desktop's MAC address
 on line 2. If it's ever lost, the login is in the router's admin panel, and
-`ip link` on the desktop shows the MAC.
+the MAC is the one in the router's DHCP lease for `desktop`. `ip link` on the
+desktop lists more than one wired port, so match it against the lease.
 
 # Leak checks
 
