@@ -479,6 +479,16 @@ while its Tailscale is broken, go through the Pi on the LAN:
 `ssh -J` and `-L` don't work, but agent forwarding does, so the router takes
 the laptop's key.
 
+The cause is GL.iNet's `/etc/hotplug.d/iface/19-tailscale-iface`. It restarts
+Tailscale in the background each time any interface comes up, and the init
+script runs `tailscaled --cleanup` on start. When two interfaces come up
+together (a WAN reconnect), the second restart's cleanup strips the address
+from the daemon the first one started. procd then leaves that daemon running,
+because its config hasn't changed. The router's copy wraps the restart in
+`flock /tmp/gl_tailscale.lock` so restarts run one at a time; the original is
+in `/root/19-tailscale-iface.orig`. A firmware upgrade can put the original
+back, so check that line after upgrading.
+
 ### Sharing the mouse and keyboard
 
 [Lan Mouse](https://github.com/feschber/lan-mouse) moves the cursor between the
