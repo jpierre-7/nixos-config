@@ -462,11 +462,22 @@ One-time router setup (GL.iNet GL-BE9300, which is in the tailnet):
    line 1 of `/run/agenix/wake-desktop`.
 3. Test from the laptop while the desktop is off: `wake-desktop`.
 
-If `wake-desktop` times out while `tailscale ping` still answers, the router is
-dropping what arrives over Tailscale. Turning off Enable in its admin panel
-(Applications → Tailscale), applying, then turning it back on fixed this once.
-The restart also cleared Run Exit Node and the two Advertise toggles, so check
-them afterwards.
+Line 2 of the secret is the MAC of the port the desktop is plugged in with. It
+has more than one, and a packet to the other port does nothing. The right one
+is the router's DHCP lease for `desktop` (`grep desktop /tmp/dhcp.leases` on
+the router).
+
+If SSH to the router times out while `tailscale ping` still answers, the
+router's `tailscale0` has lost its address: `ip addr show tailscale0` on the
+router shows no `inet 100.x` line, and `ip route show table 52` is empty.
+Tailscale's own pings still work, since tailscaled answers them without the
+kernel. Fix it with `/etc/init.d/tailscale restart` on the router, which keeps
+the exit node and Advertise settings. Restarting from the admin panel
+(Applications → Tailscale → Enable off and on) clears them. To reach the router
+while its Tailscale is broken, go through the Pi on the LAN:
+`ssh -A -t john@pi ssh root@192.168.8.1`. The Pi blocks port forwarding, so
+`ssh -J` and `-L` don't work, but agent forwarding does, so the router takes
+the laptop's key.
 
 ### Sharing the mouse and keyboard
 
