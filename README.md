@@ -245,6 +245,7 @@ These need an account or a login, so they can't be declared:
   leave the shell right after.
 - `sudo tailscale up`: log the machine into your tailnet
 - `claude`: log in to Claude Code
+- `agy`: log in to the Antigravity CLI with a Google account
 - `herdr integration install claude`: writes `~/.claude/hooks/herdr-agent-state.sh`,
   which the SessionStart hook in `config/claude/settings.json` runs. If it
   rewrites `settings.json`, review the diff.
@@ -1079,6 +1080,7 @@ Everything comes from stable except these, pulled from `nixpkgs-unstable` in
 | `lan-mouse` | 0.11 adds DTLS encryption and wlroots modifier emulation; stable has 0.10 |
 | `kanata` | 1.12 adds `defhands` and opposite-hand tap-hold, which the home-row mods need |
 | `claude-code` | Ships several times a week; stable is months behind |
+| `antigravity-cli` | Not packaged on stable |
 
 `niri` is the one package from neither branch: it is pinned to a commit on
 upstream's main, because 26.04 doesn't run binds for virtual keyboards, so Lan
