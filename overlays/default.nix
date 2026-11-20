@@ -47,5 +47,6 @@ in
     lan-mouse # 0.11 adds the DTLS encryption and wlroots modifier emulation; stable has 0.10
     kanata # 1.12 adds defhands and tap-hold-opposite-hand, which the home-row mods use
     claude-code # ships several times a week; stable lags months behind
+    antigravity-cli # not packaged on stable
     ;
 }

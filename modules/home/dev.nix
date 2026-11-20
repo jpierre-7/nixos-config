@@ -42,6 +42,8 @@
     rust-analyzer # also used by Claude Code's rust-analyzer-lsp plugin
     pyright # also used by Claude Code's pyright-lsp plugin
 
+    antigravity-cli # Google's terminal agent, runs as `agy`
+
     # Replaces Arch's base-devel: a C toolchain for linking Rust and building
     # native extensions. Anything heavier belongs in a project devShell.
     gcc
