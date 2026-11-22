@@ -9,6 +9,15 @@
   # (move-window-to-workspace does), so move the window, then focus the monitor
   # it came from. A monitor that isn't connected makes both steps no-ops.
   home.packages = [
+    # Mod+Ctrl+M in config.kdl toggles the mirror; its window rule puts it on the HDMI.
+    (pkgs.writeShellApplication {
+      name = "niri-mirror";
+      runtimeInputs = [
+        pkgs.wl-mirror
+        pkgs.procps
+      ];
+      text = "pkill -x wl-mirror || exec wl-mirror eDP-1";
+    })
     (pkgs.writeShellApplication {
       name = "niri-send-window";
       runtimeInputs = [

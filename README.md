@@ -293,6 +293,11 @@ move the whole column and take focus along. `Mod+Shift+/` lists every bind.
 The monitor binds find each monitor by name (`config/niri/config.kdl`), so
 they work on any port, and do nothing when that monitor isn't plugged in.
 
+`Mod+Ctrl+M` mirrors the laptop screen onto the HDMI output and turns the
+mirror off again. Niri can't mirror outputs, so `wl-mirror` shows the laptop
+screen fullscreen on the HDMI. The HDMI stays its own monitor underneath, so the
+pointer can still move onto it.
+
 ### Bind palette
 
 `Mod+Slash` opens one Vicinae search over every keybind, each trigger beside
