@@ -253,6 +253,15 @@ window-rule {
     open-focused true
 }
 
+// Mod+Ctrl+M's mirror of the laptop screen (niri-mirror, modules/home/niri.nix).
+// Niri has no output mirroring, so wl-mirror shows eDP-1 fullscreen on the HDMI.
+window-rule {
+    match app-id=r#"^at\.yrlf\.wl_mirror$"#
+    open-on-output "HDMI-A-1"
+    open-fullscreen true
+    open-focused false
+}
+
 window-rule {
   // Square corners, niri's default radius. Clips client-side shadows.
   clip-to-geometry true
@@ -313,6 +322,7 @@ binds {
     // Send keyboard and mouse to the other machine, like crossing the Lan Mouse
     // edge. Pressed there, it brings them back (modules/home/lan-mouse.nix).
     Mod+M repeat=false hotkey-overlay-title="Move input to the other machine" { spawn "lan-mouse-switch"; }
+    Mod+Ctrl+M repeat=false hotkey-overlay-title="Mirror the laptop screen to HDMI" { spawn "niri-mirror"; }
 
     Mod+Left  { focus-column-left; }
     Mod+Down  { focus-window-down; }
