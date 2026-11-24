@@ -17,7 +17,10 @@
         terminaltexteffects
         util-linux # setsid
       ];
-      runtimeEnv.SCREENSAVER_LOGO = ../../config/screensaver/nixos-logo.txt;
+      # Interpolated, so the logo is copied into the store and kept as a runtime
+      # dependency. A bare path becomes a string into the flake source with no
+      # reference, and garbage collection deletes it.
+      runtimeEnv.SCREENSAVER_LOGO = "${../../config/screensaver/nixos-logo.txt}";
       text = builtins.readFile ../../config/screensaver/screensaver.sh;
     })
   ];
