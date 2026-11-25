@@ -857,7 +857,8 @@ prompt or delete the `[Image #N]` token. The `pasted-image-preview` mod in
 `config/claude/mods/pasted-image-preview/` draws it; Claude Code loads it from
 `~/.claude/skills`, like the cache meter.
 
-**The thumbnail only draws when Claude Code runs inside herdr.** In a plain
+**The thumbnail only draws when Claude Code runs inside herdr or the herdr
+desktop app.** In a plain
 WezTerm tab the spot shows `preview needs herdr` instead, with the caption
 under it. Claude Code draws images in two ways: kitty's Unicode placeholders,
 used only on kitty and Ghostty (or when `CLAUDE_CODE_FORCE_TERMINAL_IMAGES` is
@@ -866,6 +867,8 @@ iTerm2 3.5 or later. WezTerm can't draw the placeholders and reports itself as
 WezTerm, so neither applies. herdr reports itself as Ghostty and passes the
 images on to WezTerm (see below), and fish sets
 `CLAUDE_CODE_FORCE_TERMINAL_IMAGES` in its panes (`modules/home/shell.nix`).
+The desktop app draws the placeholders itself; fish spots its panes by
+`HC_TERMINAL_SOCKET`, which herdr-core sets, and forces images there too.
 A terminal that draws the placeholders itself (kitty, Ghostty) would show the
 thumbnail without herdr.
 
@@ -903,7 +906,8 @@ upgrade` does not apply: bump the version and hash there instead. Claude Code
 only draws images on kitty and Ghostty, and herdr identifies itself as
 `libghostty`, so the page stays blank until
 `CLAUDE_CODE_FORCE_TERMINAL_IMAGES` skips that check. Fish sets it only in
-herdr's panes (`HERDR_ENV`, `modules/home/shell.nix`): in a plain WezTerm tab
+herdr's and the desktop app's panes (`HERDR_ENV`, `HC_TERMINAL_SOCKET`,
+`modules/home/shell.nix`): in a plain WezTerm tab
 the forced images come out as boxes, with the picture drawn at the cursor. It's
 tested in herdr on WezTerm, with `experimental.kitty_graphics` on in
 `config/herdr/config.toml`.
