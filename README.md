@@ -580,6 +580,17 @@ The default browser, keyboard-driven. The config is in
 follow Noctalia like the other apps. Tabs are a narrow column of favicons on
 the left, with no titles. Searches go to Brave Search.
 
+Pages are dark: sites with a dark theme use it, the rest get Chromium's dark
+filter (not on `file://`). Binds added on top of the defaults:
+
+| Keys | Does |
+|---|---|
+| `x` | close the tab, go to the one before it |
+| `d` / `u` | page down / up (undo a closed tab is `Ctrl+Shift+T`) |
+| `,ut` | tab column always shown, or only while switching |
+| `,ud` | dark mode on/off everywhere, until restart |
+| `,uw` | dark mode on/off for this site, kept across restarts |
+
 **Bitwarden.** [qutewarden](https://github.com/HefKer/qutewarden) fills from
 the vault through `rbw`. It matches Items by URI, not by name. The picker is
 Vicinae, except where qutewarden asks for typed text (`,qg` on a page whose form

@@ -127,8 +127,16 @@ in
       fonts.default_family = "Maple Mono"; # as in Noctalia and WezTerm
       fonts.default_size = "12pt";
       # Noctalia runs in dark mode (theme.mode in noctalia.nix); sites that
-      # have a dark theme use it.
+      # have a dark theme use it, and Chromium leaves those pages unfiltered.
       colors.webpage.preferred_color_scheme = "dark";
+      # Every other page is darkened. "smart" inverts icons and logos but not
+      # photos; the threshold leaves backgrounds that are already dark alone.
+      colors.webpage.darkmode = {
+        enabled = true;
+        algorithm = "lightness-cielab";
+        policy.images = "smart";
+        threshold.background = 205;
+      };
 
       # A narrow bar of favicons on the left; titles are in the window title
       # and `:tab-select`. Width fits a 16px icon plus padding and indicator.
@@ -164,6 +172,22 @@ in
     # about 40 seconds with "Something went wrong. Refresh or try again
     # later." The YouTube script below still mutes and skips the ads there.
     perDomainSettings."*://*.youtube.com/*".content.blocking.enabled = false;
+    # Local files keep their own colors.
+    perDomainSettings."file://*".colors.webpage.darkmode.enabled = false;
+
+    keyBindings.normal = {
+      # Close a tab and land on the one before it, not after.
+      "x" = "tab-close -o";
+      "d" = "fake-key <PgDown>";
+      "u" = "fake-key <PgUp>"; # undo is still Ctrl+Shift+T
+      ",ut" = "config-cycle tabs.show always switching"; # tab column only while switching
+      # Dark mode everywhere. The value in this file wins again after a restart.
+      ",ud" = "config-cycle colors.webpage.darkmode.enabled true false ;; reload";
+      # Dark mode for this host only; autoconfig keeps it. false comes first: a
+      # host with no override reads as unset, so config-cycle starts at the
+      # first value, and true first would make the first press do nothing.
+      ",uw" = "config-cycle -u *://{url:host}/* colors.webpage.darkmode.enabled false true ;; reload";
+    };
 
     searchEngines = {
       DEFAULT = "https://search.brave.com/search?q={}";
