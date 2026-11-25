@@ -698,6 +698,15 @@ in `https://releases.herdr.dev/app/latest.json`). herdr-core comes from
 unstable. The package sets `HERDR_TELEMETRY=0`, which stops the daily usage
 report the release builds send by default. It needs a working Vulkan driver.
 
+[Pixel HQ](https://github.com/bnhan2710/pixel-hq) is installed as an extra
+layout: agents as pixel pets at desks in an office. Pick it in Settings > Look,
+or `Ctrl+Shift+L` to cycle layouts. `modules/home/herdr.nix` links its layout,
+theme and `company-*` mods from the `pixel-hq` flake input, so they are
+read-only: its built-in updater is turned off, and `nix flake update pixel-hq`
+updates it (read the diff first; mods are unsandboxed code that runs programs).
+Its HP/SP bars on Claude desks need its own Claude status line, which it
+doesn't set while yours is there.
+
 ### Session graph in herdr
 
 `Ctrl+Space Z` on a pane running Claude Code opens

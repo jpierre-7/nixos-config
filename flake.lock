@@ -175,6 +175,22 @@
         "type": "github"
       }
     },
+    "pixel-hq": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1795610820,
+        "narHash": "sha256-AoTAV+uWJ7w2XFP+PPynt9fIJUfr1sQeqXKwqMCcK9o=",
+        "owner": "bnhan2710",
+        "repo": "pixel-hq",
+        "rev": "2bcbe7c70e8579b8945d92ad746b45be3d4f21f6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bnhan2710",
+        "repo": "pixel-hq",
+        "type": "github"
+      }
+    },
     "qutewarden": {
       "inputs": {
         "home-manager": [
@@ -210,6 +226,7 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "noctalia-templates": "noctalia-templates",
+        "pixel-hq": "pixel-hq",
         "qutewarden": "qutewarden",
         "snapmaker-orca": "snapmaker-orca",
         "vc-actions": "vc-actions",
