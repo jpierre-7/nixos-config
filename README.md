@@ -1023,6 +1023,14 @@ rebuild, and each one after its input moves, compiles it locally for a long
 while. Settings and printer profiles live in `~/.config/Snapmaker_Orca`, not
 here.
 
+### Steam
+
+Steam comes from nixpkgs' NixOS module (`programs.steam`,
+`modules/nixos/steam.nix`), on both machines. The module adds the 32-bit Mesa
+drivers games need and the udev rules for Steam's controllers. Proton is
+Steam's own: turn it on under Settings → Compatibility. Games and settings live
+in `~/.local/share/Steam`, not here.
+
 ### Vesktop plugins
 
 Vesktop runs a Vencord built in the Nix store, not the copy it downloads, so

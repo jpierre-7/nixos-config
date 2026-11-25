@@ -25,7 +25,8 @@
   # Trash, removable drives and network locations in Nautilus.
   services.gvfs.enable = true;
 
-  # Mesa OpenGL/Vulkan. Enough for AMD and Intel GPUs on a non-gaming setup.
+  # Mesa OpenGL/Vulkan for AMD and Intel GPUs. Steam (steam.nix) adds the
+  # 32-bit drivers its games need.
   hardware.graphics.enable = true;
 
   # Fullscreen recording in Noctalia's Screen Toolkit plugin
