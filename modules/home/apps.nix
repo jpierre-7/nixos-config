@@ -46,6 +46,11 @@ in
     # X11-only (forces QT_QPA_PLATFORM=xcb); runs through xwayland-satellite.
     onlyoffice-desktopeditors
 
+    # osu!lazer. The official AppImage, not the source build (osu-lazer): osu!'s
+    # servers only take scores from official builds. Lazer can't update itself
+    # in the store, so new versions come with nixpkgs updates.
+    osu-lazer-bin
+
     remmina
     freerdp
     anydesk
