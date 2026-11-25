@@ -33,6 +33,11 @@
      KEYBOARD_KEY_70080=f12
   '';
 
+  # Elgato Stream Deck. Elgato's app is Windows/macOS only; StreamController is
+  # the Linux replacement. The module also installs its udev rules, which give
+  # the logged-in user access to the deck's USB device.
+  programs.streamcontroller.enable = true;
+
   # Which side of this machine the laptop sits on, and whose certificate to trust.
   home-manager.users.john.xdg.configFile."lan-mouse/config.toml".source = ./lan-mouse.toml;
 
