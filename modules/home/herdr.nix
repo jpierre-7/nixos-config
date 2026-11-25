@@ -22,6 +22,7 @@ let
     );
   };
   zoetrope = pkgs.callPackage ../../pkgs/zoetrope.nix { src = inputs.zoetrope; };
+  herdrApp = pkgs.callPackage ../../pkgs/herdr-app.nix { };
 in
 {
   # On PATH for the first dock of a running session: herdr only runs a plugin's
@@ -29,9 +30,16 @@ in
   #
   # zoe: prefix+Z opens the focused agent's session as a graph, through the
   # plugin linked below, which finds zoe and jq (dev.nix) on PATH.
+  #
+  # herdr-app: herdr's desktop app (pkgs/herdr-app.nix). It drives herdr-core
+  # (`hc`, unstable), a separate daemon from the herdr TUI, and finds it on PATH.
+  # The app only updates a core it installed itself, so this one moves with
+  # nixpkgs.
   home.packages = [
     agentCards
     zoetrope
+    herdrApp
+    pkgs.herdr-core
   ];
 
   # Each rebuild has a new store path, so link it again to replace the old one,

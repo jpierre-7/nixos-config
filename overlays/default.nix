@@ -56,6 +56,7 @@ in
 
   inherit (unstable)
     herdr # not packaged on stable
+    herdr-core # not packaged on stable; the core the Herdr desktop app drives
     hunk # not packaged on stable
     lan-mouse # 0.11 adds the DTLS encryption and wlroots modifier emulation; stable has 0.10
     kanata # 1.12 adds defhands and tap-hold-opposite-hand, which the home-row mods use

@@ -685,6 +685,19 @@ get the new code, and the rest get it the next time herdr's server starts
 The code is `config/herdr/agent-cards/`, packaged and linked by
 `modules/home/herdr.nix`.
 
+### Herdr desktop app
+
+`herdr-app` (or Herdr in the launcher) is herdr's GUI. It doesn't run the
+herdr TUI's sessions: its terminals and agents live in herdr-core (`hc`), a
+separate background daemon, so they keep running when the window closes.
+`hc ls` lists them from any terminal.
+
+The app is `pkgs/herdr-app.nix`, a pinned upstream binary like the terminal
+browser, so it doesn't update itself: bump the version and hash there (both are
+in `https://releases.herdr.dev/app/latest.json`). herdr-core comes from
+unstable. The package sets `HERDR_TELEMETRY=0`, which stops the daily usage
+report the release builds send by default. It needs a working Vulkan driver.
+
 ### Session graph in herdr
 
 `Ctrl+Space Z` on a pane running Claude Code opens
@@ -1092,6 +1105,7 @@ Everything comes from stable except these, pulled from `nixpkgs-unstable` in
 |---|---|
 | `noctalia` | Noctalia v5; stable has 5.0.1, unstable follows the 5.x releases. Patched so Bitwarden plugin copies stay out of clipboard histories |
 | `herdr` | Not packaged on stable |
+| `herdr-core` | Not packaged on stable; the Herdr desktop app needs it |
 | `hunk` | Not packaged on stable |
 | `lan-mouse` | 0.11 adds DTLS encryption and wlroots modifier emulation; stable has 0.10 |
 | `kanata` | 1.12 adds `defhands` and opposite-hand tap-hold, which the home-row mods need |
