@@ -1092,6 +1092,11 @@ upstream's main, because 26.04 doesn't run binds for virtual keyboards, so Lan
 Mouse can't trigger them on the receiving machine. Remove the override once a
 release includes the fix (commit `7da6ae4`).
 
+`streamcontroller` stays on stable but is patched: a label font weight that
+isn't a named Pango weight (like 250) makes it throw while holding a lock, and
+the window freezes the next time you add an action or a state. The patch rounds
+the weight to the nearest named one. Drop it once upstream fixes `set_weight`.
+
 ## How the Arch setup maps
 
 Packages from the old `packages/pacman.txt` map to nixpkgs packages or NixOS /

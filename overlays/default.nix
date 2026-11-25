@@ -41,6 +41,19 @@ in
       doInstallCheck = false;
     };
 
+  # StreamController freezes when a key's sidebar loads a label whose font weight
+  # isn't a named Pango.Weight (e.g. 250): PyGObject 3.56 rejects it, and the
+  # TypeError leaves LabelEditor's lock held, so the next sidebar update hangs
+  # the main thread. Snap to the nearest named weight. Upstream main still has
+  # the bare set_weight; drop this once it's fixed there.
+  streamcontroller = prev.streamcontroller.overrideAttrs (old: {
+    postPatch = (old.postPatch or "") + ''
+      substituteInPlace src/backend/DeckManagement/HelperMethods.py \
+        --replace-fail 'desc.set_weight(font_weight)' \
+          'desc.set_weight(min(Pango.Weight, key=lambda w: abs(int(w) - int(font_weight))))'
+    '';
+  });
+
   inherit (unstable)
     herdr # not packaged on stable
     hunk # not packaged on stable
