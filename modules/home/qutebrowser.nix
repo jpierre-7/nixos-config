@@ -204,16 +204,20 @@ in
     };
 
     # Noctalia's colors (theme.templates.user.qutebrowser in noctalia.nix). The
-    # file is missing until Noctalia first renders it. Then the effective binds,
-    # dumped for bind-palette (pkgs/bind-palette/); last, so every bind is set.
+    # file is missing until Noctalia first renders it. Then the fix for hints
+    # breaking after a cross-site redirect (config/qutebrowser/injectfix.py).
+    # Then the effective binds, dumped for bind-palette (pkgs/bind-palette/);
+    # last, so every bind is set.
     extraConfig = ''
       if (config.configdir / "noctalia" / "colors.py").exists():
           config.source("noctalia/colors.py")
+      config.source("injectfix.py")
       config.source("bindsdump.py")
     '';
   };
 
   xdg.configFile."qutebrowser/bindsdump.py".source = ../../config/qutebrowser/bindsdump.py;
+  xdg.configFile."qutebrowser/injectfix.py".source = ../../config/qutebrowser/injectfix.py;
   xdg.configFile."qutebrowser/greasemonkey/youtube-ads.js".source =
     ../../config/qutebrowser/youtube-ads.js;
 
