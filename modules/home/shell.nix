@@ -43,11 +43,12 @@
 
     # Claude Code draws images (terminal-browser pages, pasted-image previews)
     # only on kitty and Ghostty, and herdr reports itself as libghostty, so
-    # herdr's panes force them on. Only there: plain WezTerm can't draw kitty's
-    # Unicode placeholders and shows them as boxes, with the picture at the
-    # cursor.
+    # herdr's panes force them on. So do the herdr desktop app's
+    # (HC_TERMINAL_SOCKET, set by herdr-core), which draws the placeholders
+    # itself. Only there: plain WezTerm can't draw kitty's Unicode placeholders
+    # and shows them as boxes, with the picture at the cursor.
     shellInit = ''
-      if set -q HERDR_ENV
+      if set -q HERDR_ENV; or set -q HC_TERMINAL_SOCKET
           set -gx CLAUDE_CODE_FORCE_TERMINAL_IMAGES 1
       end
     '';
