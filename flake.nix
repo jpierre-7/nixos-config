@@ -27,6 +27,13 @@
       url = "github:furkankly/zoetrope";
       flake = false;
     };
+    # Pixel HQ, a layout and mods for the herdr desktop app; linked by
+    # modules/home/herdr.nix. Mods are unsandboxed JavaScript that runs programs,
+    # so read the diff before moving it.
+    pixel-hq = {
+      url = "github:bnhan2710/pixel-hq";
+      flake = false;
+    };
     # Clipboard sync for Lan Mouse; built by pkgs/lan-clip.nix. It reads the Lan
     # Mouse private key and every copy, and it's a new project from one author,
     # so it stays on this reviewed commit: read the diff before moving the rev.
