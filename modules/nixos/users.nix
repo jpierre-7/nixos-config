@@ -12,6 +12,7 @@
     extraGroups = [
       "wheel"
       "networkmanager"
+      "dialout" # serial ports (/dev/ttyUSB*, /dev/ttyACM*) for pyserial
     ];
     shell = pkgs.fish;
   };

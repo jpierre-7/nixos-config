@@ -30,7 +30,9 @@
     gitleaks
 
     nodejs # includes npm
-    python3 # for scripts; project venvs use uv
+    # For scripts; project venvs use uv. pyserial is pure Python, so it loads
+    # fine against Nix's Python (serial ports need the dialout group, users.nix).
+    (python3.withPackages (ps: [ ps.pyserial ]))
     uv
 
     # Rust from nixpkgs instead of rustup: declarative, no `rustup default`
