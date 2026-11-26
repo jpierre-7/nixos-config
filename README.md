@@ -264,8 +264,13 @@ These need an account or a login, so they can't be declared:
   [qutebrowser](#qutebrowser)).
 - Wake-on-LAN (desktop): in the firmware setup, turn on wake from LAN/PCIe
   ("Power On By PCI-E", "Wake on LAN") and turn off ErP / deep sleep, which
-  cuts power to the NIC. See [Waking the desktop](#waking-the-desktop) for the
-  router side.
+  cuts power to the NIC. Also set "Restore on AC Power Loss" to "Power On" (or
+  "Last State"): after a power cut the NIC stays dead until the machine has
+  been switched on once, so without it `wake-desktop` times out. The desktop
+  (GMKtec M5 Plus, AMI Aptio BIOS) has no documented path for it; look under
+  Advanced → ACPI Settings, Chipset, or Advanced → AMD CBS → FCH Common
+  Options → Ac Power Loss Options ("Ac Loss Control" → "Always On"). See
+  [Waking the desktop](#waking-the-desktop) for the router side.
 
 ## Everyday use
 
