@@ -1,6 +1,8 @@
 # Linked to ~/.config/lan-mouse/config.toml by hosts/desktop/default.nix.
-# Ctrl+Shift+Super+Alt (left side) gets the cursor back if it sticks.
-release_bind = [ "KeyLeftCtrl", "KeyLeftShift", "KeyLeftMeta", "KeyLeftAlt" ]
+# Right Alt+Right Ctrl gets the cursor back if it sticks, e.g. when the other
+# machine locks: its lock screen hides the edge, so it can't send it back.
+# Both keys are on 60% boards and laptops; Lan Mouse spells it "KeyRightalt".
+release_bind = [ "KeyRightalt", "KeyRightCtrl" ]
 
 # Certificate of the laptop, see "Sharing the mouse and keyboard" in the README.
 [authorized_fingerprints]
