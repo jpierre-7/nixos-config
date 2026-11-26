@@ -524,9 +524,9 @@ back, so check that line after upgrading.
 
 [Lan Mouse](https://github.com/feschber/lan-mouse) moves the cursor between the
 machines across a screen edge: the laptop sits below the desktop. To move it,
-change `position` in both `hosts/*/lan-mouse.toml`. Right Alt+Right Ctrl
-brings a stuck cursor back, e.g. after the other machine locked while you
-were away from it.
+change `position` in both `hosts/*/lan-mouse.toml`. Left Ctrl+Right Ctrl
+(or D+K held, the home-row mods) brings a stuck cursor back, e.g. after the
+other machine locked while you were away from it.
 
 Super+M does the same as crossing the edge: it sends the keyboard and mouse to
 the other machine, and pressed again there, it brings them back. Lan Mouse
@@ -534,7 +534,7 @@ can't switch on command, so `lan-mouse-switch` (`modules/home/lan-mouse.nix`)
 pushes the cursor into the shared edge with a virtual pointer (`wlrctl`). It
 reads the edge from the host's `lan-mouse.toml`, which must list exactly one
 client. Like the edge, it can't bring input back from a machine that is still
-locked: unlock it, or press Right Alt+Right Ctrl.
+locked: unlock it, or press Left Ctrl+Right Ctrl.
 
 Each machine generates its own certificate on first start and rejects the other
 until it trusts it. On each machine, print the fingerprint:
@@ -596,7 +596,7 @@ hold it off. `nixos-screensaver start` shows it right away and
 The shared mouse and keyboard count as input on the idle machine, so crossing
 over with Lan Mouse wakes it and types the password. The lock screen hides Lan
 Mouse's edge, so the cursor can't cross back until that machine is unlocked;
-Right Alt+Right Ctrl brings it back.
+Left Ctrl+Right Ctrl brings it back.
 
 ### qutebrowser
 
