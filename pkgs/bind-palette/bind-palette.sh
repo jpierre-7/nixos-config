@@ -193,6 +193,9 @@ pick() {
   if [[ -n $cmd ]]; then
     # Detached, as niri's own spawn runs it.
     setsid -f sh -c "$cmd" >/dev/null 2>&1
+    # The repeat key (pkgs/repeat/) runs the row again without the palette. Not the repeat row
+    # itself: its replay would replay itself forever.
+    [[ ${cmd//\"/} == repeat ]] || repeat record sh -c "$cmd"
   else
     printf '%s' "$trigger" | wl-copy
     notify-send -a "Bind palette" "$scope: $trigger" "$action (trigger copied)"

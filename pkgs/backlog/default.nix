@@ -1,5 +1,6 @@
 {
   age,
+  callPackage,
   coreutils,
   fuzzel,
   gawk,
@@ -27,6 +28,7 @@ writeShellApplication {
     gnugrep
     jq
     libnotify
+    (callPackage ../repeat { })
     util-linux
     wl-clipboard
     yq-go

@@ -334,6 +334,29 @@ list as `move-pane-left-or-send-to-nvim` rather than `user-defined-3`.
 [HefKer/nixos-config](https://github.com/HefKer/nixos-config)'s bind-palette:
 `pkgs/bind-palette/`, `modules/home/bind-palette.nix`.
 
+### Repeat key
+
+**Mod+Shift+Period** (Mod + `>`) replays the last repeatable action, like
+vim's `.` (`repeat`, adapted from
+[HefKer/nixos-config](https://github.com/HefKer/nixos-config#repeat),
+`pkgs/repeat/`). Mod+Period was already taken by expel-window-from-column.
+
+Each action records its own replay when it completes, skipping its menu, and a
+cancelled menu records nothing:
+
+| Action | What the repeat key does |
+|---|---|
+| `backlog prompt` (Mod+B) | opens the same project's box, no picker |
+| `sound-pick` (Mod+G) | plays the same sound again, no picker |
+| `sound-add` (Mod+Shift+G) | saves the clipboard's new link, with the trim and tags prompts |
+| Bind palette (Mod+Slash), a niri row | runs that row again, no palette |
+
+The record is the replay's argv, NUL-separated, in
+`~/.local/state/repeat/last`, so file names with spaces or quotes replay
+exactly. A new action that opens a menu can join with
+`repeat record CMD ARG...` once it finishes (and `repeat` in its
+`runtimeInputs`).
+
 ### Music and volume keys
 
 | Key | Does |

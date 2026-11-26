@@ -4,6 +4,7 @@
 # which carries your voice too, sound-stop cuts it off, and sound-volume sets
 # the volumes without a rebuild. Called from modules/home/soundboard.nix.
 {
+  callPackage,
   coreutils,
   ffmpeg,
   findutils,
@@ -26,6 +27,8 @@
 }:
 # vicinae and noctalia come from PATH: the configured, running ones.
 let
+  # The repeat key's recorder (pkgs/repeat/): sound-pick and sound-add record their replay.
+  repeat = callPackage ../repeat { };
   # One line per playing sound: "<call PID> <you PID>". sound-pick writes it, sound-stop kills them.
   pids = ''"''${XDG_RUNTIME_DIR:-/tmp}/sound-pick.pids"'';
   # Held while the PID file is read and rewritten, and a PID is only trusted while /proc says it is
@@ -57,6 +60,7 @@ let
       glib
       gnused
       libnotify
+      repeat
       wl-clipboard
       yt-dlp
     ];
@@ -133,6 +137,8 @@ let
       ffmpeg -loglevel error -y "''${cut[@]}" -i "$file" -vn -af loudnorm -c:a libopus -b:a 96k "$dest" ||
         { rm -f -- "$dest"; fail "ffmpeg could not convert $src"; }
       notify-send -a soundboard "Sound saved" "$(basename "$dest")"
+      # Replayed bare, so a repeat reads the clipboard afresh: copy the next link, repeat.
+      [ "$#" -gt 0 ] || repeat record sound-add
     '';
   };
 
@@ -144,10 +150,39 @@ let
       gawk
       libnotify
       pipewire
+      repeat
       util-linux
     ];
     text = ''
       library=${lib.escapeShellArg library}
+      # Plays $1 to the call and to you, cutting off what is playing, and makes it the repeat's replay.
+      play() {
+        local vcall vyou call
+        read -r vcall vyou _ 2>/dev/null <${volumeFile} || read -r vcall vyou <<<"${defaultVolume}"
+        vyou=''${vyou:-$vcall}
+        ${pidsTools}
+        # Inside the lock, so two quick picks can't both survive.
+        stop_all
+        # Once into the soundboard mic for the call and once to the default output for you; 9>&- so pw-play doesn't hold the lock.
+        pw-play --volume "$(awk -v p="$vcall" 'BEGIN { print p / 100 }')" --target ${lib.escapeShellArg sink} "$1" 9>&- &
+        call=$!
+        pw-play --volume "$(awk -v p="$vyou" 'BEGIN { print p / 100 }')" "$1" 9>&- &
+        echo "$call $!" >${pids}
+        exec 9>&-
+        repeat record sound-pick --play "$1"
+      }
+
+      # sound-pick --play FILE: the repeat's replay, with no menu.
+      if [ $# -gt 0 ]; then
+        [ "$# $1" = "2 --play" ] || { echo "usage: sound-pick [--play FILE]" >&2; exit 1; }
+        if [ ! -f "$2" ]; then
+          notify-send -a soundboard "Sound gone" "$(basename "$2") is no longer in the library"
+          exit 0
+        fi
+        play "$2"
+        exit 0
+      fi
+
       # Newest first, so what was just added is on top before anything is typed.
       mapfile -t files < <(find "$library" -maxdepth 1 -type f ! -name '.*' -printf '%T@\t%p\n' 2>/dev/null | sort -rn | cut -f2-)
       if [ ''${#files[@]} -eq 0 ]; then
@@ -175,17 +210,7 @@ let
         fi
       done
       [ -n "$file" ] || exit 0
-
-      read -r vcall vyou _ 2>/dev/null <${volumeFile} || read -r vcall vyou <<<"${defaultVolume}"
-      vyou=''${vyou:-$vcall}
-      ${pidsTools}
-      # A new pick cuts off what is playing, inside the lock so two quick picks can't both survive.
-      stop_all
-      # Once into the soundboard mic for the call and once to the default output for you; 9>&- so pw-play doesn't hold the lock.
-      pw-play --volume "$(awk -v p="$vcall" 'BEGIN { print p / 100 }')" --target ${lib.escapeShellArg sink} "$file" 9>&- &
-      call=$!
-      pw-play --volume "$(awk -v p="$vyou" 'BEGIN { print p / 100 }')" "$file" 9>&- &
-      echo "$call $!" >${pids}
+      play "$file"
     '';
   };
 

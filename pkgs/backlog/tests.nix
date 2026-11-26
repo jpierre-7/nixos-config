@@ -392,6 +392,18 @@ runCommandLocal "backlog-tests"
     for _ in $(seq 100); do [ -z "$(clips)" ] && break; sleep 0.1; done
     expect "$(clips)" "" "and removes the clipboard's copy"
 
+    # The repeat key (pkgs/repeat/): a filed line records its project's box; a cancel records nothing.
+    record=$HOME/.local/state/repeat/last
+    rm -f "$record"
+    box "" ESC
+    box dots ESC
+    expect "$([ -e "$record" ] && echo recorded || echo none)" none "a cancelled picker or box records nothing"
+    box "" nixos 'for the repeat'
+    filed "for the repeat"
+    expect "$(tr '\0' ' ' <"$record")" "backlog prompt nixos " "a filed line records its project's box, without the picker"
+    box dots ESC
+    expect "$(tr '\0' ' ' <"$record")" "backlog prompt nixos " "Esc in a later box leaves the record"
+
     # Drafts: Esc keeps the box's text per project, reopened in the box and marked in the picker.
     text='foo // bar "q" ✓  '
     box openok "ESC:$text"

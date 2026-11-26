@@ -13,6 +13,7 @@
     ./niri.nix
     ./noctalia.nix
     ./qutebrowser.nix
+    ./repeat.nix
     ./screensaver.nix
     ./shell.nix
     ./soundboard.nix
