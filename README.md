@@ -962,6 +962,17 @@ leaves the machine.
 starts with its rules and nobody has to type `/i-have-adhd`. "stop adhd mode"
 turns it off for one session. To turn it off everywhere, delete the import.
 
+### Prompt for a friend
+
+`/friend-prompt <feature...>` (for example `/friend-prompt backlog
+bind-palette`) prints a prompt that a friend can paste into their own AI
+agent to add those features to their setup. The prompt gives this repo's URL,
+and for each feature its README section, its files, and its commits on
+`main` in order. It also has a "Not on NixOS" line when the feature works on
+other systems. The skill (`config/claude/skills/friend-prompt/`) leaves out
+anything from `secrets/`, addresses, and links to private issues, because the
+prompt goes to other people.
+
 ### Finding a machine that dropped off the network
 
 Work up from the bottom and stop at the first layer that fails. An SSH error only
