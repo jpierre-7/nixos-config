@@ -1040,6 +1040,10 @@ PipeWire "Soundboard mic" that carries your voice too, so set Vesktop's input
 device to **Soundboard mic** once (Settings → Voice & Video). Its own noise
 filter can stay off: the mic already goes through DeepFilterNet and a +12 dB
 boost (`modules/nixos/audio.nix`) before it reaches the soundboard mic.
+PipeWire reads that config only when it starts, so after the rebuild that
+adds or changes it, run
+`systemctl --user restart pipewire pipewire-pulse wireplumber` (or log out
+and back in), then restart Vesktop.
 
 - **Mod+Shift+G** (`sound-add [URL|FILE]`): saves a link's or file's audio,
   the clipboard's when given nothing. fuzzel asks for a trim (`5-12`, blank
