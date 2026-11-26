@@ -1085,7 +1085,9 @@ NixOS releases come out in May and November (26.05 → 26.11 → 27.05).
    `modules/home/apps.nix` for a GUI app or `modules/home/dev.nix` for a tool.
    System-wide things go in `environment.systemPackages` in `modules/nixos/`.
    If Home Manager has a `programs.<name>` module for it, prefer that.
-3. Rebuild, then commit.
+3. Rebuild, then commit. A GUI app shows up in Vicinae right away: every
+   switch restarts Vicinae's server, which reads the app list only at start
+   (`system.userActivationScripts` in `modules/nixos/desktop.nix`).
 
 If it's missing or too old on stable, add it to the `inherit (unstable)` list in
 `overlays/default.nix` (and to the table below) instead of moving the whole

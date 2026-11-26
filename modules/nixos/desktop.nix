@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   # Niri session, portals (GNOME + GTK), polkit and dconf come from this module.
   programs.niri.enable = true;
@@ -16,6 +21,17 @@
     xwayland-satellite
     xdg-utils
   ];
+
+  # Vicinae reads the app list only when its server starts, so an app a rebuild
+  # added (Steam) stayed out of the launcher until the next login. Restart it
+  # on every switch: user activation runs then, as john, with NIRI_SOCKET from
+  # the user manager. Through niri, so the new server stays in niri's session
+  # like the one spawn-at-startup started (config/niri/config.kdl).
+  system.userActivationScripts.restartVicinae.text = ''
+    if [ -n "''${NIRI_SOCKET:-}" ] && ${pkgs.procps}/bin/pgrep -u "$(id -u)" -f "^vicinae-server" >/dev/null; then
+      ${lib.getExe config.programs.niri.package} msg action spawn -- vicinae server --replace || true
+    fi
+  '';
 
   # Unlock the login keyring with the password typed at the greeter
   # (greeter.nix).
