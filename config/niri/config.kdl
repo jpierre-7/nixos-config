@@ -297,6 +297,12 @@ binds {
     // project, type `title // body`. Shift+Enter attaches the clipboard image.
     Mod+B repeat=false hotkey-overlay-title="File an idea (backlog)" { spawn "backlog" "prompt"; }
 
+    // Soundboard (pkgs/soundboard/): pick a sound to play into the
+    // "Soundboard mic", save the clipboard's link as one, stop what's playing.
+    Mod+G repeat=false hotkey-overlay-title="Play a sound (soundboard)" { spawn "sound-pick"; }
+    Mod+Shift+G repeat=false hotkey-overlay-title="Save the clipboard's link as a sound" { spawn "sound-add"; }
+    Mod+Ctrl+G repeat=false hotkey-overlay-title="Stop the soundboard" { spawn "sound-stop"; }
+
     Mod+S { screenshot; }
 
     // Music and volume on the F row. Noctalia drives the MPRIS player and

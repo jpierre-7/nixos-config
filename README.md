@@ -1031,6 +1031,34 @@ drivers games need and the udev rules for Steam's controllers. Proton is
 Steam's own: turn it on under Settings → Compatibility. Games and settings live
 in `~/.local/share/Steam`, not here.
 
+### Soundboard
+
+A soundboard with no app, ported from
+[HefKer/nixos-config](https://github.com/HefKer/nixos-config#memes)
+(`pkgs/soundboard/`, `modules/home/soundboard.nix`). Sounds play into a
+PipeWire "Soundboard mic" that carries your voice too, so set Vesktop's input
+device to **Soundboard mic** once (Settings → Voice & Video). Its own noise
+filter can stay off: the mic already goes through DeepFilterNet and a +12 dB
+boost (`modules/nixos/audio.nix`) before it reaches the soundboard mic.
+PipeWire reads that config only when it starts, so after the rebuild that
+adds or changes it, run
+`systemctl --user restart pipewire pipewire-pulse wireplumber` (or log out
+and back in), then restart Vesktop.
+
+- **Mod+Shift+G** (`sound-add [URL|FILE]`): saves a link's or file's audio,
+  the clipboard's when given nothing. fuzzel asks for a trim (`5-12`, blank
+  for all) and tags, which name the file in `~/sounds`. Clips are saved as
+  loudness-normalized Opus.
+- **Mod+G** (`sound-pick`): picks a sound in Vicinae, newest first, and plays
+  it to the call and to you. A new pick stops the one playing.
+- **Mod+Ctrl+G** (`sound-stop`): stops it.
+- `sound-volume CALL [YOU]`: sets both volumes in percent (default 20/20),
+  with no rebuild. Bare, it prints them.
+
+Left out of the port: the meme pictures, the Klipy GIF key, repeat-to-stack,
+Shift+Enter to paste a sound as a file (Vicinae's dmenu has no second key),
+and the DankMaterialShell bar widget.
+
 ### Vesktop plugins
 
 Vesktop runs a Vencord built in the Nix store, not the copy it downloads, so

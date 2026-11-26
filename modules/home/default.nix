@@ -15,6 +15,7 @@
     ./qutebrowser.nix
     ./screensaver.nix
     ./shell.nix
+    ./soundboard.nix
     ./syncthing.nix
     ./terminal.nix
     ./vicinae.nix
