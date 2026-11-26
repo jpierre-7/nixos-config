@@ -27,7 +27,8 @@ backlog add [--image FILE] [PROJECT] "TITLE // BODY"
                                         stdin, if not a terminal, is appended to the body; --image embeds FILE,
                                         uploaded to the config's attachments_repo
 backlog prompt [PROJECT]                pick a project in Vicinae (or take PROJECT), type a line in fuzzel,
-                                        file it in the background; Shift+Enter attaches the clipboard's image;
+                                        file it in the background, and make `backlog prompt PROJECT` the
+                                        repeat key's replay; Shift+Enter attaches the clipboard's image;
                                         Esc keeps the text as the project's draft, reopened next time;
                                         Ctrl+G discards it
 backlog flush [--notify]                re-send the offline queue
@@ -535,6 +536,9 @@ cmd_prompt() {
   else
     setsid -f "$self" add --notify --from-box "$name" "$line" </dev/null >/dev/null 2>&1
   fi
+  # The repeat key (pkgs/repeat/) reopens this project's box, skipping the picker. Recorded after
+  # the line is handed off, so a failed record can't lose it; a cancelled box records nothing.
+  repeat record backlog prompt "$name"
 }
 
 cmd_queue() {

@@ -1,4 +1,5 @@
 {
+  callPackage,
   coreutils,
   gawk,
   jq,
@@ -20,6 +21,7 @@ writeShellApplication {
     gawk
     jq
     libnotify
+    (callPackage ../repeat { })
     util-linux
     wl-clipboard
     yq-go

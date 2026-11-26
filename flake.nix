@@ -377,6 +377,9 @@
 
         # pkgs/backlog/ against fakes of gh, the picker, the box and the clipboard.
         backlog = pkgs.callPackage ./pkgs/backlog/tests.nix { };
+
+        # pkgs/repeat/: a replay's argv comes back exactly, with no shell in between.
+        repeat = pkgs.callPackage ./pkgs/repeat/tests.nix { };
       };
     };
 }

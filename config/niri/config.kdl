@@ -303,6 +303,10 @@ binds {
     Mod+Shift+G repeat=false hotkey-overlay-title="Save the clipboard's link as a sound" { spawn "sound-add"; }
     Mod+Ctrl+G repeat=false hotkey-overlay-title="Stop the soundboard" { spawn "sound-stop"; }
 
+    // Replay the last repeatable action, like vim's `.` (pkgs/repeat/). Mod+Period
+    // is taken by expel-window-from-column.
+    Mod+Shift+Period repeat=false hotkey-overlay-title="Repeat the last action" { spawn "repeat"; }
+
     Mod+S { screenshot; }
 
     // Music and volume on the F row. Noctalia drives the MPRIS player and
