@@ -321,11 +321,13 @@ as in every Vicinae list (`"keybinding": "vim"` in `config/vicinae/settings.json
 | nvim | a headless nvim's global maps with a description (buffer-local ones stay on `<leader>sk`) |
 | kanata | the home-row mods and base-layer remaps in `config/kanata/keymap.kbd` |
 | herdr | only the keys `config/herdr/config.toml` sets: herdr can't list its defaults |
+| herdr-app | the desktop app's `~/.config/herdr-app/keys.json`, defaults included (the app writes the whole file); its `terminal` binds show as `terminal: <key>` |
 | WezTerm | only the keys that differ from WezTerm's defaults (`show-keys` with and without the config) |
 
 It reads each app's active config every time it opens, so a bind shows up
 exactly when it works: after `nrs` for niri, kanata and WezTerm (qutebrowser
-also needs a restart or `:config-source`), right away for nvim and herdr.
+also needs a restart or `:config-source`), right away for nvim, herdr and the
+herdr desktop app.
 WezTerm's Lua callbacks in `config/wezterm/keys.lua` are named events, so they
 list as `move-pane-left-or-send-to-nvim` rather than `user-defined-3`.
 `bind-palette list` prints the rows as TSV; the `bind-palette` check in

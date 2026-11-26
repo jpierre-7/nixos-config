@@ -1,5 +1,5 @@
 # One fuzzy search over every scope's binds: niri (Noctalia's rows tagged), qutebrowser, nvim,
-# kanata, herdr and WezTerm. Each row shows the trigger beside its action, so searching teaches
+# kanata, herdr, the herdr desktop app and WezTerm. Each row shows the trigger beside its action, so searching teaches
 # the bind. niri and Noctalia rows run; app rows copy their trigger.
 # Adapted from HefKer/nixos-config's bind-palette.
 #   bind-palette        pick in Vicinae
@@ -136,6 +136,25 @@ herdr_rows() {
     | '"$tsv"
 }
 
+# The herdr desktop app's keys.json, which the app writes in full (defaults included) and rewrites
+# when a bind changes there. Context "global" rows show bare, others as "terminal: ...". Control
+# characters a send: action types are shown in caret notation (^W).
+herdr_app_rows() {
+  local keys=$config_home/herdr-app/keys.json
+  [[ -r $keys ]] || return 0
+  jq -r '
+    def cap: if length > 1 then (.[0:1] | ascii_upcase) + .[1:] else . end;
+    # "ctrl--" is Ctrl and "-", so modifiers are matched by name, not by splitting on "-".
+    def trig: capture("^(?<m>((ctrl|alt|shift|super|cmd|meta|fn)-)*)(?<k>.+)$")
+      | (.m | split("-") | map(select(. != "") | cap)) + [.k | cap] | join("+");
+    to_entries[] | .key as $ctx | .value | to_entries[]
+    | ["herdr-app",
+       (if $ctx == "global" then "" else "\($ctx): " end) + (.key | trig),
+       (.value | gsub("(?<c>[\u0000-\u001f])"; "^" + ([(.c | explode[0]) + 64] | implode)) | gsub("[._:]"; " ")),
+       ""]
+    | '"$tsv" "$keys"
+}
+
 # WezTerm's keys that differ from its defaults: `show-keys` with the config, minus `-n show-keys`
 # without it, default key table only. Callbacks are named events in keys.lua, so they read as actions.
 wezterm_rows() {
@@ -169,6 +188,7 @@ list() {
   nvim_rows || true
   kanata_rows || true
   herdr_rows || true
+  herdr_app_rows || true
   wezterm_rows || true
 }
 

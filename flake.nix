@@ -347,14 +347,20 @@
             }
             ''
               export HOME=$TMPDIR XDG_CONFIG_HOME=$TMPDIR/config
-              mkdir -p $XDG_CONFIG_HOME/niri $XDG_CONFIG_HOME/herdr
+              mkdir -p $XDG_CONFIG_HOME/niri $XDG_CONFIG_HOME/herdr $XDG_CONFIG_HOME/herdr-app
               cp ${./config/niri/config.kdl} $XDG_CONFIG_HOME/niri/config.kdl
               cp ${./config/herdr/config.toml} $XDG_CONFIG_HOME/herdr/config.toml
+              # The app writes keys.json itself, so the repo has none: a sample in its format.
+              echo '{"global":{"alt-]":"tab.next","ctrl--":"app.zoom_out"},"terminal":{"ctrl-backspace":"send:\u0017"}}' \
+                >$XDG_CONFIG_HOME/herdr-app/keys.json
               bind-palette list >rows
-              for scope in niri noctalia kanata herdr; do
+              for scope in niri noctalia kanata herdr herdr-app; do
                 n=$(grep -c "^$scope"$'\t' rows || true)
                 echo "$scope: $n rows"
                 [ "$n" -gt 0 ] || failed=1
+              done
+              for row in $'Alt+]\ttab next' $'Ctrl+-\tapp zoom out' $'terminal: Ctrl+Backspace\tsend ^W'; do
+                grep -qF "herdr-app"$'\t'"$row" rows || { echo "FAIL herdr-app row: $row"; failed=1; }
               done
               grep -oP '^niri\t[^\t]*\t[^\t]*\tniri msg action \K.*' rows | sort -u >actions
               while read -r action rest; do
