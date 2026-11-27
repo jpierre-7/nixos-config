@@ -21,7 +21,7 @@ format = """\
 palette = "noctalia"
 
 # Noctalia renders this file to ~/.config/starship.toml with its current
-# palette whenever the wallpaper or theme changes (modules/home/noctalia.nix).
+# palette whenever the palette or theme changes (modules/home/noctalia.nix).
 # The names are Noctalia's Material color roles; each on_* is the text color
 # that reads on the matching background.
 [palettes.noctalia]

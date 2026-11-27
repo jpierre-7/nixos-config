@@ -81,8 +81,11 @@ Two things follow from that:
 
 The window rims, terminal, prompt, system monitor (btop), editor, launcher, screensaver and Claude
 Code (theme and status line) take their colors from Noctalia. `noctalia.nix` registers a template
-for each, and Noctalia renders them again each time its palette changes (new
-wallpaper, palette source, scheme or light/dark mode):
+for each, and Noctalia renders them again each time its palette changes (palette
+source, scheme or light/dark mode). The repo sets Noctalia's built-in
+Eldritch palette on both hosts, so these colors stay the same when the
+wallpaper changes. A palette picked in Noctalia's GUI overrides it on that
+machine (see above):
 
 | Output | Template | Picked up by |
 |---|---|---|
@@ -690,8 +693,8 @@ Settings opens `config/herdr/config.toml` in Neovim and reloads it when you quit
 Herdr's `menu` is in its hidden sidebar: `Ctrl+Space b` shows it.
 
 Colors come from the palette Noctalia writes for WezTerm, so the panel and the
-bots' costumes change with the wallpaper. The bots themselves stay Claude orange
-(`#D77757`) on every wallpaper. A wallpaper's palette is often one hue, so the
+bots' costumes change with Noctalia's palette. The bots themselves stay Claude orange
+(`#D77757`) in every palette. A palette made from a wallpaper is often one hue, so the
 plugin fans out the brightest accent's hue to tell spaces apart.
 
 On a screen 64 columns wide or less, like Terminus on a phone, the panel shrinks
@@ -755,7 +758,7 @@ Claude Code update changes the transcript format it reads. Its package is
 `pkgs/zoetrope.nix`, and `modules/home/herdr.nix` links its plugin.
 
 The package patches its fixed colors to the terminal's own, so the graph follows
-the wallpaper like everything else. If `nix flake update zoetrope` fails on a
+Noctalia's palette like everything else. If `nix flake update zoetrope` fails on a
 `substituteInPlace` line, upstream moved one of those colors.
 
 ### Reviewing a Claude session's changes

@@ -170,14 +170,17 @@ in
 
     theme = {
       mode = "dark";
-      source = "wallpaper";
-      wallpaper_scheme = "faithful";
+      # One fixed palette on both hosts, so the desktop and every templated
+      # app look the same whatever the wallpaper. Names match Noctalia's
+      # Built-In list in its settings window.
+      source = "builtin";
+      builtin = "Eldritch";
 
-      # Noctalia re-renders these whenever its palette changes (wallpaper,
-      # scheme, light/dark). They replace its built-in and community
+      # Noctalia re-renders these whenever its palette changes (palette
+      # source, scheme, light/dark). They replace its built-in and community
       # templates for the same apps, whose hooks edit the apps' configs in
       # place: that fails on read-only store files and would rewrite the live
-      # ones in this repo on every wallpaper change. These write only their
+      # ones in this repo on every palette change. These write only their
       # output; the apps reread it or get a reload hook. herdr needs no
       # template: its "terminal" theme draws with WezTerm's colors.
       templates.user = {

@@ -12,7 +12,7 @@ rustPlatform.buildRustPackage {
   # Fails in the build sandbox on its Codex fixture, after its Claude half passes.
   checkFlags = [ "--skip=provider::tests::open_finds_every_file_of_a_fixture_session" ];
   # Upstream's theme is fixed 256-palette colors. The terminal's own colors follow
-  # the wallpaper (Noctalia writes them for WezTerm, modules/home/noctalia.nix), and
+  # Noctalia's palette (Noctalia writes them for WezTerm, modules/home/noctalia.nix), and
   # a replace that stops matching after an update fails the build instead of
   # quietly going back to black and gold. canvas_bg resets to the panes' background.
   postPatch = ''
