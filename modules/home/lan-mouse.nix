@@ -55,6 +55,19 @@ let
       wlrctl pointer move ${move 100000}
     '';
   };
+
+  # Lan Mouse looks the client's name up once at start and never again. A
+  # rebuild that restarts tailscaled restarts Lan Mouse too, and if MagicDNS
+  # is still down it keeps an empty address list until the next restart. So
+  # wait up to 30 s for the name, then start anyway.
+  wait-for-client = pkgs.writeShellScript "lan-mouse-wait-for-client" ''
+    # A failed lookup can block for seconds on DNS timeouts, so cap each one
+    # and the whole wait.
+    while [ "$SECONDS" -lt 30 ]; do
+      ${lib.getExe' pkgs.coreutils "timeout"} 2 ${lib.getExe' pkgs.getent "getent"} hosts ${lib.escapeShellArg client.hostname} >/dev/null && exit 0
+      sleep 1
+    done
+  '';
 in
 {
   home.packages = [
@@ -71,6 +84,7 @@ in
       X-Restart-Triggers = [ configSource ];
     };
     Service = {
+      ExecStartPre = wait-for-client;
       ExecStart = "${lib.getExe pkgs.lan-mouse} daemon";
       Restart = "on-failure";
       RestartSec = 2;

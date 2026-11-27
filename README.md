@@ -558,7 +558,10 @@ machines reject each other.
 
 Traffic stays on the tailnet: UDP 4242 is open only on `tailscale0`, and the
 peers are addressed by their tailnet hostnames. Lan Mouse's sender doesn't verify
-the receiver's certificate, so WireGuard does that part.
+the receiver's certificate, so WireGuard does that part. Lan Mouse looks the name
+up only once, when it starts, so it waits up to 30 s for MagicDNS first: a rebuild
+that restarts tailscaled used to leave it with no address. If the cursor still
+won't cross, `systemctl --user restart lan-mouse`.
 
 Both daemons run as user services, so they start when you log in. The login
 screen runs a Lan Mouse of its own (`modules/nixos/greeter.nix`) that only
