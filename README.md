@@ -983,6 +983,17 @@ other systems. The skill (`config/claude/skills/friend-prompt/`) leaves out
 anything from `secrets/`, addresses, and links to private issues, because the
 prompt goes to other people.
 
+### Refining a prompt
+
+`/refine-prompt <prompt>` rewrites a prompt you wrote for an AI agent and
+prints the refined version in a block ready to copy, sometimes one or two
+variants (terse vs. detailed), and a short list of what changed and why. It
+does not run the prompt. It keeps your goal, constraints, named files and
+tone, and leaves a `<placeholder>` for anything only you can supply. With no
+argument it refines your previous message. In a repo it may read the files
+the prompt names to make the references exact, but it never edits them. The
+skill is `config/claude/skills/refine-prompt/`.
+
 ### Finding a machine that dropped off the network
 
 Work up from the bottom and stop at the first layer that fails. An SSH error only
