@@ -1,6 +1,6 @@
 # keymap-drawer config for the kanata keymap viewer (Mod+Ctrl+/,
 # modules/home/kanata-keymap.nix), keyed on keymap.kbd's alias names. Its kanata
-# parser can't read deftemplate/t!, so the home-row mods get their legends here.
+# parser can't read deftemplate/t! or switch, so those aliases get their legends here.
 parse_config:
   raw_binding_map:
     "@hra": {t: A, h: Super}
@@ -11,3 +11,4 @@ parse_config:
     "@hrk": {t: K, h: Ctrl}
     "@hrl": {t: L, h: Alt}
     "@hr;": {t: ";", h: Super}
+    "@esc": {t: Esc, s: "⇧+⇧: passthru"}
