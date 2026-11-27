@@ -7,6 +7,7 @@
     ./bind-palette.nix
     ./claude.nix
     ./dev.nix
+    ./game-focus-watcher.nix
     ./herdr.nix
     ./lan-mouse.nix
     ./neovim.nix

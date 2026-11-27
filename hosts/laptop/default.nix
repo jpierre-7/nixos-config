@@ -29,6 +29,8 @@
         linux-output-device-bus-type USB
       '';
       config = builtins.readFile ../../config/kanata/keymap.kbd;
+      # The default instance has 7070 (modules/nixos/kanata.nix).
+      port = 7071;
     };
   };
 

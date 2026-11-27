@@ -390,6 +390,14 @@
         # pkgs/backlog/ against fakes of gh, the picker, the box and the clipboard.
         backlog = pkgs.callPackage ./pkgs/backlog/tests.nix { };
 
+        # pkgs/game-focus-watcher/: its layer switching against fake niri events and a fake kanata.
+        game-focus-watcher =
+          pkgs.runCommand "game-focus-watcher-check" { nativeBuildInputs = [ pkgs.python3 ]; }
+            ''
+              python3 ${./pkgs/game-focus-watcher/test.py} ${./pkgs/game-focus-watcher/game-focus-watcher.py}
+              touch $out
+            '';
+
         # pkgs/repeat/: a replay's argv comes back exactly, with no shell in between.
         repeat = pkgs.callPackage ./pkgs/repeat/tests.nix { };
       };
