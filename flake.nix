@@ -365,6 +365,7 @@
                 echo "$scope: $n rows"
                 [ "$n" -gt 0 ] || failed=1
               done
+              grep -qF $'niri\tMod+Ctrl+Slash\tShow the kanata keymap\t' rows || { echo "FAIL keymap viewer row"; failed=1; }
               for row in $'Alt+]\ttab next' $'Ctrl+-\tapp zoom out' $'terminal: Ctrl+Backspace\tsend ^W'; do
                 grep -qF "herdr-app"$'\t'"$row" rows || { echo "FAIL herdr-app row: $row"; failed=1; }
               done
@@ -392,6 +393,28 @@
 
         # pkgs/repeat/: a replay's argv comes back exactly, with no shell in between.
         repeat = pkgs.callPackage ./pkgs/repeat/tests.nix { };
+
+        # pkgs/kanata-keymap/: keymap-drawer draws config/kanata/keymap.kbd, and every key the
+        # base layer maps carries its kbd action, so the viewer's search finds it.
+        kanata-keymap =
+          pkgs.runCommand "kanata-keymap-check"
+            {
+              nativeBuildInputs = [
+                (pkgs.callPackage ./pkgs/kanata-keymap { })
+                pkgs.jq
+              ];
+            }
+            ''
+              export XDG_CACHE_HOME=$TMPDIR
+              mkdir kanata
+              cp ${./config/kanata/keymap.kbd} kanata/keymap.kbd
+              cp ${./config/kanata/keymap-drawer.yaml} kanata/keymap-drawer.yaml
+              kanata-keymap-render kanata
+              grep -q '<svg' $TMPDIR/kanata-keymap/keymap.svg
+              jq -e '.layers[] | select(.name == "base") | [.keys[] | select(.raw != "")]
+                | any(.src == "a" and .raw == "@hra" and .h == "Super")' $TMPDIR/kanata-keymap/keymap.json
+              touch $out
+            '';
       };
     };
 }

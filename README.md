@@ -19,7 +19,7 @@ full system with one `nixos-install` (or `nixos-rebuild switch`).
 | Network | NetworkManager, Tailscale, NixOS firewall |
 | Sync | Syncthing (user service) |
 | Mouse, keyboard, clipboard sharing | Lan Mouse + lan-clip, over the tailnet |
-| Keys | kanata: home-row mods, Caps Lock → Escape (`config/kanata/keymap.kbd`) |
+| Keys | kanata: home-row mods, Caps Lock → Escape (`config/kanata/keymap.kbd`); keymap viewer on Mod+Ctrl+Slash |
 | Font | Maple Mono (+ Nerd Font builds), Noto, Noto Color Emoji |
 
 ## Layout
@@ -358,6 +358,24 @@ list as `move-pane-left-or-send-to-nvim` rather than `user-defined-3`.
 `niri msg action`. Adapted from
 [HefKer/nixos-config](https://github.com/HefKer/nixos-config)'s bind-palette:
 `pkgs/bind-palette/`, `modules/home/bind-palette.nix`.
+
+### Keymap viewer
+
+**Mod+Ctrl+Slash** toggles a drawing of the kanata keymap in a small floating
+window. Number keys (or `h`/`l`) switch layers. `/` searches every layer by
+legend or kbd action (`esc`, `@hra`, `Super`), Enter jumps to the next layer
+with a hit, Esc clears the search or closes the window.
+
+A path unit redraws it with [keymap-drawer](https://github.com/caksoylar/keymap-drawer)
+whenever `config/kanata/keymap.kbd` or `config/kanata/keymap-drawer.yaml` is
+saved in the checkout, so the drawing can be ahead of the running kanata until
+you rebuild. keymap-drawer can't read `deftemplate`/`t!`, so
+`keymap-drawer.yaml` gives the home-row mod aliases their legends: a new alias
+it can't read goes there. Colors follow Noctalia's palette (its
+`kanata-keymap` template). The page runs in a bare qutebrowser window with a
+throwaway profile. Adapted from
+[HefKer/nixos-config](https://github.com/HefKer/nixos-config#kanata-keymap):
+`pkgs/kanata-keymap/`, `modules/home/kanata-keymap.nix`.
 
 ### Repeat key
 

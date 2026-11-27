@@ -8,6 +8,7 @@
     ./claude.nix
     ./dev.nix
     ./herdr.nix
+    ./kanata-keymap.nix
     ./lan-mouse.nix
     ./neovim.nix
     ./niri.nix
