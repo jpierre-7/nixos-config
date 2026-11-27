@@ -31,7 +31,7 @@ Most configs are copied into the Nix store. You must rebuild before an edit take
 
 - `config/nvim/` (lazy.nvim rewrites `lazy-lock.json`)
 - `config/claude/settings.json` (Claude Code rewrites it; `home.activation` links it directly to the checkout, because its temp file can't go next to a store link), `config/claude/keybindings.json` (`/keybindings` edits it), `config/claude/CLAUDE.md` (`/memory` edits it; global instructions for every session), `config/claude/rules/pstack-models.md` (`/pstack:setup-pstack` rewrites it; linked by `home.activation` like `settings.json`)
-- `config/vicinae/settings.json`, `config/herdr/config.toml` (their apps rewrite them)
+- `config/vicinae/settings.json`, `config/herdr/config.toml` (their apps rewrite them), `config/bind-palette/ignore` (the bind palette's hide lists rewrite it)
 
 This requires the repo at `/home/john/nixos-config` (`repoDir` in `flake.nix`). Because apps write into these files, `git status` can show changes nobody made by hand. Check the diff before you commit them.
 

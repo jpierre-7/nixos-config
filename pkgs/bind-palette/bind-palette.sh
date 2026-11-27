@@ -1,15 +1,26 @@
 # One fuzzy search over every scope's binds: niri (Noctalia's rows tagged), qutebrowser, nvim,
 # kanata, herdr, the herdr desktop app and WezTerm. Each row shows the trigger beside its action, so searching teaches
-# the bind. niri and Noctalia rows run; app rows copy their trigger.
+# the bind. niri and Noctalia rows run; app rows copy their trigger. Rows the ignore file
+# names are hidden. Vicinae's dmenu can't bind extra keys, so hiding is its own list, reached
+# from the palette's "Hide binds" and "Hidden binds" rows.
 # Adapted from HefKer/nixos-config's bind-palette.
-#   bind-palette        pick in Vicinae
-#   bind-palette list   print the rows as TSV: scope, trigger, action, command
+#   bind-palette                 pick in Vicinae
+#   bind-palette hide            pick rows to hide, one after another
+#   bind-palette hidden          pick hidden rows to show again
+#   bind-palette list            print the shown rows as TSV: scope, trigger, action, command
+#   bind-palette list --all      every row, ignoring the ignore file
+#   bind-palette list --hidden   the hidden rows, each with what hides it as a fifth field
 #
 # Each source reads the config its app runs now (the store copies niri and kanata load, the
 # cache qutebrowser writes on load, the running nvim/WezTerm config), so a bind shows exactly
 # when it works.
 
 config_home=${XDG_CONFIG_HOME:-$HOME/.config}
+# config/bind-palette/ignore, linked live (modules/home/bind-palette.nix) so hiding writes into
+# the checkout. Blank lines and # comments aside, each line is a scope and a trigger joined by a
+# tab, hiding that row, or ~ and an extended regex matched against the row's scope, trigger and
+# action joined by tabs.
+ignore_file=$config_home/bind-palette/ignore
 
 # Every reader's rows go through this: tabs and newlines inside a field become spaces, and no escaping, which @tsv adds and the shell would keep.
 tsv='map(. // "" | tostring | gsub("[\t\n]"; " ")) | join("\t")'
@@ -181,7 +192,7 @@ wezterm_rows() {
       }'
 }
 
-list() {
+all_rows() {
   # Each source fails alone, so one broken reader drops one scope, not the palette.
   niri_rows || true
   qutebrowser_rows || true
@@ -192,25 +203,105 @@ list() {
   wezterm_rows || true
 }
 
-pick() {
-  local rows shown picked row scope trigger action cmd
-  rows=$(list)
-  shown=$(awk -F'\t' '{ printf "%-13s %-28s %s\n", "[" $1 "]", $2, $3 }' <<<"$rows")
-  picked=$(vicinae dmenu --no-quick-look --no-footer -n "Keybinds" -p "e.g. workspace · split · screenshot · find files  (Ctrl+J/K: move)" <<<"$shown") || return 0
+# The ignore file's lines that apply. A pattern that doesn't compile is reported on stderr and
+# skipped, so it hides nothing rather than ending the filter.
+ignore_lines() {
+  [[ -r $ignore_file ]] || return 0
+  local line
+  while IFS= read -r line || [[ -n $line ]]; do
+    line=${line%$'\r'}
+    [[ -z $line || $line == '#'* ]] && continue
+    # Through the environment, as classify reads it, so the backslashes mean the same.
+    if [[ $line == '~'* ]] && ! re=${line:1} gawk 'BEGIN { if ("" ~ ENVIRON["re"]) {} }' 2>/dev/null; then
+      echo "bind-palette: invalid pattern skipped: $line" >&2
+      continue
+    fi
+    printf '%s\n' "$line"
+  done <"$ignore_file"
+}
+
+# Rows on stdin. shown prints those no line hides; hidden prints the others, with a fifth field:
+# "row" for an exact-row line, or the ~pattern.
+classify() {
+  local rules
+  rules=$(ignore_lines)
+  rules=$rules gawk -F'\t' -v OFS='\t' -v view="$1" '
+    BEGIN {
+      n = split(ENVIRON["rules"], r, "\n")
+      for (i = 1; i <= n; i++)
+        if (substr(r[i], 1, 1) == "~") pat[++np] = substr(r[i], 2)
+        else if (r[i] != "") exact[r[i]]
+    }
+    {
+      by = ""
+      if (($1 "\t" $2) in exact) by = "row"
+      else for (i = 1; i <= np; i++) if (($1 "\t" $2 "\t" $3) ~ pat[i]) { by = "~" pat[i]; break }
+    }
+    view == "shown" && by == "" { print; next }
+    view == "hidden" && by != "" { print $1, $2, $3, $4, by }'
+}
+
+list() {
+  case "${1:-}" in
+    "") all_rows | classify shown ;;
+    --all) all_rows ;;
+    --hidden) all_rows | classify hidden ;;
+    *) usage ;;
+  esac
+}
+
+hide() {
+  mkdir -p "$(dirname "$ignore_file")"
+  # A last line without its newline would swallow the new one.
+  if [[ -s $ignore_file && -n $(tail -c1 "$ignore_file") ]]; then echo >>"$ignore_file"; fi
+  printf '%s\t%s\n' "$1" "$2" >>"$ignore_file"
+}
+
+unhide() {
+  local rest
+  rest=$(line="$1"$'\t'"$2" gawk '{ l = $0; sub(/\r$/, "", l) } l != ENVIRON["line"]' "$ignore_file")
+  # Rewritten in place, not replaced, so the live link keeps pointing at the checkout.
+  if [[ -n $rest ]]; then printf '%s\n' "$rest" >"$ignore_file"; else : >"$ignore_file"; fi
+}
+
+# Shows ROWS (TSV) in Vicinae and prints the picked row; nothing on Esc.
+choose() {
+  local rows=$1 title=$2 hint=$3 shown picked
+  [[ -n $rows ]] || return 0
+  shown=$(awk -F'\t' '{ printf "%-13s %-28s %s%s\n", "[" $1 "]", $2, $3, ($5 ~ /^~/ ? "   ⟵ " $5 : "") }' <<<"$rows")
+  picked=$(vicinae dmenu --no-quick-look --no-footer -n "$title" -p "$hint" <<<"$shown") || return 0
   # Vicinae prints the picked row, never typed text; its line number finds the row. Compared with
   # runs of spaces squeezed, so the column padding needn't come back byte for byte.
-  row=$(awk -v p="$picked" '
+  awk -v p="$picked" '
     function norm(s) { gsub(/[ \t]+/, " ", s); gsub(/^ | $/, "", s); return s }
     BEGIN { p = norm(p) }
     NR == FNR { if (norm($0) == p && !n) n = FNR; next }
-    FNR == n' <(printf '%s\n' "$shown") <(printf '%s\n' "$rows"))
+    FNR == n' <(printf '%s\n' "$shown") <(printf '%s\n' "$rows")
+}
+
+report_bad_patterns() {
+  local errs
+  errs=$(ignore_lines 2>&1 >/dev/null)
+  [[ -z $errs ]] || notify-send -a "Bind palette" "Ignore file: pattern skipped" "$errs"
+}
+
+pick() {
+  local rows row scope trigger action cmd
+  report_bad_patterns
+  rows=$(list)
+  # The hide lists' way in, last so they don't crowd the binds when nothing is typed yet.
+  rows+=$'\n'$'palette\t\tHide binds (ones already learned)\thide_rows'
+  rows+=$'\n'$'palette\t\tHidden binds (show one again)\thidden_rows'
+  row=$(choose "$rows" "Keybinds" "e.g. workspace · split · screenshot · find files  (Ctrl+J/K: move)")
   [[ -n $row ]] || return 0
   # cut, not read: read collapses runs of tabs, which shifts an empty field.
   scope=$(cut -f1 <<<"$row")
   trigger=$(cut -f2 <<<"$row")
   action=$(cut -f3 <<<"$row")
   cmd=$(cut -f4 <<<"$row")
-  if [[ -n $cmd ]]; then
+  if [[ $scope == palette ]]; then
+    "$cmd"
+  elif [[ -n $cmd ]]; then
     # Detached, as niri's own spawn runs it.
     setsid -f sh -c "$cmd" >/dev/null 2>&1
     # The repeat key (pkgs/repeat/) runs the row again without the palette. Not the repeat row
@@ -222,11 +313,49 @@ pick() {
   fi
 }
 
+# Enter hides the row and reopens the list without it, so several can go one after another.
+# Esc ends. Vicinae takes no starting query, so the search starts over each time.
+hide_rows() {
+  local all row
+  report_bad_patterns
+  # Read once: the readers are the slow part, and a hide only reclassifies.
+  all=$(all_rows)
+  while row=$(choose "$(classify shown <<<"$all")" "Hide binds" "Enter hides the row · Esc done") && [[ -n $row ]]; do
+    hide "$(cut -f1 <<<"$row")" "$(cut -f2 <<<"$row")"
+  done
+}
+
+# Enter shows the row again and reopens the list, until nothing's hidden or Esc.
+hidden_rows() {
+  local all hidden row
+  report_bad_patterns
+  all=$(all_rows)
+  hidden=$(classify hidden <<<"$all")
+  if [[ -z $hidden ]]; then
+    notify-send -a "Bind palette" "Nothing hidden" "Pick \"Hide binds\" in the palette to hide some"
+    return 0
+  fi
+  while [[ -n $hidden ]]; do
+    row=$(choose "$hidden" "Hidden binds" "Enter shows the row again · Esc done")
+    [[ -n $row ]] || return 0
+    if [[ $(cut -f5 <<<"$row") == row ]]; then
+      unhide "$(cut -f1 <<<"$row")" "$(cut -f2 <<<"$row")"
+    else
+      notify-send -a "Bind palette" "Hidden by a pattern" "$(cut -f5 <<<"$row")"$'\n'"Edit $ignore_file to show it"
+    fi
+    hidden=$(classify hidden <<<"$all")
+  done
+}
+
+usage() {
+  echo "usage: bind-palette [pick | hide | hidden | list [--all | --hidden]]" >&2
+  exit 2
+}
+
 case "${1:-pick}" in
   pick) pick ;;
-  list) list ;;
-  *)
-    echo "usage: bind-palette [pick|list]" >&2
-    exit 2
-    ;;
+  hide) hide_rows ;;
+  hidden) hidden_rows ;;
+  list) list "${2:-}" ;;
+  *) usage ;;
 esac
