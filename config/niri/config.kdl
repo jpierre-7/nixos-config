@@ -307,6 +307,13 @@ binds {
     // is taken by expel-window-from-column.
     Mod+Shift+Period repeat=false hotkey-overlay-title="Repeat the last action" { spawn "repeat"; }
 
+    // Call overlay (pkgs/call-overlay/): the focused call window goes small in
+    // the bottom-right corner and follows focus to every workspace. Press again
+    // to put it back. Right-hand letters, opposite the home-row Super.
+    Mod+O repeat=false hotkey-overlay-title="Pin/unpin the call overlay" { spawn "call-overlay" "pin"; }
+    Mod+Shift+O repeat=false hotkey-overlay-title="Hide/show the call overlay" { spawn "call-overlay" "hide"; }
+    Mod+Y repeat=false hotkey-overlay-title="Focus the call overlay, again to go back" { spawn "call-overlay" "focus"; }
+
     Mod+S { screenshot; }
 
     // Music and volume on the F row. Noctalia drives the MPRIS player and
