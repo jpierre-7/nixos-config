@@ -24,15 +24,20 @@ if [ -z "$fresh" ]; then
   if [ -n "$prompt" ]; then
     pane=$(jq -r 'map(select(.agent == "claude"))[0].pane_id // empty' <<<"$panes")
     [ -n "$pane" ] || exit 0
-    # Quit over nvim's socket (--listen below) so VimLeavePre saves the draft; a
-    # hangup from herdr pane close could lose the last keystrokes.
+    # Quit over nvim's socket (--listen below) so VimLeavePre saves the draft. :qa, not
+    # :qa!: the draft and reply are nofile and don't stop it, but a file edited over
+    # the reply and not saved does, and the pane stays up showing why.
     nvim --server "${XDG_RUNTIME_DIR:-/tmp}/claude-prompt-${prompt//:/-}.sock" \
-      --remote-send '<C-\><C-N>:qa!<CR>' 2>/dev/null || true
+      --remote-send '<C-\><C-N>:qa<CR>' 2>/dev/null || true
     for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
       herdr pane get "$prompt" >/dev/null 2>&1 || break
       sleep 0.1
     done
-    herdr pane close "$prompt" >/dev/null 2>&1 || true
+    if herdr pane get "$prompt" >/dev/null 2>&1; then
+      herdr notification show "Prompt pane" \
+        --body "nvim didn't quit (an unsaved file?), so it wasn't restarted" >/dev/null
+      exit 0
+    fi
   fi
 fi
 
