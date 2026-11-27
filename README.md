@@ -369,6 +369,32 @@ exactly. A new action that opens a menu can join with
 `repeat record CMD ARG...` once it finishes (and `repeat` in its
 `runtimeInputs`).
 
+### Call overlay
+
+A call follows you around: one window, small in the bottom-right corner, on
+whatever workspace you're on, on either monitor (`call-overlay`,
+`pkgs/call-overlay/`).
+
+| Key | Does |
+|---|---|
+| `Mod+O` | Makes the focused window the overlay; again on it puts it back |
+| `Mod+Shift+O` | Hides it (it stays where it is) / brings it back here |
+| `Mod+Y` | Focuses it, to click its buttons; again goes back |
+
+The overlay is the call app's own window, so it shows what the app shows: who's
+talking, streams and screen shares, the tile to watch, hang up and mute.
+
+- **Discord**: open the call's Pop Out (top right of the call view) and pin
+  that. Vesktop's main window can't shrink below 940x500.
+- **Teams**: teams-for-linux has no meeting pop-out, so pin the main window
+  in the meeting. It stays as big as Teams allows.
+
+Niri has no sticky windows, so a user service (`call-overlay follow`) watches
+niri's event stream and moves the window to each workspace that gets focus,
+without taking focus. The overlay's id lives in
+`$XDG_RUNTIME_DIR/call-overlay.json`, so it ends at logout. Closing the window
+ends it too.
+
 ### Music and volume keys
 
 | Key | Does |

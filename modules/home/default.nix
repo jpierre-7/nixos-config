@@ -13,6 +13,7 @@
     ./niri.nix
     ./noctalia.nix
     ./qutebrowser.nix
+    ./call-overlay.nix
     ./repeat.nix
     ./screensaver.nix
     ./shell.nix
