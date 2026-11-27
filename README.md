@@ -837,7 +837,7 @@ the file changes under them.
 In herdr, `Ctrl+Space i` on a pane running Claude Code opens Neovim beside
 it, with Claude's unsent prompt moved in, so long prompts get a full editor.
 After that, `Ctrl+Space i` from Claude goes to Neovim, and from Neovim restarts
-it, draft kept, to load config changes.
+it, draft kept, to load config changes (not while a file has unsaved changes).
 Claude's last reply sits rendered above the draft. Ported from
 [HefKer/dots](https://github.com/HefKer/dots/blob/main/nvim/README.md#prompt-pane),
 without its table drawing, task list, statusline bar, history, templates
