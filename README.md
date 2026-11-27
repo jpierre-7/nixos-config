@@ -324,6 +324,18 @@ Picking a `niri` or `noctalia` row runs it. Picking any other row copies its
 trigger and shows it in a notification. Ctrl+J and Ctrl+K move the selection,
 as in every Vicinae list (`"keybinding": "vim"` in `config/vicinae/settings.json`).
 
+Binds already learned get out of the way. The **Hide binds** row (last in the
+list) opens the shown binds; Enter hides one and reopens the list without it,
+so several go one after another (the search starts over each time: Vicinae
+can't bind an extra key or keep the query). **Hidden binds** lists the hidden
+ones, where Enter shows one again. Both write `config/bind-palette/ignore`,
+linked live: `scope<Tab>trigger` lines hide one row, and `~regex` lines hide
+whole families (`~^kanata\tHold `), matched against scope, trigger and action
+joined by tabs. It starts with the common families hidden: niri's
+hjkl/arrow/workspace-number binds, kanata's home-row mods, qutebrowser's
+readline and vim basics, nvim's built-in defaults. A pattern that doesn't
+compile is reported and skipped.
+
 | Scope | Read from |
 |---|---|
 | niri, Noctalia | the `binds` blocks of the running `config.kdl` (Noctalia's are the ones spawning `noctalia msg`); Alt+Tab's switcher rows only copy, `niri msg` can't run them |
@@ -340,7 +352,8 @@ also needs a restart or `:config-source`), right away for nvim, herdr and the
 herdr desktop app.
 WezTerm's Lua callbacks in `config/wezterm/keys.lua` are named events, so they
 list as `move-pane-left-or-send-to-nvim` rather than `user-defined-3`.
-`bind-palette list` prints the rows as TSV; the `bind-palette` check in
+`bind-palette list` prints the shown rows as TSV, `list --all` every row and
+`list --hidden` the hidden ones with what hides each; the `bind-palette` check in
 `nix flake check` makes sure every niri row it would run is a valid
 `niri msg action`. Adapted from
 [HefKer/nixos-config](https://github.com/HefKer/nixos-config)'s bind-palette:

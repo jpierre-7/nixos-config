@@ -1,0 +1,34 @@
+# Rows the bind palette (Mod+Slash, pkgs/bind-palette/) hides, so the binds still being learned
+# are easy to find. Its "Hide binds" row appends a row's line here; "Hidden binds" lists the
+# hidden rows, where Enter removes the line again. Linked live, so both write into the checkout.
+#
+# scope<Tab>trigger    hides that one row, matched literally
+# ~regex               hides every row whose scope, trigger and action, joined by tabs, match
+#                      (gawk extended regex; \t is a tab), e.g. ~^kanata\t
+#
+# `bind-palette list --all` shows every row; `list --hidden` shows what hides each.
+# Adapted from HefKer/dots' bind-palette/.config/bind-palette/ignore.
+
+# niri: workspace numbers, the arrow and wheel twins of hjkl, hjkl/ui themselves, and the basics.
+~^niri\tMod\+(Shift\+)?(Ctrl\+)?[0-9]\t[^\t]*workspace
+~^niri\t[^\t]*(Left|Right|Up|Down|Page_Up|Page_Down|Home|End)\t
+~^niri\t[^\t]*WheelScroll
+~^niri\tMod\+(Shift\+)?(Ctrl\+)?[HJKLUI]\t
+~^niri\tMod\+(Q|Return|F|Minus|Equal|Shift\+Minus|Shift\+Equal)\t
+# kanata: home-row mods.
+~^kanata\tHold
+# qutebrowser: readline and completion in the command line and prompts, tab numbers, vim basics,
+# browser conventions.
+~^qutebrowser\t(command|prompt|yesno|register):
+~^qutebrowser\t<Alt\+[0-9]>\t
+~^qutebrowser\t[hjklGnNdurRHLJKoOT/?:]\t
+~^qutebrowser\t(gg|yy|ZQ|ZZ|\+|-|=)\t
+~^qutebrowser\t<(Ctrl\+t|Ctrl\+w|Ctrl\+Shift\+t|F5|Ctrl\+F5|F11|Back|Forward|Ctrl\+PgUp|Ctrl\+PgDown|Ctrl\+f|Ctrl\+b|Ctrl\+d|Ctrl\+u|Ctrl\+q)>\t
+~^qutebrowser\t(hint|insert|passthrough): <(Escape|Return)>\t
+# nvim: built-in defaults, the [x ]x list family, scroll, LSP defaults, and LazyVim's basics.
+~^nvim\t[^\t]*\t:help
+~^nvim\t[^\t]*\t:(c|l|t|pt)?(next|prev|previous|first|last|rewind|pfile|nfile)$
+~^nvim\t([ioxc]: )?<lt>C-[FBAX]>\t
+~^nvim\t[^\t]*\tvim\.lsp\.buf\.
+~^nvim\t(x: )?(p|P|y|gc|gcc|gx|H|L|\]b|\[b|\]d|\[d)\t
+~^nvim\t<Space>(<Space>|ff|/|e|,|:)\t

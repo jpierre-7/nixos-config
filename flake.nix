@@ -336,7 +336,8 @@
 
         # bind-palette's readers against the real configs: each scope it can read
         # here gives rows, and every niri row it would run is a `niri msg action`
-        # niri accepts, flags included. nvim and WezTerm need their running setup.
+        # niri accepts, flags included; every pattern in the ignore file compiles and the
+        # file hides some rows but not all. nvim and WezTerm need their running setup.
         bind-palette =
           pkgs.runCommand "bind-palette-check"
             {
@@ -347,13 +348,18 @@
             }
             ''
               export HOME=$TMPDIR XDG_CONFIG_HOME=$TMPDIR/config
-              mkdir -p $XDG_CONFIG_HOME/niri $XDG_CONFIG_HOME/herdr $XDG_CONFIG_HOME/herdr-app
+              mkdir -p $XDG_CONFIG_HOME/niri $XDG_CONFIG_HOME/herdr $XDG_CONFIG_HOME/herdr-app $XDG_CONFIG_HOME/bind-palette
               cp ${./config/niri/config.kdl} $XDG_CONFIG_HOME/niri/config.kdl
+              cp ${./config/bind-palette/ignore} $XDG_CONFIG_HOME/bind-palette/ignore
               cp ${./config/herdr/config.toml} $XDG_CONFIG_HOME/herdr/config.toml
               # The app writes keys.json itself, so the repo has none: a sample in its format.
               echo '{"global":{"alt-]":"tab.next","ctrl--":"app.zoom_out"},"terminal":{"ctrl-backspace":"send:\u0017"}}' \
                 >$XDG_CONFIG_HOME/herdr-app/keys.json
-              bind-palette list >rows
+              bind-palette list --all >rows
+              bind-palette list 2>err | wc -l >shown
+              bind-palette list --hidden | wc -l >hidden
+              ! grep "invalid pattern" err || { echo "FAIL ignore file"; failed=1; }
+              [ "$(<shown)" -gt 0 ] && [ "$(<hidden)" -gt 0 ] || { echo "FAIL ignore file hides all or none"; failed=1; }
               for scope in niri noctalia kanata herdr herdr-app; do
                 n=$(grep -c "^$scope"$'\t' rows || true)
                 echo "$scope: $n rows"
