@@ -1206,6 +1206,7 @@ Everything comes from stable except these, pulled from `nixpkgs-unstable` in
 | `kanata` | 1.12 adds `defhands` and opposite-hand tap-hold, which the home-row mods need |
 | `claude-code` | Ships several times a week; stable is months behind |
 | `antigravity-cli` | Not packaged on stable |
+| `tailscale` | Stable sits on 1.98, which the admin console flags as out of date |
 
 `niri` is the one package from neither branch: it is pinned to a commit on
 upstream's main, because 26.04 doesn't run binds for virtual keyboards, so Lan

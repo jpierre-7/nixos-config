@@ -62,5 +62,6 @@ in
     kanata # 1.12 adds defhands and tap-hold-opposite-hand, which the home-row mods use
     claude-code # ships several times a week; stable lags months behind
     antigravity-cli # not packaged on stable
+    tailscale # the admin console flags stable's 1.98 as out of date; clients should track releases
     ;
 }
