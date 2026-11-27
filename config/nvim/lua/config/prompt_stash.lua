@@ -242,8 +242,8 @@ local function age(time)
     or ("%dmo"):format(s / (86400 * 30))
 end
 
--- Opens a new tab in the session's cwd, with Claude resuming it and the prompt pane
--- over it, the stashed draft in the prompt.
+-- Opens a new tab in the session's cwd and that directory's space, with Claude resuming
+-- it and the prompt pane over it, the stashed draft in the prompt.
 local function resume(item)
   if item.missing then
     return notify("Transcript is gone; nothing to resume", vim.log.levels.ERROR)
@@ -259,7 +259,7 @@ local function resume(item)
     vim.fn.writefile(vim.split(item.draft, "\n"), tmp)
     table.insert(args, tmp)
   end
-  -- The script reads the focused pane from herdr's key-bind environment.
+  -- As from a herdr key bind, so the script's herdr calls act from this pane.
   vim.system(args, { env = { HERDR_ACTIVE_PANE_ID = vim.env.HERDR_PANE_ID } }, function(out)
     if out.code == 0 and item.stashed then
       vim.schedule(function()

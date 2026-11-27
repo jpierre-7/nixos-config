@@ -151,6 +151,7 @@ in
       name = "claude-prompt-tab";
       runtimeInputs = with pkgs; [
         coreutils
+        git
         herdr
         jq
       ];

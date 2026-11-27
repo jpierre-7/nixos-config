@@ -20,7 +20,8 @@ local state = {
   path = nil, -- transcript being read
   offset = 0, -- bytes of it already parsed
   partial = "", -- a line still being written when last read
-  replies = {}, -- finished replies, oldest first; those with no prompt of yours between are one
+  replies = {}, -- replies, one per turn, oldest first; those with no prompt of yours between are one
+  turn = nil, -- the turn whose text the last reply holds: { own, line, done }, nil after a prompt
   prompted = true, -- whether you've written to Claude since its last reply
   session = nil, -- Claude's session id, last seen
   status = nil, -- herdr's agent_status for Claude, last seen
@@ -37,6 +38,7 @@ local state = {
   timer = nil,
   poll = nil,
   save_timer = nil,
+  cover = nil, -- the buffer that covered the reply last, for <leader>ar to bring back
   queue = nil, -- the command queue being sent: { n, total, label }
   stop_queue = nil, -- stops it, putting back what isn't sent yet: fun(why: string)
 }
@@ -146,9 +148,11 @@ end
 
 ------------------------------------------------------------------------------
 -- Replies, read from the transcript rather than the screen: that's the exact
--- markdown, unwrapped and complete. Only a turn's final answer counts (the text
--- Claude ends the turn with, stop_reason end_turn), so the narration it writes
--- between tool calls never replaces the reply you're reading.
+-- markdown, unwrapped and complete. A turn's reply is all the text Claude writes in
+-- it, in order, a blank line between blocks: what it says before a tool call is often
+-- part of the answer. Tool calls, their results and thinking are left out. Text shows
+-- as it lands; once the turn ends (stop_reason end_turn), its last block is put at
+-- the top of the viewer, the rest of the turn one scroll above.
 
 -- Whether a user entry is something you wrote: a prompt or a /command, not a tool
 -- result, an injected reminder, a background task's notification or `!` output.
@@ -172,10 +176,11 @@ function M.from_you(entry)
 end
 
 -- Parses whatever was appended since the last read, so a long session isn't
--- re-read on every write. Replies Claude ends several turns with, with no prompt of
--- yours between (a background task finishing, say), join the one before them, so
--- none is hidden behind the newest. Returns whether a reply arrived, and whether
--- it was joined to the last one rather than starting a new one.
+-- re-read on every write. The text of turns with no prompt of yours between (a
+-- background task finishing, say) joins the reply before them, so none is hidden
+-- behind the newest. Returns whether a reply arrived; whether a turn was joined to
+-- the last one; whether the running turn added to it; and, when a turn that started
+-- its own reply ended, the markdown line its last block starts on.
 local function read_new()
   local fh = state.path and io.open(state.path, "rb")
   if not fh then
@@ -190,27 +195,33 @@ local function read_new()
   state.partial = last_nl and text:sub(last_nl + 1) or text
   text = last_nl and text:sub(1, last_nl) or ""
 
-  local before, last_id, joined = #state.replies, state.last_id, false
-  -- A message's content blocks arrive as separate entries; join them.
-  local function add(body, id)
+  local before, joined, grew, land = #state.replies, false, false, nil
+  -- Adds text to the running turn's reply, else joins it to the last reply, else
+  -- starts one. Returns the line it starts on, and whether it started a reply.
+  local function add(body, in_turn)
     local last = state.replies[#state.replies]
-    if id and id == last_id then
-      state.replies[#state.replies] = last .. "\n" .. body
-      joined = joined or #state.replies == before
-    elseif last and not state.prompted then
-      state.replies[#state.replies] = last .. "\n\n---\n\n" .. body
-      joined = joined or #state.replies == before
-    else
-      table.insert(state.replies, body)
-    end
-    last_id = id
+    local sep = in_turn and "\n\n" or last and not state.prompted and "\n\n---\n\n"
     state.prompted = false
+    if not in_turn then
+      land = nil -- a later turn: the one that ended isn't last anymore
+    end
+    if not sep then
+      table.insert(state.replies, body)
+      return 1, true
+    end
+    if #state.replies == before then
+      grew = grew or in_turn
+      joined = joined or not in_turn
+    end
+    local head = last .. sep
+    state.replies[#state.replies] = head .. body
+    return select(2, head:gsub("\n", "")) + 1, false
   end
   for line in text:gmatch("[^\n]+") do
     if line:find('"type":"user"', 1, true) and not line:find('"tool_use_id"', 1, true) then
       local ok, entry = pcall(vim.json.decode, line)
       if ok and type(entry) == "table" and M.from_you(entry) then
-        state.prompted = true
+        state.prompted, state.turn, land = true, nil, nil
         state.calls = {} -- a prompt, or an interrupt: whatever was asked is over
       end
     end
@@ -234,31 +245,61 @@ local function read_new()
       end
     end
     -- Cheap filter first: Claude Code writes compact JSON, and most lines are tool output.
-    if line:find('"stop_reason":"end_turn"', 1, true) then
+    -- A message's blocks are written as separate entries, each with the message's
+    -- stop_reason: tool_use until the one that ends the turn.
+    local ends = line:find('"stop_reason":"end_turn"', 1, true)
+    if line:find('"type":"assistant"', 1, true) and (ends or line:find('"type":"text"', 1, true)) then
       local ok, entry = pcall(vim.json.decode, line)
-      if ok and entry.type == "assistant" and entry.isSidechain ~= true then
-        local texts = {}
+      if
+        ok
+        and type(entry) == "table"
+        and entry.type == "assistant"
+        and entry.isSidechain ~= true
+        and entry.message
+      then
+        local id, texts, thinking = entry.message.id, {}, true
         for _, block in ipairs(entry.message.content or {}) do
-          if block.type == "text" then
+          if block.type == "text" and type(block.text) == "string" and block.text ~= "" then
             table.insert(texts, block.text)
           end
+          thinking = thinking and block.type == "thinking"
         end
+        local turn = state.turn
+        -- The ending message's own text is still the turn, written after it was marked done.
+        local in_turn = turn and (not turn.done or turn.done == id)
         if #texts > 0 then
-          add(table.concat(texts, "\n"), entry.message.id)
+          local start, own = add(table.concat(texts, "\n\n"), in_turn)
+          if not in_turn then
+            turn = { own = own }
+            state.turn = turn
+          end
+          turn.line = start
+        end
+        if entry.message.stop_reason == "end_turn" then
           state.calls = {}
+          if turn then
+            turn.done = id
+            -- Not on its thinking: the answer is in the entry after it.
+            if not turn.own then
+              land = nil
+            elseif not thinking then
+              land = turn.line
+            end
+          end
         end
       end
     end
   end
-  state.last_id = last_id
-  return #state.replies > before, joined
+  return #state.replies > before, joined, grew, land
 end
 
 ------------------------------------------------------------------------------
 -- Viewer
 
+-- The top window showing the reply, not a file opened over it.
 local function viewer_valid()
-  return state.viewer.win and vim.api.nvim_win_is_valid(state.viewer.win)
+  local win = state.viewer.win
+  return win and vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_buf(win) == state.viewer.buf
 end
 
 local function set_winbars()
@@ -275,7 +316,7 @@ local function set_winbars()
         )
     end
     local hints = state.view == "pending" and "<leader>a y yes · Y always · n no · 1-9 option · c pane"
-      or "<CR> quote · [r ]r replies · <leader>a s send · c pane"
+      or "<CR> quote · [r ]r replies · <leader>a s send · r file · c pane"
     vim.wo[state.viewer.win][0].winbar = "%#WinBar# 󰚩 " .. title .. "%=%#Comment#" .. hints .. " "
   end
   if state.prompt.win and vim.api.nvim_win_is_valid(state.prompt.win) then
@@ -305,6 +346,16 @@ local function show(index, message)
     vim.api.nvim_win_set_cursor(state.viewer.win, { 1, 0 })
   end
   set_winbars()
+end
+
+-- Puts the shown reply's markdown line at the top of the viewer: a turn's last block,
+-- once it ends.
+local function land_on(line)
+  if viewer_valid() then
+    vim.api.nvim_win_call(state.viewer.win, function()
+      vim.fn.winrestview({ topline = line, lnum = line, col = 0 })
+    end)
+  end
 end
 
 ------------------------------------------------------------------------------
@@ -456,7 +507,10 @@ end
 -- older one, or the pending call is shown.
 local function refresh()
   local following = state.index == #state.replies
-  local new_reply, joined = read_new()
+  local new_reply, joined, grew, land = read_new()
+  if (new_reply or joined) and not viewer_valid() then
+    vim.notify("Claude replied · <leader>ar to show", vim.log.levels.INFO, { title = "Claude prompt" })
+  end
   if state.view == "pending" then
     if following then
       state.index = #state.replies
@@ -464,15 +518,29 @@ local function refresh()
     set_winbars()
   elseif new_reply and following then
     show(#state.replies)
-  elseif joined and following and viewer_valid() then
-    -- More of the reply you're reading: keep your place in it.
-    vim.api.nvim_win_call(state.viewer.win, function()
-      local view = vim.fn.winsaveview()
+    if land then
+      land_on(land)
+    end
+  elseif (joined or grew or land) and following then
+    -- More of the reply you're reading: keep your place in it, until its turn ends.
+    -- Drawn even under a file, so the reply is current when it comes back.
+    if viewer_valid() then
+      vim.api.nvim_win_call(state.viewer.win, function()
+        local view = vim.fn.winsaveview()
+        draw(vim.split(state.replies[state.index], "\n"))
+        vim.fn.winrestview(view)
+      end)
+    else
       draw(vim.split(state.replies[state.index], "\n"))
-      vim.fn.winrestview(view)
-    end)
+    end
+    if land then
+      land_on(land)
+    end
     set_winbars()
-    vim.notify("Claude added to its reply", vim.log.levels.INFO, { title = "Claude prompt" })
+    -- Once per joined turn, not for each block of a running turn.
+    if joined and viewer_valid() then
+      vim.notify("Claude added to its reply", vim.log.levels.INFO, { title = "Claude prompt" })
+    end
   else
     set_winbars()
   end
@@ -487,14 +555,17 @@ local function attach_to(path, err)
   if state.watcher then
     state.watcher:stop()
   end
-  state.path, state.offset, state.partial, state.replies, state.last_id = path, 0, "", {}, nil
+  state.path, state.offset, state.partial, state.replies, state.turn = path, 0, "", {}, nil
   state.prompted = true
   state.calls, state.answered = {}, {}
   if not path then
     return show(0, "_" .. err .. "._")
   end
-  read_new()
+  local _, _, _, land = read_new()
   show(#state.replies)
+  if land then
+    land_on(land)
+  end
 
   -- libuv often reports only the first of several edits, so re-arm after each one.
   state.timer = state.timer or vim.uv.new_timer()
@@ -678,7 +749,9 @@ end
 
 local function save_draft()
   local buf = state.prompt.buf
-  if not (buf and vim.api.nvim_buf_is_valid(buf)) then
+  -- A hangup (herdr stopping, a reboot) unloads the buffer before VimLeavePre, which
+  -- would read as emptied and delete the draft.
+  if not (buf and vim.api.nvim_buf_is_loaded(buf)) then
     return
   end
   local path = draft_path()
@@ -1278,6 +1351,10 @@ local function open_viewer(prompt_win)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.bo[buf].filetype = "markdown"
   vim.bo[buf].modifiable = false
+  -- Listed and named, so the buffer line shows the reply beside the files opened
+  -- over it, and <S-h>/<S-l> reach it like any of them.
+  vim.api.nvim_buf_set_name(buf, "Claude")
+  vim.bo[buf].buflisted = true
   -- snacks' smooth scroll animates the cursor too, so a quote taken mid-scroll
   -- would grab whatever line it was passing, and quick Alt+j presses get lost.
   vim.b[buf].snacks_scroll = false
@@ -1300,6 +1377,10 @@ local function open_viewer(prompt_win)
     step(1)
   end, "Newer Reply")
   map("n", "R", attach, "Reload Reply")
+  -- Listed, so the delete keys reach it; the pane has nowhere else to draw the reply.
+  for _, lhs in ipairs({ "<leader>bd", "<leader>bD" }) do
+    map("n", lhs, "<Nop>", "Claude's Reply Stays")
+  end
   map("n", "<leader>as", send, "Send Prompt to Claude")
   map("n", "<leader>ac", to_claude, "Claude's Pane")
   map_answers(buf)
@@ -1313,6 +1394,81 @@ local function open_viewer(prompt_win)
       end
     end, "Write in Prompt")
   end
+
+  -- Files opened in the pane go to this window, the bigger one. Pickers open in the
+  -- window you're in, so from the prompt a file lands in the prompt window; move it
+  -- up here and put the draft back.
+  vim.api.nvim_create_autocmd("BufWinEnter", {
+    group = vim.api.nvim_create_augroup("claude_prompt_viewer", { clear = true }),
+    callback = function(ev)
+      local pwin = state.prompt.win
+      if not vim.api.nvim_win_is_valid(win) then
+        return
+      end
+      if vim.api.nvim_win_get_buf(win) == ev.buf then
+        if ev.buf == buf then
+          for opt, val in pairs(viewer_opts) do
+            vim.wo[win][0][opt] = val
+          end
+          set_winbars()
+        else
+          state.cover = ev.buf
+          for opt in pairs(viewer_opts) do
+            vim.wo[win][0][opt] = vim.go[opt]
+          end
+          vim.wo[win][0].winbar = "%#WinBar# 󰈙 %t%=%#Comment#<leader>a r reply "
+        end
+      elseif ev.buf ~= state.prompt.buf and pwin and vim.api.nvim_win_is_valid(pwin) then
+        if vim.api.nvim_win_get_buf(pwin) ~= ev.buf then
+          return
+        end
+        -- Scheduled so a picker's jump to the match has landed first.
+        vim.schedule(function()
+          if not (vim.api.nvim_win_is_valid(pwin) and vim.api.nvim_win_get_buf(pwin) == ev.buf) then
+            return
+          end
+          local cursor = vim.api.nvim_win_get_cursor(pwin)
+          vim.api.nvim_win_set_buf(pwin, state.prompt.buf)
+          vim.api.nvim_win_set_buf(win, ev.buf)
+          vim.api.nvim_set_current_win(win)
+          pcall(vim.api.nvim_win_set_cursor, win, cursor)
+        end)
+      end
+    end,
+  })
+end
+
+-- Puts the reply back in the top window after a file covered it; from the reply,
+-- the file that covered it last.
+local function show_reply()
+  local win = state.viewer.win
+  if not (win and vim.api.nvim_win_is_valid(win)) then
+    return
+  end
+  if not viewer_valid() then
+    vim.api.nvim_win_set_buf(win, state.viewer.buf)
+  elseif state.cover and vim.api.nvim_buf_is_valid(state.cover) and vim.bo[state.cover].buflisted then
+    vim.api.nvim_win_set_buf(win, state.cover)
+  end
+end
+
+-- <S-h>/<S-l> from the prompt: the next or previous listed buffer in the top
+-- window, where they show. The prompt isn't listed, so the buffer line's own
+-- cycle does nothing from here.
+local function cycle(delta)
+  return function()
+    local win = state.viewer.win
+    if not (win and vim.api.nvim_win_is_valid(win)) then
+      return
+    end
+    local bufs = vim.tbl_map(function(info)
+      return info.bufnr
+    end, vim.fn.getbufinfo({ buflisted = 1 }))
+    local at = vim.fn.index(bufs, vim.api.nvim_win_get_buf(win))
+    if #bufs > 0 then
+      vim.api.nvim_win_set_buf(win, bufs[(at + delta) % #bufs + 1])
+    end
+  end
 end
 
 -- Runs in the .md file claude-prompt opens, not an empty buffer: a file argument is
@@ -1322,6 +1478,9 @@ function M.open()
   local buf, win = vim.api.nvim_get_current_buf(), vim.api.nvim_get_current_win()
   vim.bo[buf].buftype = "nofile"
   vim.bo[buf].swapfile = false
+  -- Off the buffer line, which lists what the top window can show: cycling there
+  -- never lands the draft in it.
+  vim.bo[buf].buflisted = false
   vim.b[buf].claude_prompt = true -- turns on config.prompt_source (plugins/blink.lua)
   state.prompt = { buf = buf, win = win }
   vim.wo[win][0].winfixheight = true
@@ -1335,6 +1494,10 @@ function M.open()
     vim.keymap.set(mode, lhs, rhs, { buffer = buf, desc = desc })
   end
   map("n", "<leader>as", send, "Send Prompt to Claude")
+  -- Global: it's needed from the file covering the reply. This nvim is the pane's alone.
+  vim.keymap.set("n", "<leader>ar", show_reply, { desc = "Claude's Reply, or the File Over It" })
+  map("n", "<S-h>", cycle(-1), "Prev Buffer Above")
+  map("n", "<S-l>", cycle(1), "Next Buffer Above")
   map("n", "<leader>aq", quote_all, "Quote Claude's Whole Reply")
   map("n", "<leader>aQ", unquote, "Strip Quoted Lines")
   map("n", "<leader>ad", pick_draft, "Saved Drafts")
@@ -1395,8 +1558,9 @@ function M.open()
     group = group,
     buffer = buf,
     callback = function()
-      if viewer_valid() then
-        vim.api.nvim_win_close(state.viewer.win, true)
+      local top = state.viewer.win
+      if top and vim.api.nvim_win_is_valid(top) then
+        vim.api.nvim_win_close(top, true)
       end
     end,
   })

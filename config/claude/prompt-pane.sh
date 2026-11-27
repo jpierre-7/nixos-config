@@ -1,6 +1,8 @@
 # claude-prompt: opens the prompt pane (config/nvim/lua/config/prompt.lua) beside the
 # active herdr pane, moving Claude's unsent prompt into it. Run by herdr's prefix+i.
-# Once the tab has a prompt pane, prefix+i jumps between it and the tab's Claude.
+# Once the tab has a prompt pane, prefix+i from Claude goes to it, and from the prompt
+# pane restarts its nvim over the tab's Claude, to load config changes; the draft is
+# saved on exit and loaded again.
 # With --fresh PANE [DRAFT], by claude-prompt-tab (prompt-tab.sh), over a Claude just
 # started, which has no prompt to move; DRAFT's text goes in the prompt instead.
 # Ported from github.com/HefKer/dots (scripts/claude-prompt).
@@ -14,16 +16,23 @@ if [ -z "$fresh" ]; then
   panes=$(herdr pane list | jq -c --arg p "$pane" '.result.panes as $all
     | [$all[] | select(.tab_id == ($all[] | select(.pane_id == $p) | .tab_id))]')
   prompt=$(jq -r 'map(select(.label == "prompt"))[0].pane_id // empty' <<<"$panes")
-  if [ -n "$prompt" ]; then
-    target=$prompt
-    if [ "$pane" = "$prompt" ]; then
-      target=$(jq -r 'map(select(.agent == "claude"))[0].pane_id // empty' <<<"$panes")
-    fi
-    if [ -n "$target" ]; then
-      jq -nc --arg p "$target" '{id: "claude-prompt", method: "pane.focus", params: {pane_id: $p}}' |
-        socat - "UNIX-CONNECT:${HERDR_SOCKET_PATH:-$HOME/.config/herdr/herdr.sock}" >/dev/null
-    fi
+  if [ -n "$prompt" ] && [ "$pane" != "$prompt" ]; then
+    jq -nc --arg p "$prompt" '{id: "claude-prompt", method: "pane.focus", params: {pane_id: $p}}' |
+      socat - "UNIX-CONNECT:${HERDR_SOCKET_PATH:-$HOME/.config/herdr/herdr.sock}" >/dev/null
     exit 0
+  fi
+  if [ -n "$prompt" ]; then
+    pane=$(jq -r 'map(select(.agent == "claude"))[0].pane_id // empty' <<<"$panes")
+    [ -n "$pane" ] || exit 0
+    # Quit over nvim's socket (--listen below) so VimLeavePre saves the draft; a
+    # hangup from herdr pane close could lose the last keystrokes.
+    nvim --server "${XDG_RUNTIME_DIR:-/tmp}/claude-prompt-${prompt//:/-}.sock" \
+      --remote-send '<C-\><C-N>:qa!<CR>' 2>/dev/null || true
+    for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
+      herdr pane get "$prompt" >/dev/null 2>&1 || break
+      sleep 0.1
+    done
+    herdr pane close "$prompt" >/dev/null 2>&1 || true
   fi
 fi
 
@@ -52,4 +61,6 @@ fi
 
 new=$(herdr pane split "$pane" --direction right --ratio 0.6 --focus | jq -r .result.pane.pane_id)
 herdr pane rename "$new" prompt >/dev/null
-herdr pane run "$new" "exec nvim $draft -c 'lua require(\"config.prompt\").open()'" >/dev/null
+sock="${XDG_RUNTIME_DIR:-/tmp}/claude-prompt-${new//:/-}.sock"
+rm -f "$sock" # left by a crashed nvim, it would stop --listen
+herdr pane run "$new" "exec nvim --listen $sock $draft -c 'lua require(\"config.prompt\").open()'" >/dev/null
