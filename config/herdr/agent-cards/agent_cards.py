@@ -3,7 +3,7 @@
 Herdr plugins can't draw on its sidebar, only in panes, so this docks one pane
 at the left of every tab and hides the real sidebar (config/herdr/config.toml).
 Its look follows herdr's desktop app, as github.com/MarcozVD/herdr-layout-catppuccin
-paints it, with colors from the wallpaper's palette. Packaged and linked in
+paints it, with colors from Noctalia's palette. Packaged and linked in
 modules/home/herdr.nix.
 
   herdr-agent-cards panel    what runs in the docked pane
@@ -41,7 +41,7 @@ RAIL = 5
 # Below this the panel draws the rail, whatever the reason for its width.
 MIN_COLUMNS = 20
 SOCKET = os.environ.get("HERDR_SOCKET_PATH", "")
-# Noctalia writes this on every wallpaper change, and WezTerm's colors come from
+# Noctalia writes this on every palette change, and WezTerm's colors come from
 # it too (modules/home/noctalia.nix), so the panel stays in step with the panes.
 PALETTE = os.path.expanduser("~/.config/wezterm/colors/Noctalia.toml")
 COSTUME_FILE = os.path.join(
@@ -64,7 +64,7 @@ FRAME_TICK = 0.4
 # Rows a bot takes in the agents list. The design's rows are one line, but a
 # costume needs more pixels than that to read.
 AGENT_ROWS = 3
-# The bots stay Claude orange on every wallpaper, so they read as Claude.
+# The bots stay Claude orange in every palette, so they read as Claude.
 CLAUDE_ORANGE = (0xD7, 0x77, 0x57)
 # A Claude bot, 8x6, two pixels per terminal cell. b: body, k: eye.
 BOT = (
@@ -184,7 +184,7 @@ def load_palette():
     accents = spread(accents)
     accent = max(accents, key=vividness)
     body = CLAUDE_ORANGE
-    # Apparel has to stand out on the bot, and a wallpaper's accents can all
+    # Apparel has to stand out on the bot, and a palette's accents can all
     # sit close to its body color.
     apparel = [c for c in accents + [red] if distance(c, body) > 70] or [fg]
     return {
@@ -196,7 +196,7 @@ def load_palette():
         "accent": accent,
         "body": body,
         "apparel": apparel,
-        # The design's surfaces, mixed from the wallpaper's instead of its
+        # The design's surfaces, mixed from the palette's instead of its
         # Catppuccin values: the column a shade off the panes, the lit row
         # stronger, text stepping down toward the background.
         "chrome": mix(bg, accent, 0.07),
@@ -208,9 +208,9 @@ def load_palette():
 
 
 def spread(accents):
-    # A wallpaper's palette can land on one hue, which would make every space
+    # A palette made from a wallpaper can land on one hue, which would make every space
     # the same color. Fan out the brightest accent's hue, keeping its saturation
-    # and lightness, so the set still belongs to the wallpaper.
+    # and lightness, so the set still belongs to the palette.
     hues = [hls(rgb)[0] for rgb in accents]
     if max(hues) - min(hues) > 0.25 and len(accents) >= 4:
         return accents

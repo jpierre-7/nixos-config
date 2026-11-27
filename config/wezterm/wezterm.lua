@@ -10,7 +10,7 @@ config.default_prog = { "fish", "-l" }
 config.enable_kitty_graphics = true
 
 -- Colors follow Noctalia, which renders colors/Noctalia.toml from its palette
--- and rewrites it when the wallpaper or theme changes (modules/home/noctalia.nix).
+-- and rewrites it when the palette or theme changes (modules/home/noctalia.nix).
 -- Watching the file reloads this config, so open windows recolor too. Until
 -- Noctalia has written it once, WezTerm keeps its default colors and tab bar.
 local noctalia_scheme = wezterm.config_dir .. "/colors/Noctalia.toml"
