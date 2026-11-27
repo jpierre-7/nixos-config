@@ -1160,6 +1160,30 @@ drivers games need and the udev rules for Steam's controllers. Proton is
 Steam's own: turn it on under Settings → Compatibility. Games and settings live
 in `~/.local/share/Steam`, not here.
 
+### Game layers
+
+Home-row mods delay letters to decide tap or hold, which breaks timing in
+games. While a game has focus, kanata switches to a layer without them, on
+every keyboard, and back to the layer it had before when focus leaves:
+
+| Layer | For | What it is |
+|---|---|---|
+| `passthrough` | osu! (`osu!`, `steam_app_0`) | every key stock, no tap-hold, so timing is exact; Caps stays Escape |
+| `game` | Steam games (`steam_app_*`) | passthrough plus arrows on `/` (up), Right Alt (left), Right Super and Menu (down), Right Ctrl (right) |
+
+**Both Shifts + Esc** toggles passthrough by hand, for anything the watcher
+doesn't know. Only the physical Shift keys count, not the home-row ones.
+
+The game focus watcher (`pkgs/game-focus-watcher/`,
+`modules/home/game-focus-watcher.nix`) is a user service that follows niri's
+focus events and talks to each kanata instance over TCP (port 7070, and 7071
+for the laptop's second instance, on 127.0.0.1 only). To give another game a
+layer, add its app id (`niri msg windows`) to `layers` there. Layers a key only
+holds (`layer-while-held`) are never restored after a game, since one would
+stay on after its key is released. Adapted from
+[HefKer/nixos-config](https://github.com/HefKer/nixos-config#osu-passthrough)
+and [HefKer/dots](https://github.com/HefKer/dots/tree/main/kanata#passthrough).
+
 ### Soundboard
 
 A soundboard with no app, ported from

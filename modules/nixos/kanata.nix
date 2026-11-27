@@ -14,8 +14,23 @@
       # decisions see every keypress.
       extraDefCfg = "process-unmapped-keys yes";
       config = builtins.readFile ../../config/kanata/keymap.kbd;
+      # TCP server for the game focus watcher (modules/home/game-focus-watcher.nix),
+      # which switches layers through it. A bare port binds 127.0.0.1 only.
+      port = 7070;
     };
   };
+
+  # The watcher drives every instance, so each needs its own port.
+  assertions =
+    let
+      ports = lib.mapAttrsToList (_: keyboard: keyboard.port) config.services.kanata.keyboards;
+    in
+    [
+      {
+        assertion = !lib.elem null ports && lib.allUnique ports;
+        message = "Every services.kanata.keyboards instance needs its own port (game focus watcher).";
+      }
+    ];
 
   # The module leaves Restart=no. A keyboard that drops off USB and returns at
   # once (the desktop's Logitech receiver does) can vanish while kanata

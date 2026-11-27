@@ -2,6 +2,8 @@
 ;; and generates the defcfg, so it must not contain one. Adapted from
 ;; https://github.com/HefKer/dots/tree/main/kanata (home-row mods only, without
 ;; its Fn layers). Emergency exit if kanata misbehaves: LCtrl+Space+Esc.
+;; Base must stay the first layer: kanata starts on it, and the game focus
+;; watcher (modules/home/game-focus-watcher.nix) restores it.
 
 (defsrc
   esc  1    2    3    4    5    6    7    8    9    0    -    =    bspc
@@ -40,9 +42,28 @@
   hrj (t! hrm j rsft $right-mods)  hrk (t! hrm k rctl $right-mods)
   hrl (t! hrm l lalt $right-mods)  hr; (t! hrm ; rmet $right-mods))
 
+;; Both physical Shifts + Esc toggles passthrough by hand, independent of the
+;; game focus watcher. "input real", so the home-row f+j Shifts don't count.
+(defalias
+  esc (switch
+        ((and (input real lsft) (input real rsft) (base-layer passthrough))) (layer-switch base) break
+        ((and (input real lsft) (input real rsft))) (layer-switch passthrough) break
+        () esc break))
+
 ;; Caps Lock -> Escape, previously done by keyd. Unlisted keys fall through to
 ;; defsrc.
 (deflayermap (base)
-  caps esc
+  esc @esc  caps esc
   a @hra  s @hrs  d @hrd  f @hrf
   j @hrj  k @hrk  l @hrl  ; @hr;)
+
+;; Every key stock, no tap-hold, so key timing is exact: the game focus
+;; watcher's layer for osu!. Caps stays Escape; Esc keeps the manual toggle.
+(deflayermap (passthrough)
+  esc @esc  caps esc)
+
+;; Passthrough plus arrows on / and the right modifiers, for games that want
+;; WASD and arrows on a 60% board: the watcher's layer for Steam games.
+(deflayermap (game)
+  esc @esc  caps esc
+  / up  ralt left  rmet down  menu down  rctl rght)
