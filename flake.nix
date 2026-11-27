@@ -421,6 +421,8 @@
               grep -q '<svg' $TMPDIR/kanata-keymap/keymap.svg
               jq -e '.layers[] | select(.name == "base") | [.keys[] | select(.raw != "")]
                 | any(.src == "a" and .raw == "@hra" and .h == "Super")' $TMPDIR/kanata-keymap/keymap.json
+              # The passthrough chord's switch alias has its legend, not its raw form.
+              jq -e '[.layers[].keys[] | select(.src == "esc")] | all(.t == "Esc")' $TMPDIR/kanata-keymap/keymap.json
               touch $out
             '';
       };
