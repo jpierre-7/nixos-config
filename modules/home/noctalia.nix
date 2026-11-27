@@ -253,6 +253,12 @@ in
           input_path = "${../../config/claude/statusline-colors.sh}";
           output_path = "$XDG_CACHE_HOME/noctalia/claude-statusline-colors.sh";
         };
+        # Served by the kanata keymap viewer (pkgs/kanata-keymap/), which
+        # reloads it when it changes.
+        kanata-keymap = {
+          input_path = "${../../config/kanata/keymap-colors.css}";
+          output_path = "$XDG_CACHE_HOME/noctalia/kanata-keymap.css";
+        };
         # Sourced by the screensaver (config/screensaver/screensaver.sh).
         screensaver = {
           input_path = "${../../config/screensaver/colors.sh}";

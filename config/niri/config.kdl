@@ -245,6 +245,15 @@ window-rule {
     open-floating true
 }
 
+// The kanata keymap viewer (Mod+Ctrl+Slash), floating over the windows. One
+// layer's height at half a 1920 px screen's width; a search's hit list scrolls.
+window-rule {
+    match app-id=r#"^kanata-keymap$"#
+    open-floating true
+    default-column-width { proportion 0.5; }
+    default-window-height { fixed 490; }
+}
+
 // The idle screensaver's WezTerms (modules/home/screensaver.nix), one per
 // monitor. Fullscreen draws over the bar.
 window-rule {
@@ -287,6 +296,9 @@ binds {
     // One search over every app's binds (pkgs/bind-palette/): niri rows run,
     // app rows copy their trigger.
     Mod+Slash repeat=false hotkey-overlay-title="Search all keybinds" { spawn "bind-palette"; }
+    // Toggle the kanata keymap viewer (modules/home/kanata-keymap.nix): layers
+    // by number key, / searches every layer.
+    Mod+Ctrl+Slash repeat=false hotkey-overlay-title="Show the kanata keymap" { spawn "kanata-keymap"; }
 
     Mod+Q { close-window; }
     Mod+F { maximize-column; }

@@ -1,0 +1,123 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Keymap</title>
+<style>
+/* Fallbacks for /theme.css, Noctalia's palette, linked below. */
+:root { --bg:#1d1b20; --key:#2b2930; --border:#938f99; --legend:#e6e0e9; --sub:#cac4d0;
+        --dim:#777; --held:#4f378b; --on-held:#eaddff; --hit:#efb8c8; --on-hit:#492532; --accent:#d0bcff; }
+html, body { margin:0; background:var(--bg); color:var(--legend);
+             font: 14px SFMono-Regular, "JetBrainsMono Nerd Font", monospace; }
+header { position:sticky; top:0; background:var(--bg); padding:10px 12px 6px; z-index:1; }
+#tabs { display:flex; flex-wrap:wrap; gap:4px; }
+#tabs span { padding:3px 8px; border-radius:6px; border:1px solid var(--border); color:var(--sub); cursor:pointer; }
+#tabs span.on { background:var(--held); color:var(--on-held); border-color:var(--held); }
+#tabs span.has { border-color:var(--hit); color:var(--hit); }
+#tabs span sup { color:var(--hit); }
+#q { margin-top:8px; width:100%; box-sizing:border-box; background:var(--key); color:var(--legend);
+     border:1px solid var(--border); border-radius:6px; padding:5px 8px; font:inherit; outline:none; }
+#q:focus { border-color:var(--accent); }
+#hits { color:var(--sub); padding:4px 12px; white-space:pre; max-height:30vh; overflow:auto; }
+#hits b { color:var(--hit); font-weight:normal; }
+#hint { color:var(--dim); font-size:12px; margin-top:4px; }
+#map svg { width:100%; height:auto; display:block; }
+/* keymap-drawer's own colors, overridden by the theme */
+svg.keymap { background:var(--bg) !important; }
+svg rect.key { fill:var(--key) !important; stroke:var(--border) !important; }
+svg rect.held { fill:var(--held) !important; }
+svg g:has(> rect.held) text { fill:var(--on-held) !important; }
+svg text { fill:var(--legend) !important; }
+svg text.hold, svg text.shifted, svg text.left, svg text.right { fill:var(--sub) !important; }
+svg text.label { fill:var(--accent) !important; stroke:var(--bg) !important; }
+svg text.inherited { fill:var(--dim) !important; }
+svg g.hit rect.key { fill:var(--hit) !important; stroke:var(--hit) !important; }
+svg g.hit text { fill:var(--on-hit) !important; }
+svg g.nohits { opacity:.3; }
+</style>
+<link id="theme" rel="stylesheet" href="/theme.css"></head><body>
+<header>
+  <div id="tabs"></div>
+  <input id="q" placeholder="/ search: legend or alias (esc, ⌫, spc, @cap…)" autocomplete="off">
+  <div id="hint">1-9 h l: layer · / search · Enter: next layer with hits · Esc: clear / close</div>
+</header>
+<div id="hits"></div>
+<div id="map"></div>
+<script>
+let data, svg, layer = 0, hits = [], stamp = null, keymapStamp = null;
+const $ = s => document.querySelector(s);
+const re = q => new RegExp("(^|[^a-z0-9])" + q.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+
+async function load() {
+  data = await (await fetch("/keymap.json")).json();
+  $("#map").innerHTML = await (await fetch("/keymap.svg")).text();
+  svg = $("#map svg");
+  svg.removeAttribute("width"); svg.removeAttribute("height");
+  // keymap-drawer leaves keys a layer doesn't map blank; they fall through to defsrc, so name it, dimmed.
+  groups().forEach((g, i) => data.layers[i].keys.forEach(k => {
+    const kg = g.querySelector(".keypos-" + k.pos);
+    if (k.held) kg?.querySelector("rect")?.classList.add("held");
+    if (k.inherited && kg && !kg.querySelector("text"))
+      kg.insertAdjacentHTML("beforeend", `<text x="0" y="0" class="key tap inherited">${k.src.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text>`);
+  }));
+  const p = new URLSearchParams(location.search);
+  if (p.get("q")) $("#q").value = p.get("q");
+  if (p.get("layer")) layer = +p.get("layer") - 1;
+  render();
+}
+function groups() { return data.layers.map(l => svg.querySelector("g.layer-" + CSS.escape(l.name))); }
+function render() {
+  const q = $("#q").value.trim(), r = q && re(q);
+  hits = r ? data.layers.flatMap((l, i) => l.keys.filter(k => r.test(k.search)).map(k => ({l: l.name, i, k}))) : [];
+  const per = data.layers.map((_, i) => hits.filter(h => h.i === i).length);
+  $("#tabs").innerHTML = data.layers.map((l, i) =>
+    `<span class="${i === layer && !q ? "on" : ""} ${per[i] ? "has" : ""}" data-i="${i}">${i + 1} ${l.name}${per[i] ? `<sup>${per[i]}</sup>` : ""}</span>`).join("");
+  svg.querySelectorAll("g.hit").forEach(g => g.classList.remove("hit"));
+  const gs = groups();
+  hits.forEach(h => gs[h.i]?.querySelector(".keypos-" + h.k.pos)?.classList.add("hit"));
+  if (q) {
+    // search: every layer, those without a hit faded
+    gs.forEach((g, i) => { g.style.display = ""; g.classList.toggle("nohits", !per[i]); });
+    svg.setAttribute("viewBox", svg.dataset.full ??= svg.getAttribute("viewBox"));
+    $("#hits").innerHTML = hits.length ? hits.map(h =>
+      `<b>${h.l.padEnd(11)}</b> ${h.k.src.padEnd(5)} ${(h.k.t + (h.k.h ? " / " + h.k.h : "")).padEnd(14)} ${h.k.raw || (h.k.inherited ? "(unmapped: defsrc)" : "")}`).join("\n")
+      : "no match";
+  } else {
+    $("#hits").innerHTML = "";
+    gs.forEach((g, i) => { g.style.display = i === layer ? "" : "none"; g.classList.remove("nohits"); });
+    const b = gs[layer].getBBox(), m = gs[layer].transform.baseVal.consolidate()?.matrix ?? {e: 0, f: 0};
+    b.x += m.e; b.y += m.f;
+    svg.dataset.full ??= svg.getAttribute("viewBox");
+    svg.setAttribute("viewBox", `${b.x - 10} ${b.y - 10} ${b.width + 20} ${b.height + 20}`);
+  }
+}
+async function poll() {
+  try {
+    const s = await (await fetch("/state")).json();
+    if (keymapStamp === null) keymapStamp = s.keymap;
+    else if (s.keymap !== keymapStamp) return location.reload();
+    if (stamp !== null && s.theme !== stamp) $("#theme").href = "/theme.css?" + s.theme;
+    stamp = s.theme;
+  } catch { window.close(); }
+}
+document.addEventListener("keydown", e => {
+  const inQ = document.activeElement === $("#q");
+  if (e.key === "Escape") {
+    if ($("#q").value) { $("#q").value = ""; $("#q").blur(); render(); } else if (inQ) $("#q").blur(); else fetch("/quit");
+    e.preventDefault(); return;
+  }
+  if (inQ) {
+    if (e.key === "Enter") {
+      const withHits = [...new Set(hits.map(h => h.i))];
+      if (withHits.length) { layer = withHits.find(i => i > layer) ?? withHits[0]; $("#q").value = ""; $("#q").blur(); render(); }
+    }
+    return;
+  }
+  const n = data.layers.length;
+  if (e.key === "/") { $("#q").focus(); e.preventDefault(); }
+  else if (/^[1-9]$/.test(e.key) && +e.key <= n) { layer = +e.key - 1; render(); }
+  else if (e.key === "l" || e.key === "ArrowRight" || e.key === "Tab") { layer = (layer + 1) % n; render(); e.preventDefault(); }
+  else if (e.key === "h" || e.key === "ArrowLeft") { layer = (layer + n - 1) % n; render(); }
+  else if (e.key === "q") fetch("/quit");
+});
+$("#q").addEventListener("input", render);
+$("#tabs").addEventListener("click", e => { const i = e.target.closest("span")?.dataset.i; if (i) { layer = +i; $("#q").value = ""; render(); } });
+poll().then(load); setInterval(poll, 1000);
+</script></body></html>
