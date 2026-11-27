@@ -823,7 +823,8 @@ the file changes under them.
 
 In herdr, `Ctrl+Space i` on a pane running Claude Code opens Neovim beside
 it, with Claude's unsent prompt moved in, so long prompts get a full editor.
-After that, `Ctrl+Space i` jumps between Neovim and Claude.
+After that, `Ctrl+Space i` from Claude goes to Neovim, and from Neovim restarts
+it, draft kept, to load config changes.
 Claude's last reply sits rendered above the draft. Ported from
 [HefKer/dots](https://github.com/HefKer/dots/blob/main/nvim/README.md#prompt-pane),
 without its table drawing, task list, statusline bar, history, templates
@@ -834,6 +835,8 @@ and interrupt.
 | `<leader>as` | either window | send the draft to Claude |
 | `Alt+j/k/u/d`, `Alt+g/G` | draft, also insert mode | scroll the reply |
 | `[r` / `]r` | either window | older / newer reply |
+| `<leader>ar` | anywhere in the pane | flip the top window between the reply and the file opened over it last |
+| `Shift+H` / `Shift+L` | draft | step the top window through the listed buffers (the reply is `Claude`) |
 | `<CR>` | reply (normal or visual) | quote the block or selection at the end of the draft |
 | `<leader>aq` / `<leader>aQ` | draft | quote the whole reply / strip quoted lines |
 | `<leader>ay` `aY` `an` `a1`..`a9` | either window | answer Claude's permission dialog: yes, yes always, no, option N |
@@ -846,13 +849,19 @@ and interrupt.
 | `:q` | draft | close the pane |
 
 - **Reply.** Read from the session transcript (`~/.claude/projects/*/<session>.jsonl`),
-  not the screen, and only a turn's final text counts, so narration between tool
-  calls never replaces it. Replies with no prompt of yours between them (a
-  background task finishing) join under a rule. The pane follows `/clear` and a
-  restarted Claude within a couple of seconds.
+  not the screen. A reply is every text block of its turn, tool calls left out,
+  shown as it lands without moving your place; when the turn ends, its last
+  block is put at the top of the window, the text before it one scroll up.
+  Replies with no prompt of yours between them (a background task finishing)
+  join under a rule. The pane follows `/clear` and a restarted Claude within a
+  couple of seconds.
+- **Files.** A file opened in the pane takes the reply's window, and the reply
+  is a buffer like it: the buffer line lists it as `Claude` beside the files,
+  without the draft.
 - **Drafts.** The draft is saved as you type to
   `~/.local/state/nvim/claude-drafts/<session>.md` and deleted once sent, so a
-  crash doesn't lose it; the next `Ctrl+Space i` in that tab brings it back.
+  crash, reboot or herdr stopping doesn't lose it; the next `Ctrl+Space i` in
+  that tab brings it back.
 - **Completion.** `/` completes skills and commands, and `@` files in Claude's
   directory, as Claude's own input does (`config/nvim/lua/plugins/blink.lua`).
 - **Command queue.** Slash commands leading the draft are sent one at a time,
@@ -868,7 +877,9 @@ and interrupt.
 - **Stash and sessions.** The stash is `~/.local/state/nvim/claude-stash.json`.
   The sessions picker lists stashed sessions first, then this project's, then
   the rest; Enter resumes the pick through `claude-prompt-tab`
-  (`config/claude/prompt-tab.sh`), `Ctrl+X` unstashes.
+  (`config/claude/prompt-tab.sh`), `Ctrl+X` unstashes. The new tab goes to the
+  herdr space for the session's repo (`nixos-config`) or linked worktree
+  (`nixos-config/feature`), made if missing; outside any repo, to `misc`.
 
 The send goes through `herdr agent prompt`, which pastes, so newlines don't
 submit early. The unsent prompt is moved through Claude's Ctrl+G editor:
