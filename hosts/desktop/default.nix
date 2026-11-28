@@ -1,7 +1,7 @@
 # Desktop. Everything shared lives in modules/; only machine-specific bits go here.
 # Graphics run on Mesa (modules/nixos/desktop.nix), which covers AMD and Intel
 # without vendor drivers. See the README if this machine ever needs NVIDIA's.
-{ ... }:
+{ pkgs, ... }:
 {
   imports = [ ./hardware-configuration.nix ];
 
@@ -37,6 +37,14 @@
   # the Linux replacement. The module also installs its udev rules, which give
   # the logged-in user access to the deck's USB device.
   programs.streamcontroller.enable = true;
+
+  # Focusrite Scarlett Solo (3rd gen, 1235:8211). Class-compliant USB audio, so
+  # PipeWire (modules/nixos/audio.nix) plays and records through it as is, and
+  # the kernel's Scarlett driver exposes its switches as ALSA controls.
+  # alsa-scarlett-gui is the Linux stand-in for Focusrite Control: 48V phantom
+  # power, Air, Inst, and turning off MSD mode, which otherwise shows a "Scarlett
+  # Welcome Disk" USB drive and hides some controls. The laptop never has it.
+  home-manager.users.john.home.packages = [ pkgs.alsa-scarlett-gui ];
 
   # Which side of this machine the laptop sits on, and whose certificate to trust.
   home-manager.users.john.xdg.configFile."lan-mouse/config.toml".source = ./lan-mouse.toml;

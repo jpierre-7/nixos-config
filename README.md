@@ -1142,6 +1142,17 @@ mode on the camera's `/dev/v4l/by-id/` path (`modules/home/apps.nix`). Close
 the window with `q`. If the window opens but stays empty, check that the lamp
 is in PC Camera mode and that `ls /dev/v4l/by-id/` lists `GENERAL`.
 
+### Audio interface
+
+The Focusrite Scarlett Solo (3rd gen) is plugged into the desktop only. It's
+class-compliant USB audio, so PipeWire uses it with no setup: pick "Scarlett
+Solo USB" as the output or input in Noctalia or `pavucontrol`. Focusrite
+Control doesn't run on Linux; **ALSA Scarlett Control Panel**
+(`alsa-scarlett-gui`, in Vicinae) sets the hardware switches: 48V phantom
+power, Air, Inst. New out of the box it's in MSD mode and also shows up as a
+"Scarlett Welcome Disk" USB drive: turn MSD mode off in the control panel,
+then power-cycle the interface. Set up in `hosts/desktop/default.nix`.
+
 ### Snapmaker Orca
 
 Snapmaker's slicer for the U1 (`snapmaker-orca`). nixpkgs has no package for it, so it comes from the
