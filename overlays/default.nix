@@ -54,13 +54,19 @@ in
     '';
   });
 
+  # Ships several times a week; stable lags months behind. Its wrapper puts
+  # alsa-lib (voice mode) on LD_LIBRARY_PATH, and every command Claude runs
+  # inherits it. Unstable's alsa-lib needs a newer glibc than stable's tools, so
+  # amixer and the like failed to start from a Claude shell, and Electron apps
+  # died at launch. Stable's alsa-lib loads in both.
+  claude-code = unstable.claude-code.override { inherit (prev) alsa-lib; };
+
   inherit (unstable)
     herdr # not packaged on stable
     herdr-core # not packaged on stable; the core the Herdr desktop app drives
     hunk # not packaged on stable
     lan-mouse # 0.11 adds the DTLS encryption and wlroots modifier emulation; stable has 0.10
     kanata # 1.12 adds defhands and tap-hold-opposite-hand, which the home-row mods use
-    claude-code # ships several times a week; stable lags months behind
     antigravity-cli # not packaged on stable
     tailscale # the admin console flags stable's 1.98 as out of date; clients should track releases
     ;
