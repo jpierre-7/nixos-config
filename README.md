@@ -1153,6 +1153,14 @@ power, Air, Inst. New out of the box it's in MSD mode and also shows up as a
 "Scarlett Welcome Disk" USB drive: turn MSD mode off in the control panel,
 then power-cycle the interface. Set up in `hosts/desktop/default.nix`.
 
+### Wooting keyboard
+
+The desktop's Wooting 60HE is set up with **Wootility** (in Vicinae), which
+changes actuation points and rapid trigger. Profiles live on the keyboard, not
+in this repo. Wootility runs through XWayland because its window never shows on
+native Wayland. Kanata grabs the Wooting like any other keyboard, so home-row
+mods work on it with no extra setup. Set up in `hosts/desktop/default.nix`.
+
 ### Snapmaker Orca
 
 Snapmaker's slicer for the U1 (`snapmaker-orca`). nixpkgs has no package for it, so it comes from the
@@ -1330,6 +1338,7 @@ Everything comes from stable except these, pulled from `nixpkgs-unstable` in
 | `claude-code` | Ships several times a week; stable is months behind. Built against stable's `alsa-lib`, which its wrapper puts on `LD_LIBRARY_PATH` |
 | `antigravity-cli` | Not packaged on stable |
 | `tailscale` | Stable sits on 1.98, which the admin console flags as out of date |
+| `wootility` | Wooting's download server no longer serves stable's 5.3.1. Wrapped with `--ozone-platform=x11`, because its window never shows on native Wayland |
 
 `niri` is the one package from neither branch: it is pinned to a commit on
 upstream's main, because 26.04 doesn't run binds for virtual keyboards, so Lan
