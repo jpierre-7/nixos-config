@@ -1,7 +1,8 @@
 ;; Kanata keymap for every keyboard. modules/nixos/kanata.nix reads this file
 ;; and generates the defcfg, so it must not contain one. Adapted from
 ;; https://github.com/HefKer/dots/tree/main/kanata (home-row mods only, without
-;; its Fn layers). Emergency exit if kanata misbehaves: LCtrl+Space+Esc.
+;; its Fn layers). Emergency exit if kanata misbehaves: LCtrl+Space+Esc
+;; (it restarts 2 s later, fresh; modules/nixos/kanata.nix).
 ;; Base must stay the first layer: kanata starts on it, and the game focus
 ;; watcher (modules/home/game-focus-watcher.nix) restores it.
 
