@@ -337,9 +337,7 @@ binds {
     F8  allow-when-locked=true hotkey-overlay-title="Play/pause" { spawn "noctalia" "msg" "media" "toggle"; }
     F9  allow-when-locked=true hotkey-overlay-title="Next song" { spawn "noctalia" "msg" "media" "next"; }
     F10 allow-when-locked=true hotkey-overlay-title="Mute" { spawn "noctalia" "msg" "volume-mute"; }
-    // Real media keys (the laptop's). F11/F12 stay F keys for apps (fullscreen,
-    // devtools): the desktop's keyboard sends volume keys for them instead and
-    // F11/F12 for Fn+F11/F12, swapped in hosts/desktop/default.nix.
+    // Real media keys (the laptop's, and the Wooting's Fn layer).
     XF86AudioStop        allow-when-locked=true { spawn "noctalia" "msg" "media" "stop"; }
     XF86AudioPrev        allow-when-locked=true { spawn "noctalia" "msg" "media" "previous"; }
     XF86AudioPlay        allow-when-locked=true { spawn "noctalia" "msg" "media" "toggle"; }
