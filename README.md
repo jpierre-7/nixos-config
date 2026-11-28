@@ -435,19 +435,11 @@ ends it too.
 | `F8` | Play/pause |
 | `F9` | Next song |
 | `F10` | Mutes the speakers |
-| `F11` | Volume down (desktop keyboard) |
-| `F12` | Volume up (desktop keyboard) |
-| `Fn+F11`, `Fn+F12` | Plain F11/F12 for apps: fullscreen, devtools (desktop keyboard) |
 
 Niri sends them to Noctalia (`noctalia msg media …`, `noctalia msg volume-…`),
 which controls whichever player is active and shows the volume OSD. They work
-on the lock screen too, and so do real media keys (the laptop's). F6 to F10
-no longer reach apps.
-
-The desktop's SINOWEALTH keyboard sends volume keys only with Fn, and Linux
-never sees Fn itself. So `hosts/desktop/default.nix` swaps F11/F12 with
-volume down/up in that keyboard's keymap (udev hwdb). After a rebuild, unplug
-and replug it once, or run `sudo udevadm trigger -s input`.
+on the lock screen too, and so do real media keys (the laptop's, and the
+Wooting's Fn layer). F6 to F10 no longer reach apps.
 
 ### Backlog
 
