@@ -245,12 +245,13 @@ window-rule {
     open-floating true
 }
 
-// The kanata keymap viewer (Mod+Ctrl+Slash), floating over the windows. One
-// layer's height at half a 1920 px screen's width; a search's hit list scrolls.
+// The kanata keymap viewer (Mod+Ctrl+Slash), floating over the windows. Fixed
+// width, not a proportion: half the 5120 px ultrawide is too wide for one
+// layer. The page fits the layer to whatever size the window is.
 window-rule {
     match app-id=r#"^kanata-keymap$"#
     open-floating true
-    default-column-width { proportion 0.5; }
+    default-column-width { fixed 960; }
     default-window-height { fixed 490; }
 }
 
