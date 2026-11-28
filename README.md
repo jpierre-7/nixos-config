@@ -1201,7 +1201,10 @@ and back in), then restart Vesktop.
 - **Mod+Shift+G** (`sound-add [URL|FILE]`): saves a link's or file's audio,
   the clipboard's when given nothing. fuzzel asks for a trim (`5-12`, blank
   for all) and tags, which name the file in `~/sounds`. Clips are saved as
-  loudness-normalized Opus.
+  loudness-normalized Opus. Every rebuild copies the sounds in
+  `config/sounds/` into `~/sounds` if they're missing there, so both machines
+  start with the same library. To share a new sound, copy it into
+  `config/sounds/` and commit it.
 - **Mod+G** (`sound-pick`): picks a sound in Vicinae, newest first, and plays
   it to the call and to you. A new pick stops the one playing.
 - **Mod+Ctrl+G** (`sound-stop`): stops it.
