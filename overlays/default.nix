@@ -61,6 +61,19 @@ in
   # died at launch. Stable's alsa-lib loads in both.
   claude-code = unstable.claude-code.override { inherit (prev) alsa-lib; };
 
+  # Unstable: Wooting's CDN no longer serves stable's 5.3.1 (403). Wootility
+  # creates its window hidden and shows it on Electron's ready-to-show, which
+  # never fires on native Wayland, so the window only appeared on a second
+  # launch. Run it through XWayland instead.
+  wootility = final.symlinkJoin {
+    inherit (unstable.wootility) name meta;
+    paths = [ unstable.wootility ];
+    nativeBuildInputs = [ final.makeWrapper ];
+    postBuild = ''
+      wrapProgram "$out/bin/wootility" --add-flags --ozone-platform=x11
+    '';
+  };
+
   inherit (unstable)
     herdr # not packaged on stable
     herdr-core # not packaged on stable; the core the Herdr desktop app drives

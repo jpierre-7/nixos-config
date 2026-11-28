@@ -46,6 +46,13 @@
   # Welcome Disk" USB drive and hides some controls. The laptop never has it.
   home-manager.users.john.home.packages = [ pkgs.alsa-scarlett-gui ];
 
+  # Wooting 60HE (vendor 31e3). Installs Wootility and the udev rules that give
+  # the logged-in user access to the keyboard, which Wootility needs to read and
+  # write its profiles (actuation, rapid trigger; stored on the keyboard).
+  # Kanata (modules/nixos/kanata.nix) already grabs it like any other keyboard.
+  # Wootility comes from unstable, wrapped for XWayland (overlays/default.nix).
+  hardware.wooting.enable = true;
+
   # Which side of this machine the laptop sits on, and whose certificate to trust.
   home-manager.users.john.xdg.configFile."lan-mouse/config.toml".source = ./lan-mouse.toml;
 
