@@ -1327,7 +1327,7 @@ Everything comes from stable except these, pulled from `nixpkgs-unstable` in
 | `hunk` | Not packaged on stable |
 | `lan-mouse` | 0.11 adds DTLS encryption and wlroots modifier emulation; stable has 0.10 |
 | `kanata` | 1.12 adds `defhands` and opposite-hand tap-hold, which the home-row mods need |
-| `claude-code` | Ships several times a week; stable is months behind |
+| `claude-code` | Ships several times a week; stable is months behind. Built against stable's `alsa-lib`, which its wrapper puts on `LD_LIBRARY_PATH` |
 | `antigravity-cli` | Not packaged on stable |
 | `tailscale` | Stable sits on 1.98, which the admin console flags as out of date |
 
