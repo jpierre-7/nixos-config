@@ -22,7 +22,10 @@
   # tailnet may reach it: its sender doesn't verify the receiver's certificate,
   # so WireGuard is what authenticates the peer.
   networking.firewall.interfaces.tailscale0 = {
-    allowedUDPPorts = [ 4242 ];
+    allowedUDPPorts = [
+      4242
+      4244 # lock state, so the other machine turns its edge off
+    ];
     allowedTCPPorts = [ 4243 ]; # lan-clip, the clipboard half
   };
 

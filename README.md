@@ -584,16 +584,25 @@ back, so check that line after upgrading.
 [Lan Mouse](https://github.com/feschber/lan-mouse) moves the cursor between the
 machines across a screen edge: the laptop sits below the desktop. To move it,
 change `position` in both `hosts/*/lan-mouse.toml`. Left Ctrl+Right Ctrl
-(or D+K held, the home-row mods) brings a stuck cursor back, e.g. after the
-other machine locked while you were away from it.
+(or D+K held, the home-row mods) brings a stuck cursor back.
+
+While one machine shows its lock screen or screensaver, the other turns its
+edge off, so the cursor can't drift over and get stuck behind the lock screen.
+A lock while you're over there ends the crossing too, which brings the cursor
+back. Each machine sends its state once a second (`lan-mouse-lock-notify`,
+UDP 4244 on `tailscale0`) and `lan-mouse-lock-sync` on the other turns the edge
+off or on (`lan-mouse cli deactivate 0`). `lan-mouse cli list` shows whether
+it's on.
 
 Super+M does the same as crossing the edge: it sends the keyboard and mouse to
 the other machine, and pressed again there, it brings them back. Lan Mouse
 can't switch on command, so `lan-mouse-switch` (`modules/home/lan-mouse.nix`)
 pushes the cursor into the shared edge with a virtual pointer (`wlrctl`). It
 reads the edge from the host's `lan-mouse.toml`, which must list exactly one
-client. Like the edge, it can't bring input back from a machine that is still
-locked: unlock it, or press Left Ctrl+Right Ctrl.
+client. It still works while the other machine is locked: it turns the edge
+back on first, so you can cross over and type the password. The edge then stays
+on until that machine locks again. Like the edge, it can't bring input back from
+a machine that is still locked: unlock it, or press Left Ctrl+Right Ctrl.
 
 Each machine generates its own certificate on first start and rejects the other
 until it trusts it. On each machine, print the fingerprint:

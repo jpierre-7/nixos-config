@@ -1,6 +1,7 @@
 # Linked to ~/.config/lan-mouse/config.toml by hosts/desktop/default.nix.
-# Left Ctrl+Right Ctrl gets the cursor back if it sticks, e.g. when the other
-# machine locks: its lock screen hides the edge, so it can't send it back.
+# Left Ctrl+Right Ctrl gets the cursor back if it sticks, e.g. after Mod+M into
+# the other machine's lock screen, which hides the edge, so it can't send it
+# back. While the other machine is locked, the edge is off (modules/home/lan-mouse.nix).
 # Also D+K held, the home-row mods (config/kanata/keymap.kbd): opposite hands,
 # so kanata holds both.
 release_bind = [ "KeyLeftCtrl", "KeyRightCtrl" ]

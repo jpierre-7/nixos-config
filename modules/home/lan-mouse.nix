@@ -5,6 +5,10 @@
 # generated on first start and stays out of the repo. The login screen runs a
 # receive-only copy from the same config (modules/nixos/greeter.nix).
 #
+# While a machine shows its lock screen or screensaver, the other turns its edge
+# to it off, so the cursor can't wander over by accident and get stuck there:
+# the lock screen covers the way back. Mod+M still crosses (lan-mouse-switch).
+#
 # Lan Mouse has no clipboard sharing, so lan-clip adds it. It trusts the machines
 # and certificates in the Lan Mouse config and never sends a copy that offers
 # x-kde-passwordManagerHint (overlays/noctalia-bitwarden-password-hint.patch).
@@ -47,10 +51,73 @@ let
     }
     .${client.position} or 0;
   move = n: "${toString (n * dx)} ${toString (n * dy)}";
+  # Lan Mouse numbers clients from 0 in config order, and there is only one.
+  clientId = "0";
+
+  # Lock sync, UDP on the tailnet only (modules/nixos/networking.nix). Each
+  # machine sends "locked" or "unlocked" once a second; the other acts only on a
+  # change, so Mod+M's re-enabled edge stays on until the next lock.
+  lockPort = 4244;
+  lan-mouse-lock-notify = pkgs.writeShellApplication {
+    name = "lan-mouse-lock-notify";
+    runtimeInputs = with pkgs; [
+      jq
+      niri
+      noctalia
+      socat
+    ];
+    text = ''
+      while true; do
+        state=unlocked
+        # The screensaver's windows (modules/home/screensaver.nix) count too: the
+        # next input there locks.
+        if [[ $(noctalia msg status 2>/dev/null | jq -r .locked) == true ]] ||
+          niri msg --json windows 2>/dev/null | jq -e 'any(.[]; .app_id == "org.nixos.screensaver")' >/dev/null; then
+          state=locked
+        fi
+        echo "$state" | socat -u - UDP4-SENDTO:${client.hostname}:${toString lockPort} || true
+        sleep 1
+      done
+    '';
+  };
+  lan-mouse-lock-sync = pkgs.writeShellApplication {
+    name = "lan-mouse-lock-sync";
+    runtimeInputs = with pkgs; [
+      lan-mouse
+      socat
+    ];
+    text = ''
+      last=
+      socat -u UDP4-RECV:${toString lockPort} - | while read -r state; do
+        [[ $state == "$last" ]] && continue
+        case $state in
+          locked) lan-mouse cli deactivate ${clientId} || continue ;;
+          unlocked) lan-mouse cli activate ${clientId} || continue ;;
+          *) continue ;;
+        esac
+        last=$state
+      done
+    '';
+  };
   lan-mouse-switch = pkgs.writeShellApplication {
     name = "lan-mouse-switch";
-    runtimeInputs = [ pkgs.wlrctl ];
+    runtimeInputs = with pkgs; [
+      gnugrep
+      jq
+      lan-mouse
+      niri
+      wlrctl
+    ];
     text = ''
+      # The edge is off while the other machine is locked (lan-mouse-lock-sync
+      # below). Turn it back on and wait for its strip, so this bind still crosses.
+      if lan-mouse cli list | grep -q 'active: false'; then
+        lan-mouse cli activate ${clientId}
+        for _ in $(seq 20); do
+          niri msg --json layers | jq -e 'any(.[]; .namespace == "LAN Mouse Sharing")' >/dev/null && break
+          sleep 0.05
+        done
+      fi
       wlrctl pointer move ${move (-4)}
       wlrctl pointer move ${move 100000}
     '';
@@ -87,6 +154,36 @@ in
       ExecStartPre = wait-for-client;
       ExecStart = "${lib.getExe pkgs.lan-mouse} daemon";
       Restart = "on-failure";
+      RestartSec = 2;
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  systemd.user.services.lan-mouse-lock-notify = {
+    Unit = {
+      Description = "Send this machine's lock state to the other's Lan Mouse";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = lib.getExe lan-mouse-lock-notify;
+      Restart = "always";
+      RestartSec = 2;
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
+  };
+
+  systemd.user.services.lan-mouse-lock-sync = {
+    Unit = {
+      Description = "Turn the Lan Mouse edge off while the other machine is locked";
+      # A restarted Lan Mouse turns the edge back on; restarting with it forgets
+      # the last state, so the next message applies again.
+      After = [ "lan-mouse.service" ];
+      PartOf = [ "lan-mouse.service" ];
+    };
+    Service = {
+      ExecStart = lib.getExe lan-mouse-lock-sync;
+      Restart = "always";
       RestartSec = 2;
     };
     Install.WantedBy = [ "graphical-session.target" ];
