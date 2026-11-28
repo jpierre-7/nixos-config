@@ -35,13 +35,17 @@
   # The module leaves Restart=no. A keyboard that drops off USB and returns at
   # once (the desktop's Logitech receiver does) can vanish while kanata
   # re-registers it, and kanata exits with "failed read: No such device". The
-  # home-row mods then stay off until a reboot. Every instance, so the laptop's
-  # second one too. systemd's start limit (5 in 10 s) still stops a crash loop.
+  # home-row mods then stay off until a reboot. "always", not "on-failure":
+  # the emergency exit (LCtrl+Space+Esc, easy to hit in a game) exits cleanly
+  # and would leave kanata off too; a restart also clears any stuck key state.
+  # To keep it off, `sudo systemctl stop kanata-<name>`. Every instance, so the
+  # laptop's second one too. systemd's start limit (5 in 10 s) still stops a
+  # crash loop.
   systemd.services = lib.mapAttrs' (
     name: _:
     lib.nameValuePair "kanata-${name}" {
       serviceConfig = {
-        Restart = "on-failure";
+        Restart = "always";
         RestartSec = 2;
       };
     }
